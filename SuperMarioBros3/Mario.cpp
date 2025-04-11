@@ -15,6 +15,15 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	vy += ay * dt;
 	vx += ax * dt;
 
+	if (state == MARIO_STATE_IDLE)
+	{
+		if (vx * nx < 0)
+		{
+			vx = 0;
+			ax = 0;
+		}
+	}
+
 	if (abs(vx) > abs(maxVx)) vx = maxVx;
 
 	// reset untouchable timer if untouchable time has passed
@@ -140,7 +149,7 @@ int CMario::GetAniIdSmall()
 			}
 			else if (vx > 0)
 			{
-				if (ax < 0)
+				if (ax < 0 && state != MARIO_STATE_IDLE)
 					aniId = ID_ANI_MARIO_SMALL_BRACE_RIGHT;
 				else if (ax == MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_SMALL_RUNNING_RIGHT;
@@ -149,7 +158,7 @@ int CMario::GetAniIdSmall()
 			}
 			else // vx < 0
 			{
-				if (ax > 0)
+				if (ax > 0 && state != MARIO_STATE_IDLE)
 					aniId = ID_ANI_MARIO_SMALL_BRACE_LEFT;
 				else if (ax == -MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_SMALL_RUNNING_LEFT;
@@ -157,7 +166,7 @@ int CMario::GetAniIdSmall()
 					aniId = ID_ANI_MARIO_SMALL_WALKING_LEFT;
 			}
 
-	if (aniId == -1) aniId = ID_ANI_MARIO_SMALL_IDLE_RIGHT;
+	if (aniId == -1) aniId = nx == 1 ? ID_ANI_MARIO_SMALL_IDLE_RIGHT : ID_ANI_MARIO_SMALL_IDLE_LEFT;
 
 	return aniId;
 }
@@ -202,7 +211,7 @@ int CMario::GetAniIdBig()
 			}
 			else if (vx > 0)
 			{
-				if (ax < 0)
+				if (ax < 0 && state != MARIO_STATE_IDLE)
 					aniId = ID_ANI_MARIO_BRACE_RIGHT;
 				else if (ax == MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_RUNNING_RIGHT;
@@ -211,7 +220,7 @@ int CMario::GetAniIdBig()
 			}
 			else // vx < 0
 			{
-				if (ax > 0)
+				if (ax > 0 && state != MARIO_STATE_IDLE)
 					aniId = ID_ANI_MARIO_BRACE_LEFT;
 				else if (ax == -MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_RUNNING_LEFT;
@@ -219,7 +228,7 @@ int CMario::GetAniIdBig()
 					aniId = ID_ANI_MARIO_WALKING_LEFT;
 			}
 
-	if (aniId == -1) aniId = ID_ANI_MARIO_IDLE_RIGHT;
+	if (aniId == -1) aniId = nx == 1 ? ID_ANI_MARIO_IDLE_RIGHT : ID_ANI_MARIO_IDLE_LEFT;
 
 	return aniId;
 }
@@ -309,8 +318,7 @@ void CMario::SetState(int state)
 		break;
 
 	case MARIO_STATE_IDLE:
-		ax = 0.0f;
-		vx = 0.0f;
+		ax = (-1) * nx * MARIO_FRICTION;
 		break;
 
 	case MARIO_STATE_DIE:
