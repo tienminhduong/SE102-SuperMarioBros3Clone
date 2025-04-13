@@ -10,11 +10,15 @@
 
 #include "Collision.h"
 
+#define DEFAULT_FRAME_TIME 100
+
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
 	vy += ay * dt;
 	vx += ax * dt;
 
+	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
+	// stop Mario since the friction make its velocity down to below 0
 	if (state == MARIO_STATE_IDLE)
 	{
 		if (vx * nx < 0)
@@ -245,8 +249,17 @@ void CMario::Render()
 	else if (level == MARIO_LEVEL_SMALL)
 		aniId = GetAniIdSmall();
 
+
+	// How do I get this formula? I tried to find a linear function that when we pass MARIO_ACCEL_WALK (0.0005) in
+	// it'll return 0.5, when we pass MARIO_ACCEL_RUN (0.0007) it'll return 0.25
+	float modifier = -1250 * abs(ax) + 1.125f;
+
+
+	// based on ax, set the frame time
+	animations->Get(aniId)->SetAllFrameTime(DEFAULT_FRAME_TIME * modifier);
 	animations->Get(aniId)->Render(x, y);
 
+	animations->Get(aniId)->LogFrameTime();
 	//RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
