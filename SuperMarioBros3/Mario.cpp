@@ -153,20 +153,20 @@ int CMario::GetAniIdSmall()
 			}
 			else if (vx > 0)
 			{
-				if (ax < 0 && state != MARIO_STATE_IDLE)
+				if (ax < 0 && abs(ax) != MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_SMALL_BRACE_RIGHT;
 				else if (ax == MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_SMALL_RUNNING_RIGHT;
-				else if (ax == MARIO_ACCEL_WALK_X)
+				else if (ax == MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_SMALL_WALKING_RIGHT;
 			}
 			else // vx < 0
 			{
-				if (ax > 0 && state != MARIO_STATE_IDLE)
+				if (ax > 0 && abs(ax) != MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_SMALL_BRACE_LEFT;
 				else if (ax == -MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_SMALL_RUNNING_LEFT;
-				else if (ax == -MARIO_ACCEL_WALK_X)
+				else if (ax == -MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_SMALL_WALKING_LEFT;
 			}
 
@@ -215,20 +215,20 @@ int CMario::GetAniIdBig()
 			}
 			else if (vx > 0)
 			{
-				if (ax < 0 && state != MARIO_STATE_IDLE)
+				if (ax < 0 && abs(ax) != MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_BRACE_RIGHT;
 				else if (ax == MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_RUNNING_RIGHT;
-				else if (ax == MARIO_ACCEL_WALK_X)
+				else if (ax == MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_WALKING_RIGHT;
 			}
 			else // vx < 0
 			{
-				if (ax > 0 && state != MARIO_STATE_IDLE)
+				if (ax > 0 && abs(ax) != MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_BRACE_LEFT;
 				else if (ax == -MARIO_ACCEL_RUN_X)
 					aniId = ID_ANI_MARIO_RUNNING_LEFT;
-				else if (ax == -MARIO_ACCEL_WALK_X)
+				else if (ax == -MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
 					aniId = ID_ANI_MARIO_WALKING_LEFT;
 			}
 
@@ -249,17 +249,16 @@ void CMario::Render()
 	else if (level == MARIO_LEVEL_SMALL)
 		aniId = GetAniIdSmall();
 
-
-	// How do I get this formula? I tried to find a linear function that when we pass MARIO_ACCEL_WALK (0.0005) in
-	// it'll return 0.5, when we pass MARIO_ACCEL_RUN (0.0007) it'll return 0.25
-	float modifier = -1250 * abs(ax) + 1.125f;
-
+	float modifier = 1.f;
+	if (abs(vx) >= MARIO_WALKING_SPEED)
+		modifier = 0.5f;
+	else if (abs(vx) >= MARIO_RUNNING_SPEED)
+		modifier = 0.25f;
 
 	// based on ax, set the frame time
 	animations->Get(aniId)->SetAllFrameTime(DEFAULT_FRAME_TIME * modifier);
 	animations->Get(aniId)->Render(x, y);
 
-	animations->Get(aniId)->LogFrameTime();
 	//RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
