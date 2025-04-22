@@ -35,6 +35,24 @@
 #define MARIO_STATE_SIT				600
 #define MARIO_STATE_SIT_RELEASE		601
 
+#pragma region ANIMATION_TYPE
+
+#define ANI_MARIO_IDLE_RIGHT 0
+#define ANI_MARIO_IDLE_LEFT 1
+#define ANI_MARIO_WALKING_RIGHT 2
+#define ANI_MARIO_WALKING_LEFT 3
+#define ANI_MARIO_RUNNING_RIGHT 4
+#define ANI_MARIO_RUNNING_LEFT 5
+#define ANI_MARIO_JUMP_WALK_RIGHT 6
+#define ANI_MARIO_JUMP_WALK_LEFT 7
+#define ANI_MARIO_JUMP_RUN_RIGHT 8
+#define ANI_MARIO_JUMP_RUN_LEFT 9
+#define ANI_MARIO_BRACE_RIGHT 10
+#define ANI_MARIO_BRACE_LEFT 11
+#define ANI_MARIO_SIT_RIGHT 12
+#define ANI_MARIO_SIT_LEFT 13
+
+#pragma endregion
 
 #pragma region ANIMATION_ID
 
@@ -89,6 +107,7 @@
 
 #define	MARIO_LEVEL_SMALL	1
 #define	MARIO_LEVEL_BIG		2
+#define MARIO_LEVEL_RACCOON 3
 
 #define MARIO_BIG_BBOX_WIDTH  14
 #define MARIO_BIG_BBOX_HEIGHT 24
@@ -120,9 +139,8 @@ class CMario : public CGameObject
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 
-	int GetAniIdBig();
-	int GetAniIdSmall();
-
+	int GetAniId();
+	int MapAniTypeToId(int animation_type);
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
