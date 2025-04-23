@@ -19,16 +19,30 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
-	if (state == MARIO_STATE_IDLE)
+	switch (state)
 	{
-		if (vx * nx < 0)
+	case MARIO_STATE_IDLE:
+		if (vx * nx < 0) vx = ax = 0;
+		if (vy <= -MARIO_JUMP_SPEED_Y)
 		{
-			vx = 0;
-			ax = 0;
+			if (ay != 0) ay = 0;
+			//if (vx * nx < 0) vx = ax = 0;
+		}
+		break;
+	}
+	
+	if (abs(vx) > abs(maxVx)) vx = maxVx;
+
+	// Jumping logic
+	if (vy < 0) {
+		if (jumpedTime < MARIO_MAX_JUMP_TIME) {
+			jumpedTime += dt;
+			if (jumpedTime >= MARIO_MAX_JUMP_TIME / 2)
+				ay = 0;
+			if (jumpedTime >= MARIO_MAX_JUMP_TIME)
+				ay = MARIO_GRAVITY;
 		}
 	}
-
-	if (abs(vx) > abs(maxVx)) vx = maxVx;
 
 	// reset untouchable timer if untouchable time has passed
 	if ( GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
@@ -36,6 +50,10 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		untouchable_start = 0;
 		untouchable = 0;
 	}
+
+	if (state != 0)
+		DebugOut(L"Mario state: %d\n", state);
+	DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
@@ -254,18 +272,21 @@ void CMario::SetState(int state)
 		nx = -1;
 		break;
 	case MARIO_STATE_JUMP:
-		if (isSitting) break;
-		if (isOnPlatform)
-		{
-			if (abs(this->vx) == MARIO_RUNNING_SPEED)
-				vy = -MARIO_JUMP_RUN_SPEED_Y;
-			else
-				vy = -MARIO_JUMP_SPEED_Y;
-		}
+		//if (isSitting) break;
+		if (!isOnPlatform) break;
+
+		if (abs(this->vx) == MARIO_RUNNING_SPEED)
+			vy = -MARIO_JUMP_RUN_SPEED_Y;
+		else
+			//vy = -MARIO_JUMP_SPEED_Y;
+			ay = -MARIO_ACCEL_JUMP, jumpedTime = 0;
+
 		break;
 
 	case MARIO_STATE_RELEASE_JUMP:
-		if (vy < 0) vy += MARIO_JUMP_SPEED_Y / 2;
+		//if (vy < 0) ay = MARIO_GRAVITY;
+		if (jumpedTime > 0)
+			jumpedTime = min(jumpedTime + MARIO_MAX_JUMP_TIME / 2, MARIO_MAX_JUMP_TIME - 1);
 		break;
 
 	case MARIO_STATE_SIT:

@@ -11,11 +11,13 @@
 
 #define MARIO_ACCEL_WALK_X	0.00025f
 #define MARIO_ACCEL_RUN_X	0.00035f
+#define MARIO_ACCEL_JUMP	0.00266666666666666f
 
 #define MARIO_FRICTION	0.0002f
 
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_RUN_SPEED_Y	0.6f
+#define MARIO_MAX_JUMP_TIME 250
 
 #define MARIO_GRAVITY			0.002f
 
@@ -135,6 +137,8 @@ class CMario : public CGameObject
 	BOOLEAN isOnPlatform;
 	int coin; 
 
+	int jumpedTime;
+
 	void OnCollisionWithGoomba(LPCOLLISIONEVENT e);
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
@@ -154,6 +158,7 @@ public:
 		untouchable_start = -1;
 		isOnPlatform = false;
 		coin = 0;
+		jumpedTime = 0;
 	}
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	void Render();
