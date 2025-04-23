@@ -15,6 +15,16 @@ CGameObject::CGameObject()
 	nx = 1;	
 	state = -1;
 	isDeleted = false;
+	isActive = true;
+}
+
+void CGameObject::SetActive(bool isActive)
+{
+	this->isActive = isActive;
+	if (isActive)
+		OnEnable();
+	else
+		OnDisable();
 }
 
 void CGameObject::RenderBoundingBox()
