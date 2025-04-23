@@ -19,16 +19,13 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
-	switch (state)
+	if (state == MARIO_STATE_IDLE || state == MARIO_STATE_SIT)
 	{
-	case MARIO_STATE_IDLE:
 		if (vx * nx < 0) vx = ax = 0;
 		if (vy <= -MARIO_JUMP_SPEED_Y)
 		{
 			if (ay != 0) ay = 0;
-			//if (vx * nx < 0) vx = ax = 0;
 		}
-		break;
 	}
 	
 	if (abs(vx) > abs(maxVx)) vx = maxVx;
@@ -53,7 +50,9 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 	if (state != 0)
 		DebugOut(L"Mario state: %d\n", state);
+
 	DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
+	DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
@@ -158,7 +157,14 @@ int CMario::GetAniId()
 	int aniId = -1;
 	if (!isOnPlatform)
 	{
-		if (abs(ax) == MARIO_ACCEL_RUN_X)
+		if (isSitting)
+		{
+			if (nx > 0)
+				aniId = MapAniTypeToId(ANI_MARIO_SIT_RIGHT);
+			else
+				aniId = MapAniTypeToId(ANI_MARIO_SIT_LEFT);
+		}
+		else if (abs(ax) == MARIO_ACCEL_RUN_X)
 		{
 			if (nx >= 0)
 				aniId = MapAniTypeToId(ANI_MARIO_JUMP_RUN_RIGHT);
@@ -248,55 +254,57 @@ void CMario::SetState(int state)
 	switch (state)
 	{
 	case MARIO_STATE_RUNNING_RIGHT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = MARIO_RUNNING_SPEED;
 		ax = MARIO_ACCEL_RUN_X;
 		nx = 1;
 		break;
 	case MARIO_STATE_RUNNING_LEFT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = -MARIO_RUNNING_SPEED;
 		ax = -MARIO_ACCEL_RUN_X;
 		nx = -1;
 		break;
 	case MARIO_STATE_WALKING_RIGHT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = MARIO_WALKING_SPEED;
 		ax = MARIO_ACCEL_WALK_X;
 		nx = 1;
 		break;
 	case MARIO_STATE_WALKING_LEFT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = -MARIO_WALKING_SPEED;
 		ax = -MARIO_ACCEL_WALK_X;
 		nx = -1;
 		break;
 	case MARIO_STATE_JUMP:
-		//if (isSitting) break;
 		if (!isOnPlatform) break;
 
 		if (abs(this->vx) == MARIO_RUNNING_SPEED)
 			vy = -MARIO_JUMP_RUN_SPEED_Y;
 		else
-			//vy = -MARIO_JUMP_SPEED_Y;
 			ay = -MARIO_ACCEL_JUMP, jumpedTime = 0;
 
 		break;
 
 	case MARIO_STATE_RELEASE_JUMP:
-		//if (vy < 0) ay = MARIO_GRAVITY;
 		if (jumpedTime > 0)
 			jumpedTime = min(jumpedTime + MARIO_MAX_JUMP_TIME / 2, MARIO_MAX_JUMP_TIME - 1);
 		break;
 
 	case MARIO_STATE_SIT:
-		if (isOnPlatform && level != MARIO_LEVEL_SMALL)
+		if (isOnPlatform && level != MARIO_LEVEL_SMALL && !isSitting)
 		{
-			state = MARIO_STATE_IDLE;
 			isSitting = true;
-			vx = 0; vy = 0.0f;
-			y +=MARIO_SIT_HEIGHT_ADJUST;
+			vy = 0.0f;
+			y += MARIO_SIT_HEIGHT_ADJUST;
+			SetState(MARIO_STATE_IDLE);
 		}
+
 		break;
 
 	case MARIO_STATE_SIT_RELEASE:
