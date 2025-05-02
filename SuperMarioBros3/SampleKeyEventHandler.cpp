@@ -14,7 +14,12 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_S:
-		mario->SetState(MARIO_STATE_JUMP);
+		if (mario->IsFalling() && mario->GetLevel() == MARIO_LEVEL_RACCOON)
+		{
+			mario->TriggerRaccoonSlowFalling();
+		}
+		else
+			mario->SetState(MARIO_STATE_JUMP);
 		break;
 	case DIK_1:
 		mario->SetLevel(MARIO_LEVEL_SMALL);

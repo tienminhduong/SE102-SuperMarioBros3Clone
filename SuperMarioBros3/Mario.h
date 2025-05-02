@@ -19,7 +19,8 @@
 #define MARIO_JUMP_RUN_SPEED_Y	0.6f
 #define MARIO_MAX_JUMP_TIME 250
 
-#define MARIO_GRAVITY			0.002f
+#define MARIO_GRAVITY			0.0015f
+
 
 #define MARIO_JUMP_DEFLECT_SPEED  0.4f
 
@@ -37,6 +38,10 @@
 #define MARIO_STATE_SIT				600
 #define MARIO_STATE_SIT_RELEASE		601
 
+// RACCOON TAIL FLAPPING WHILE FALLING
+#define MARIO_SLOW_FALLING_TIME 220
+#define MARIO_TAIL_FLAP_ANIM_FRAME_COUNT 1
+
 #pragma region ANIMATION_TYPE
 
 #define ANI_MARIO_IDLE_RIGHT 0
@@ -53,6 +58,8 @@
 #define ANI_MARIO_BRACE_LEFT 11
 #define ANI_MARIO_SIT_RIGHT 12
 #define ANI_MARIO_SIT_LEFT 13
+#define ANI_MARIO_FALLING_RIGHT 14
+#define ANI_MARIO_FALLING_LEFT 15
 
 #pragma endregion
 
@@ -79,6 +86,9 @@
 
 #define ID_ANI_MARIO_BRACE_RIGHT 1000
 #define ID_ANI_MARIO_BRACE_LEFT 1001
+
+#define ID_ANI_MARIO_FALLING_RIGHT 1093
+#define ID_ANI_MARIO_FALLING_LEFT 1094
 
 #define ID_ANI_MARIO_DIE 999
 
@@ -122,6 +132,12 @@
 
 #define ID_ANI_MARIO_RACCOON_SIT_RIGHT 1712
 #define ID_ANI_MARIO_RACCOON_SIT_LEFT 1713
+
+#define ID_ANI_MARIO_RACCOON_FALLING_RIGHT 1714
+#define ID_ANI_MARIO_RACCOON_FALLING_LEFT 1715
+
+#define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT 1716
+#define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT 1717
 
 #pragma endregion
 
@@ -168,6 +184,9 @@ class CMario : public CGameObject
 
 	int GetAniId();
 	int MapAniTypeToId(int animation_type);
+
+	int raccoonSlowFalling = 0;
+	int tailFlapAnimationCurrentDuration = 0;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -187,18 +206,19 @@ public:
 	void Render();
 	void SetState(int state);
 
-	int IsCollidable()
-	{ 
-		return (state != MARIO_STATE_DIE); 
-	}
+	bool IsFalling() { return vy > 0 && !isOnPlatform; }
 
+	int IsCollidable() { return (state != MARIO_STATE_DIE); }
 	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchable==0); }
 
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
 
 	void SetLevel(int l);
+	int GetLevel() { return level; }
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount64(); }
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+
+	void TriggerRaccoonSlowFalling();
 };

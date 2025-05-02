@@ -12,6 +12,8 @@
 
 #define DEFAULT_FRAME_TIME 100
 
+#define STAT_LOG_CONDITION 0
+
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
 	vy += ay * dt;
@@ -41,18 +43,29 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		}
 	}
 
+	// Tail flapping animation
+	if (raccoonSlowFalling > 0)
+	{
+		vy = MARIO_JUMP_SPEED_Y / 10;
+		raccoonSlowFalling -= dt;
+		tailFlapAnimationCurrentDuration -= dt;
+	}
+
 	// reset untouchable timer if untouchable time has passed
-	if ( GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
+	if (GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
 	{
 		untouchable_start = 0;
 		untouchable = 0;
 	}
 
-	if (state != 0)
-		DebugOut(L"Mario state: %d\n", state);
-
-	DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
-	DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
+	if (STAT_LOG_CONDITION) {
+		DebugOut(L"==========[CONDITION LOG]==========\n");
+		if (state != 0)
+			DebugOut(L"Mario state: %d\n", state);
+		DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
+		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
+		DebugOut(L"==========[END CONDITION LOG]==========\n");
+	}
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
@@ -69,7 +82,11 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	if (e->ny != 0 && e->obj->IsBlocking())
 	{
 		vy = 0;
-		if (e->ny < 0) isOnPlatform = true;
+		if (e->ny < 0)
+		{
+			isOnPlatform = true;
+			raccoonSlowFalling = 0;
+		}
 	}
 	else 
 	if (e->nx != 0 && e->obj->IsBlocking())
@@ -131,7 +148,7 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 	CGame::GetInstance()->InitiateSwitchScene(p->GetSceneId());
 }
 
-int mapAniId[][14] = {
+int mapAniId[][16] = {
 	{
 		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT,
 		ID_ANI_MARIO_SMALL_WALKING_RIGHT, ID_ANI_MARIO_SMALL_WALKING_LEFT,
@@ -139,7 +156,8 @@ int mapAniId[][14] = {
 		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT,
 		ID_ANI_MARIO_SMALL_JUMP_RUN_RIGHT, ID_ANI_MARIO_SMALL_JUMP_RUN_LEFT,
 		ID_ANI_MARIO_SMALL_BRACE_RIGHT, ID_ANI_MARIO_SMALL_BRACE_LEFT,
-		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT
+		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT, // small Mario has no sit animation
+		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT // small Mario has no falling animation
 	},
 	{
 		ID_ANI_MARIO_IDLE_RIGHT, ID_ANI_MARIO_IDLE_LEFT,
@@ -148,7 +166,8 @@ int mapAniId[][14] = {
 		ID_ANI_MARIO_JUMP_WALK_RIGHT, ID_ANI_MARIO_JUMP_WALK_LEFT,
 		ID_ANI_MARIO_JUMP_RUN_RIGHT, ID_ANI_MARIO_JUMP_RUN_LEFT,
 		ID_ANI_MARIO_BRACE_RIGHT, ID_ANI_MARIO_BRACE_LEFT,
-		ID_ANI_MARIO_SIT_RIGHT, ID_ANI_MARIO_SIT_LEFT
+		ID_ANI_MARIO_SIT_RIGHT, ID_ANI_MARIO_SIT_LEFT,
+		ID_ANI_MARIO_FALLING_RIGHT, ID_ANI_MARIO_FALLING_LEFT
 	},
 	{
 		ID_ANI_MARIO_RACCOON_IDLE_RIGHT, ID_ANI_MARIO_RACCOON_IDLE_LEFT,
@@ -158,6 +177,7 @@ int mapAniId[][14] = {
 		ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT, ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT,
 		ID_ANI_MARIO_RACCOON_BRACE_RIGHT, ID_ANI_MARIO_RACCOON_BRACE_LEFT,
 		ID_ANI_MARIO_RACCOON_SIT_RIGHT, ID_ANI_MARIO_RACCOON_SIT_LEFT,
+		ID_ANI_MARIO_RACCOON_FALLING_RIGHT, ID_ANI_MARIO_RACCOON_FALLING_LEFT
 	}
 };
 
@@ -181,10 +201,27 @@ int CMario::GetAniId()
 				aniId = MapAniTypeToId(ANI_MARIO_JUMP_RUN_LEFT);
 		}
 		else {
-			if (nx >= 0)
-				aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_RIGHT);
+			if (vy > 0) {
+				if (nx >= 0)
+					aniId = MapAniTypeToId(ANI_MARIO_FALLING_RIGHT);
+				else
+					aniId = MapAniTypeToId(ANI_MARIO_FALLING_LEFT);
+				//if (raccoonSlowFalling > 0)
+				if (tailFlapAnimationCurrentDuration > 0)
+				{
+					if (nx >= 0)
+						aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT;
+					else
+						aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT;
+				}
+			}
 			else
-				aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_LEFT);
+			{
+				if (nx >= 0)
+					aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_RIGHT);
+				else
+					aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_LEFT);
+			}
 		}
 	}
 	else {
@@ -247,8 +284,8 @@ void CMario::Render()
 		modifier = 0.15f;
 
 	// based on ax, set the frame time
-	DebugOut(L"[A LOT OF INFO]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
-		level, state, aniId, DEFAULT_FRAME_TIME * modifier);
+	//DebugOut(L"[ANIMATION]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
+		//level, state, aniId, DEFAULT_FRAME_TIME * modifier);
 	animations->Get(aniId)->SetAllFrameTime((DWORD)(DEFAULT_FRAME_TIME * modifier));
 	animations->Get(aniId)->Render(x, y);
 
@@ -367,6 +404,15 @@ void CMario::GetBoundingBox(float &left, float &top, float &right, float &bottom
 			bottom = top + MARIO_BIG_BBOX_HEIGHT;
 		}
 	}
+}
+
+void CMario::TriggerRaccoonSlowFalling()
+{
+	if (level != MARIO_LEVEL_RACCOON)
+		return;
+
+	raccoonSlowFalling = MARIO_SLOW_FALLING_TIME;
+	tailFlapAnimationCurrentDuration = CAnimations::GetInstance()->Get(ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT)->GetDuration();
 }
 
 void CMario::SetLevel(int l)

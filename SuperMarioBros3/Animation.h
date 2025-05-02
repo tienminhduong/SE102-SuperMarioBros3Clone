@@ -19,6 +19,7 @@ public:
 	void Add(int spriteId, DWORD time = 0);
 	void SetAllFrameTime(DWORD time);
 	void LogFrameTime();
+	DWORD GetDuration();
 	void Render(float x, float y);
 };
 

@@ -30,6 +30,14 @@ void CAnimation::LogFrameTime()
 	}
 }
 
+DWORD CAnimation::GetDuration()
+{
+	DWORD duration = 0;
+	for (int i = 0; i < frames.size(); i++)
+		duration += frames[i]->GetTime();
+	return duration;
+}
+
 
 void CAnimation::Render(float x, float y)
 {
