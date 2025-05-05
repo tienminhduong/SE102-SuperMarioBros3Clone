@@ -16,6 +16,8 @@ using namespace std;
 
 class CGameObject
 {
+private:
+	bool isActive;
 protected:
 
 	float x; 
@@ -28,7 +30,7 @@ protected:
 
 	int state;
 
-	bool isDeleted; 
+	bool isDeleted;
 
 public: 
 	void SetPosition(float x, float y) { this->x = x, this->y = y; }
@@ -50,6 +52,11 @@ public:
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) {};
 	virtual void Render() = 0;
 	virtual void SetState(int state) { this->state = state; }
+
+	void SetActive(bool isActive);
+	bool GetActive() { return isActive; }
+	virtual void OnEnable() {};
+	virtual void OnDisable() {};
 
 	//
 	// Collision ON or OFF ? This can change depending on object's state. For example: die

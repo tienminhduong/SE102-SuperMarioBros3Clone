@@ -14,6 +14,31 @@ void CAnimation::Add(int spriteId, DWORD time)
 	frames.push_back(frame);
 }
 
+void CAnimation::SetAllFrameTime(DWORD time)
+{
+	for (int i = 0; i < frames.size(); i++)
+	{
+		frames[i]->SetTime(time);
+	}
+}
+
+void CAnimation::LogFrameTime()
+{
+	for (int i = 0; i < frames.size(); i++)
+	{
+		DebugOut(L"Frame %d: %d\n", i, frames[i]->GetTime());
+	}
+}
+
+DWORD CAnimation::GetDuration()
+{
+	DWORD duration = 0;
+	for (int i = 0; i < frames.size(); i++)
+		duration += frames[i]->GetTime();
+	return duration;
+}
+
+
 void CAnimation::Render(float x, float y)
 {
 	ULONGLONG now = GetTickCount64();

@@ -10,18 +10,61 @@
 
 #include "Collision.h"
 
+#define DEFAULT_FRAME_TIME 100
+
+#define STAT_LOG_CONDITION 0
+
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
 	vy += ay * dt;
 	vx += ax * dt;
 
+	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
+	// stop Mario since the friction make its velocity down to below 0
+	if (state == MARIO_STATE_IDLE || state == MARIO_STATE_SIT)
+	{
+		if (vx * nx < 0) vx = ax = 0;
+		if (vy <= -MARIO_JUMP_SPEED_Y)
+		{
+			if (ay != 0) ay = 0;
+		}
+	}
+	
 	if (abs(vx) > abs(maxVx)) vx = maxVx;
 
+	// Jumping logic
+	if (vy < 0) {
+		if (jumpedTime < MARIO_MAX_JUMP_TIME) {
+			jumpedTime += dt;
+			if (jumpedTime >= MARIO_MAX_JUMP_TIME / 2)
+				ay = 0;
+			if (jumpedTime >= MARIO_MAX_JUMP_TIME)
+				ay = MARIO_GRAVITY;
+		}
+	}
+
+	// Tail flapping animation
+	if (raccoonSlowFalling > 0)
+	{
+		vy = MARIO_JUMP_SPEED_Y / 10;
+		raccoonSlowFalling -= dt;
+		tailFlapAnimationCurrentDuration -= dt;
+	}
+
 	// reset untouchable timer if untouchable time has passed
-	if ( GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
+	if (GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
 	{
 		untouchable_start = 0;
 		untouchable = 0;
+	}
+
+	if (STAT_LOG_CONDITION) {
+		DebugOut(L"==========[CONDITION LOG]==========\n");
+		if (state != 0)
+			DebugOut(L"Mario state: %d\n", state);
+		DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
+		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
+		DebugOut(L"==========[END CONDITION LOG]==========\n");
 	}
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
@@ -39,7 +82,11 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	if (e->ny != 0 && e->obj->IsBlocking())
 	{
 		vy = 0;
-		if (e->ny < 0) isOnPlatform = true;
+		if (e->ny < 0)
+		{
+			isOnPlatform = true;
+			raccoonSlowFalling = 0;
+		}
 	}
 	else 
 	if (e->nx != 0 && e->obj->IsBlocking())
@@ -101,127 +148,123 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 	CGame::GetInstance()->InitiateSwitchScene(p->GetSceneId());
 }
 
-//
-// Get animation ID for small Mario
-//
-int CMario::GetAniIdSmall()
+int mapAniId[][16] = {
+	{
+		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT,
+		ID_ANI_MARIO_SMALL_WALKING_RIGHT, ID_ANI_MARIO_SMALL_WALKING_LEFT,
+		ID_ANI_MARIO_SMALL_RUNNING_RIGHT, ID_ANI_MARIO_SMALL_RUNNING_LEFT,
+		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT,
+		ID_ANI_MARIO_SMALL_JUMP_RUN_RIGHT, ID_ANI_MARIO_SMALL_JUMP_RUN_LEFT,
+		ID_ANI_MARIO_SMALL_BRACE_RIGHT, ID_ANI_MARIO_SMALL_BRACE_LEFT,
+		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT, // small Mario has no sit animation
+		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT // small Mario has no falling animation
+	},
+	{
+		ID_ANI_MARIO_IDLE_RIGHT, ID_ANI_MARIO_IDLE_LEFT,
+		ID_ANI_MARIO_WALKING_RIGHT, ID_ANI_MARIO_WALKING_LEFT,
+		ID_ANI_MARIO_RUNNING_RIGHT, ID_ANI_MARIO_RUNNING_LEFT,
+		ID_ANI_MARIO_JUMP_WALK_RIGHT, ID_ANI_MARIO_JUMP_WALK_LEFT,
+		ID_ANI_MARIO_JUMP_RUN_RIGHT, ID_ANI_MARIO_JUMP_RUN_LEFT,
+		ID_ANI_MARIO_BRACE_RIGHT, ID_ANI_MARIO_BRACE_LEFT,
+		ID_ANI_MARIO_SIT_RIGHT, ID_ANI_MARIO_SIT_LEFT,
+		ID_ANI_MARIO_FALLING_RIGHT, ID_ANI_MARIO_FALLING_LEFT
+	},
+	{
+		ID_ANI_MARIO_RACCOON_IDLE_RIGHT, ID_ANI_MARIO_RACCOON_IDLE_LEFT,
+		ID_ANI_MARIO_RACCOON_WALKING_RIGHT, ID_ANI_MARIO_RACCOON_WALKING_LEFT,
+		ID_ANI_MARIO_RACCOON_RUNNING_RIGHT, ID_ANI_MARIO_RACCOON_RUNNING_LEFT,
+		ID_ANI_MARIO_RACCOON_JUMP_WALK_RIGHT, ID_ANI_MARIO_RACCOON_JUMP_WALK_LEFT,
+		ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT, ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT,
+		ID_ANI_MARIO_RACCOON_BRACE_RIGHT, ID_ANI_MARIO_RACCOON_BRACE_LEFT,
+		ID_ANI_MARIO_RACCOON_SIT_RIGHT, ID_ANI_MARIO_RACCOON_SIT_LEFT,
+		ID_ANI_MARIO_RACCOON_FALLING_RIGHT, ID_ANI_MARIO_RACCOON_FALLING_LEFT
+	}
+};
+
+int CMario::GetAniId()
 {
 	int aniId = -1;
 	if (!isOnPlatform)
 	{
-		if (abs(ax) == MARIO_ACCEL_RUN_X)
-		{
-			if (nx >= 0)
-				aniId = ID_ANI_MARIO_SMALL_JUMP_RUN_RIGHT;
-			else
-				aniId = ID_ANI_MARIO_SMALL_JUMP_RUN_LEFT;
-		}
-		else
-		{
-			if (nx >= 0)
-				aniId = ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT;
-			else
-				aniId = ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT;
-		}
-	}
-	else
 		if (isSitting)
 		{
 			if (nx > 0)
-				aniId = ID_ANI_MARIO_SIT_RIGHT;
+				aniId = MapAniTypeToId(ANI_MARIO_SIT_RIGHT);
 			else
-				aniId = ID_ANI_MARIO_SIT_LEFT;
+				aniId = MapAniTypeToId(ANI_MARIO_SIT_LEFT);
+		}
+		else if (abs(ax) == MARIO_ACCEL_RUN_X)
+		{
+			if (nx >= 0)
+				aniId = MapAniTypeToId(ANI_MARIO_JUMP_RUN_RIGHT);
+			else
+				aniId = MapAniTypeToId(ANI_MARIO_JUMP_RUN_LEFT);
+		}
+		else {
+			if (vy > 0) {
+				if (nx >= 0)
+					aniId = MapAniTypeToId(ANI_MARIO_FALLING_RIGHT);
+				else
+					aniId = MapAniTypeToId(ANI_MARIO_FALLING_LEFT);
+				//if (raccoonSlowFalling > 0)
+				if (tailFlapAnimationCurrentDuration > 0)
+				{
+					if (nx >= 0)
+						aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT;
+					else
+						aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT;
+				}
+			}
+			else
+			{
+				if (nx >= 0)
+					aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_RIGHT);
+				else
+					aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_LEFT);
+			}
+		}
+	}
+	else {
+		if (isSitting)
+		{
+			if (nx > 0)
+				aniId = MapAniTypeToId(ANI_MARIO_SIT_RIGHT);
+			else
+				aniId = MapAniTypeToId(ANI_MARIO_SIT_LEFT);
 		}
 		else
 			if (vx == 0)
 			{
-				if (nx > 0) aniId = ID_ANI_MARIO_SMALL_IDLE_RIGHT;
-				else aniId = ID_ANI_MARIO_SMALL_IDLE_LEFT;
+				if (nx > 0) aniId = MapAniTypeToId(ANI_MARIO_IDLE_RIGHT);
+				else aniId = MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
 			}
 			else if (vx > 0)
 			{
-				if (ax < 0)
-					aniId = ID_ANI_MARIO_SMALL_BRACE_RIGHT;
+				if (ax < 0 && abs(ax) != MARIO_FRICTION)
+					aniId = MapAniTypeToId(ANI_MARIO_BRACE_RIGHT);
 				else if (ax == MARIO_ACCEL_RUN_X)
-					aniId = ID_ANI_MARIO_SMALL_RUNNING_RIGHT;
-				else if (ax == MARIO_ACCEL_WALK_X)
-					aniId = ID_ANI_MARIO_SMALL_WALKING_RIGHT;
+					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_RIGHT);
+				else if (ax == MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
+					aniId = MapAniTypeToId(ANI_MARIO_WALKING_RIGHT);
 			}
 			else // vx < 0
 			{
-				if (ax > 0)
-					aniId = ID_ANI_MARIO_SMALL_BRACE_LEFT;
+				if (ax > 0 && abs(ax) != MARIO_FRICTION)
+					aniId = MapAniTypeToId(ANI_MARIO_BRACE_LEFT);
 				else if (ax == -MARIO_ACCEL_RUN_X)
-					aniId = ID_ANI_MARIO_SMALL_RUNNING_LEFT;
-				else if (ax == -MARIO_ACCEL_WALK_X)
-					aniId = ID_ANI_MARIO_SMALL_WALKING_LEFT;
+					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_LEFT);
+				else if (ax == -MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
+					aniId = MapAniTypeToId(ANI_MARIO_WALKING_LEFT);
 			}
+	}
 
-	if (aniId == -1) aniId = ID_ANI_MARIO_SMALL_IDLE_RIGHT;
-
+	if (aniId == -1) aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
 	return aniId;
 }
 
-
-//
-// Get animdation ID for big Mario
-//
-int CMario::GetAniIdBig()
+int CMario::MapAniTypeToId(int animation_type)
 {
-	int aniId = -1;
-	if (!isOnPlatform)
-	{
-		if (abs(ax) == MARIO_ACCEL_RUN_X)
-		{
-			if (nx >= 0)
-				aniId = ID_ANI_MARIO_JUMP_RUN_RIGHT;
-			else
-				aniId = ID_ANI_MARIO_JUMP_RUN_LEFT;
-		}
-		else
-		{
-			if (nx >= 0)
-				aniId = ID_ANI_MARIO_JUMP_WALK_RIGHT;
-			else
-				aniId = ID_ANI_MARIO_JUMP_WALK_LEFT;
-		}
-	}
-	else
-		if (isSitting)
-		{
-			if (nx > 0)
-				aniId = ID_ANI_MARIO_SIT_RIGHT;
-			else
-				aniId = ID_ANI_MARIO_SIT_LEFT;
-		}
-		else
-			if (vx == 0)
-			{
-				if (nx > 0) aniId = ID_ANI_MARIO_IDLE_RIGHT;
-				else aniId = ID_ANI_MARIO_IDLE_LEFT;
-			}
-			else if (vx > 0)
-			{
-				if (ax < 0)
-					aniId = ID_ANI_MARIO_BRACE_RIGHT;
-				else if (ax == MARIO_ACCEL_RUN_X)
-					aniId = ID_ANI_MARIO_RUNNING_RIGHT;
-				else if (ax == MARIO_ACCEL_WALK_X)
-					aniId = ID_ANI_MARIO_WALKING_RIGHT;
-			}
-			else // vx < 0
-			{
-				if (ax > 0)
-					aniId = ID_ANI_MARIO_BRACE_LEFT;
-				else if (ax == -MARIO_ACCEL_RUN_X)
-					aniId = ID_ANI_MARIO_RUNNING_LEFT;
-				else if (ax == -MARIO_ACCEL_WALK_X)
-					aniId = ID_ANI_MARIO_WALKING_LEFT;
-			}
-
-	if (aniId == -1) aniId = ID_ANI_MARIO_IDLE_RIGHT;
-
-	return aniId;
+	return mapAniId[level - 1][animation_type];
 }
 
 void CMario::Render()
@@ -231,11 +274,19 @@ void CMario::Render()
 
 	if (state == MARIO_STATE_DIE)
 		aniId = ID_ANI_MARIO_DIE;
-	else if (level == MARIO_LEVEL_BIG)
-		aniId = GetAniIdBig();
-	else if (level == MARIO_LEVEL_SMALL)
-		aniId = GetAniIdSmall();
+	else
+		aniId = GetAniId();
 
+	float modifier = 1.f;
+	if (abs(vx) >= MARIO_WALKING_SPEED)
+		modifier = 0.75f;
+	if (abs(vx) >= MARIO_RUNNING_SPEED)
+		modifier = 0.15f;
+
+	// based on ax, set the frame time
+	//DebugOut(L"[ANIMATION]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
+		//level, state, aniId, DEFAULT_FRAME_TIME * modifier);
+	animations->Get(aniId)->SetAllFrameTime((DWORD)(DEFAULT_FRAME_TIME * modifier));
 	animations->Get(aniId)->Render(x, y);
 
 	//RenderBoundingBox();
@@ -251,52 +302,57 @@ void CMario::SetState(int state)
 	switch (state)
 	{
 	case MARIO_STATE_RUNNING_RIGHT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = MARIO_RUNNING_SPEED;
 		ax = MARIO_ACCEL_RUN_X;
 		nx = 1;
 		break;
 	case MARIO_STATE_RUNNING_LEFT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = -MARIO_RUNNING_SPEED;
 		ax = -MARIO_ACCEL_RUN_X;
 		nx = -1;
 		break;
 	case MARIO_STATE_WALKING_RIGHT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = MARIO_WALKING_SPEED;
 		ax = MARIO_ACCEL_WALK_X;
 		nx = 1;
 		break;
 	case MARIO_STATE_WALKING_LEFT:
-		if (isSitting) break;
+		if (isSitting)
+			SetState(MARIO_STATE_SIT_RELEASE);
 		maxVx = -MARIO_WALKING_SPEED;
 		ax = -MARIO_ACCEL_WALK_X;
 		nx = -1;
 		break;
 	case MARIO_STATE_JUMP:
-		if (isSitting) break;
-		if (isOnPlatform)
-		{
-			if (abs(this->vx) == MARIO_RUNNING_SPEED)
-				vy = -MARIO_JUMP_RUN_SPEED_Y;
-			else
-				vy = -MARIO_JUMP_SPEED_Y;
-		}
+		if (!isOnPlatform) break;
+
+		if (abs(this->vx) == MARIO_RUNNING_SPEED)
+			vy = -MARIO_JUMP_RUN_SPEED_Y;
+		else
+			ay = -MARIO_ACCEL_JUMP, jumpedTime = 0;
+
 		break;
 
 	case MARIO_STATE_RELEASE_JUMP:
-		if (vy < 0) vy += MARIO_JUMP_SPEED_Y / 2;
+		if (jumpedTime > 0)
+			jumpedTime = min(jumpedTime + MARIO_MAX_JUMP_TIME / 2, MARIO_MAX_JUMP_TIME - 1);
 		break;
 
 	case MARIO_STATE_SIT:
-		if (isOnPlatform && level != MARIO_LEVEL_SMALL)
+		if (isOnPlatform && level != MARIO_LEVEL_SMALL && !isSitting)
 		{
-			state = MARIO_STATE_IDLE;
 			isSitting = true;
-			vx = 0; vy = 0.0f;
-			y +=MARIO_SIT_HEIGHT_ADJUST;
+			vy = 0.0f;
+			y += MARIO_SIT_HEIGHT_ADJUST;
+			SetState(MARIO_STATE_IDLE);
 		}
+
 		break;
 
 	case MARIO_STATE_SIT_RELEASE:
@@ -309,8 +365,7 @@ void CMario::SetState(int state)
 		break;
 
 	case MARIO_STATE_IDLE:
-		ax = 0.0f;
-		vx = 0.0f;
+		ax = (-1) * nx * MARIO_FRICTION;
 		break;
 
 	case MARIO_STATE_DIE:
@@ -325,7 +380,14 @@ void CMario::SetState(int state)
 
 void CMario::GetBoundingBox(float &left, float &top, float &right, float &bottom)
 {
-	if (level==MARIO_LEVEL_BIG)
+	if (level == MARIO_LEVEL_SMALL)
+	{
+		left = x - MARIO_SMALL_BBOX_WIDTH/2;
+		top = y - MARIO_SMALL_BBOX_HEIGHT/2;
+		right = left + MARIO_SMALL_BBOX_WIDTH;
+		bottom = top + MARIO_SMALL_BBOX_HEIGHT;
+	}
+	else
 	{
 		if (isSitting)
 		{
@@ -334,21 +396,23 @@ void CMario::GetBoundingBox(float &left, float &top, float &right, float &bottom
 			right = left + MARIO_BIG_SITTING_BBOX_WIDTH;
 			bottom = top + MARIO_BIG_SITTING_BBOX_HEIGHT;
 		}
-		else 
+		else
 		{
-			left = x - MARIO_BIG_BBOX_WIDTH/2;
-			top = y - MARIO_BIG_BBOX_HEIGHT/2;
+			left = x - MARIO_BIG_BBOX_WIDTH / 2;
+			top = y - MARIO_BIG_BBOX_HEIGHT / 2;
 			right = left + MARIO_BIG_BBOX_WIDTH;
 			bottom = top + MARIO_BIG_BBOX_HEIGHT;
 		}
 	}
-	else
-	{
-		left = x - MARIO_SMALL_BBOX_WIDTH/2;
-		top = y - MARIO_SMALL_BBOX_HEIGHT/2;
-		right = left + MARIO_SMALL_BBOX_WIDTH;
-		bottom = top + MARIO_SMALL_BBOX_HEIGHT;
-	}
+}
+
+void CMario::TriggerRaccoonSlowFalling()
+{
+	if (level != MARIO_LEVEL_RACCOON)
+		return;
+
+	raccoonSlowFalling = MARIO_SLOW_FALLING_TIME;
+	tailFlapAnimationCurrentDuration = CAnimations::GetInstance()->Get(ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT)->GetDuration();
 }
 
 void CMario::SetLevel(int l)

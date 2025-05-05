@@ -9,13 +9,18 @@
 #define MARIO_WALKING_SPEED		0.1f
 #define MARIO_RUNNING_SPEED		0.2f
 
-#define MARIO_ACCEL_WALK_X	0.0005f
-#define MARIO_ACCEL_RUN_X	0.0007f
+#define MARIO_ACCEL_WALK_X	0.00025f
+#define MARIO_ACCEL_RUN_X	0.00035f
+#define MARIO_ACCEL_JUMP	0.00266666666666666f
+
+#define MARIO_FRICTION	0.0002f
 
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_RUN_SPEED_Y	0.6f
+#define MARIO_MAX_JUMP_TIME 250
 
-#define MARIO_GRAVITY			0.002f
+#define MARIO_GRAVITY			0.0015f
+
 
 #define MARIO_JUMP_DEFLECT_SPEED  0.4f
 
@@ -33,9 +38,34 @@
 #define MARIO_STATE_SIT				600
 #define MARIO_STATE_SIT_RELEASE		601
 
+// RACCOON TAIL FLAPPING WHILE FALLING
+#define MARIO_SLOW_FALLING_TIME 220
+#define MARIO_TAIL_FLAP_ANIM_FRAME_COUNT 1
+
+#pragma region ANIMATION_TYPE
+
+#define ANI_MARIO_IDLE_RIGHT 0
+#define ANI_MARIO_IDLE_LEFT 1
+#define ANI_MARIO_WALKING_RIGHT 2
+#define ANI_MARIO_WALKING_LEFT 3
+#define ANI_MARIO_RUNNING_RIGHT 4
+#define ANI_MARIO_RUNNING_LEFT 5
+#define ANI_MARIO_JUMP_WALK_RIGHT 6
+#define ANI_MARIO_JUMP_WALK_LEFT 7
+#define ANI_MARIO_JUMP_RUN_RIGHT 8
+#define ANI_MARIO_JUMP_RUN_LEFT 9
+#define ANI_MARIO_BRACE_RIGHT 10
+#define ANI_MARIO_BRACE_LEFT 11
+#define ANI_MARIO_SIT_RIGHT 12
+#define ANI_MARIO_SIT_LEFT 13
+#define ANI_MARIO_FALLING_RIGHT 14
+#define ANI_MARIO_FALLING_LEFT 15
+
+#pragma endregion
 
 #pragma region ANIMATION_ID
 
+// BIG MARIO
 #define ID_ANI_MARIO_IDLE_RIGHT 400
 #define ID_ANI_MARIO_IDLE_LEFT 401
 
@@ -56,6 +86,9 @@
 
 #define ID_ANI_MARIO_BRACE_RIGHT 1000
 #define ID_ANI_MARIO_BRACE_LEFT 1001
+
+#define ID_ANI_MARIO_FALLING_RIGHT 1093
+#define ID_ANI_MARIO_FALLING_LEFT 1094
 
 #define ID_ANI_MARIO_DIE 999
 
@@ -78,6 +111,34 @@
 #define ID_ANI_MARIO_SMALL_JUMP_RUN_RIGHT 1600
 #define ID_ANI_MARIO_SMALL_JUMP_RUN_LEFT 1601
 
+// RACCOON MARIO
+#define ID_ANI_MARIO_RACCOON_IDLE_RIGHT 1700
+#define ID_ANI_MARIO_RACCOON_IDLE_LEFT 1701
+
+#define ID_ANI_MARIO_RACCOON_WALKING_RIGHT 1702
+#define ID_ANI_MARIO_RACCOON_WALKING_LEFT 1703
+
+#define ID_ANI_MARIO_RACCOON_RUNNING_RIGHT 1704
+#define ID_ANI_MARIO_RACCOON_RUNNING_LEFT 1705
+
+#define ID_ANI_MARIO_RACCOON_JUMP_WALK_RIGHT 1706
+#define ID_ANI_MARIO_RACCOON_JUMP_WALK_LEFT 1707
+
+#define ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT 1708
+#define ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT 1709
+
+#define ID_ANI_MARIO_RACCOON_BRACE_RIGHT 1710
+#define ID_ANI_MARIO_RACCOON_BRACE_LEFT 1711
+
+#define ID_ANI_MARIO_RACCOON_SIT_RIGHT 1712
+#define ID_ANI_MARIO_RACCOON_SIT_LEFT 1713
+
+#define ID_ANI_MARIO_RACCOON_FALLING_RIGHT 1714
+#define ID_ANI_MARIO_RACCOON_FALLING_LEFT 1715
+
+#define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT 1716
+#define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT 1717
+
 #pragma endregion
 
 #define GROUND_Y 160.0f
@@ -87,6 +148,7 @@
 
 #define	MARIO_LEVEL_SMALL	1
 #define	MARIO_LEVEL_BIG		2
+#define MARIO_LEVEL_RACCOON 3
 
 #define MARIO_BIG_BBOX_WIDTH  14
 #define MARIO_BIG_BBOX_HEIGHT 24
@@ -114,13 +176,17 @@ class CMario : public CGameObject
 	BOOLEAN isOnPlatform;
 	int coin; 
 
+	int jumpedTime;
+
 	void OnCollisionWithGoomba(LPCOLLISIONEVENT e);
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 
-	int GetAniIdBig();
-	int GetAniIdSmall();
+	int GetAniId();
+	int MapAniTypeToId(int animation_type);
 
+	int raccoonSlowFalling = 0;
+	int tailFlapAnimationCurrentDuration = 0;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -134,23 +200,25 @@ public:
 		untouchable_start = -1;
 		isOnPlatform = false;
 		coin = 0;
+		jumpedTime = 0;
 	}
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	void Render();
 	void SetState(int state);
 
-	int IsCollidable()
-	{ 
-		return (state != MARIO_STATE_DIE); 
-	}
+	bool IsFalling() { return vy > 0 && !isOnPlatform; }
 
+	int IsCollidable() { return (state != MARIO_STATE_DIE); }
 	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchable==0); }
 
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
 
 	void SetLevel(int l);
+	int GetLevel() { return level; }
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount64(); }
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+
+	void TriggerRaccoonSlowFalling();
 };
