@@ -139,6 +139,9 @@
 #define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT 1716
 #define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT 1717
 
+#define	ID_ANI_MARIO_RACCOON_ROTATING_RIGHT 1718
+#define	ID_ANI_MARIO_RACCOON_ROTATING_LEFT 1719
+
 #pragma endregion
 
 #define GROUND_Y 160.0f
@@ -159,6 +162,10 @@
 
 #define MARIO_SMALL_BBOX_WIDTH  13
 #define MARIO_SMALL_BBOX_HEIGHT 12
+
+#define MARIO_RACCOON_BBOX_WIDTH  13
+#define MARIO_RACCOON_BBOX_HEIGHT 24
+#define MARIO_RACCOON_BBOX_OFFSET_X 3
 
 
 #define MARIO_UNTOUCHABLE_TIME 2500
@@ -182,11 +189,12 @@ class CMario : public CGameObject
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 
-	int GetAniId();
+	void GetAniIdAndSpeed(int& aniId, float& speed);
 	int MapAniTypeToId(int animation_type);
 
 	int raccoonSlowFalling = 0;
 	int tailFlapAnimationCurrentDuration = 0;
+	int rotatingAnimDuration = 0;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -221,4 +229,5 @@ public:
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 
 	void TriggerRaccoonSlowFalling();
+	void TriggerRotate();
 };

@@ -13,11 +13,12 @@ class CAnimation
 	ULONGLONG lastFrameTime;
 	int defaultTime;
 	int currentFrame;
+	float speed;
 	vector<LPANIMATION_FRAME> frames;
 public:
-	CAnimation(int defaultTime = 100) { this->defaultTime = defaultTime; lastFrameTime = -1; currentFrame = -1; }
+	CAnimation(int defaultTime = 100) { this->defaultTime = defaultTime; lastFrameTime = -1; currentFrame = -1; speed = 1.f; }
 	void Add(int spriteId, DWORD time = 0);
-	void SetAllFrameTime(DWORD time);
+	void SetSpeed(float speed);
 	void LogFrameTime();
 	DWORD GetDuration();
 	void Render(float x, float y);
