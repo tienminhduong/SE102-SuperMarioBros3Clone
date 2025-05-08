@@ -4,6 +4,8 @@
 #include "Animation.h"
 #include "Animations.h"
 
+#include "RaccoonTail.h"
+
 #include "debug.h"
 
 #define MARIO_WALKING_SPEED		0.1f
@@ -166,6 +168,8 @@
 #define MARIO_RACCOON_BBOX_WIDTH  13
 #define MARIO_RACCOON_BBOX_HEIGHT 24
 #define MARIO_RACCOON_BBOX_OFFSET_X 3
+#define MARIO_RACCOON_TAIL_OFFSET_X 7
+#define MARIO_RACCOON_TAIL_OFFSET_Y 6
 
 
 #define MARIO_UNTOUCHABLE_TIME 2500
@@ -195,6 +199,10 @@ class CMario : public CGameObject
 	int raccoonSlowFalling = 0;
 	int tailFlapAnimationCurrentDuration = 0;
 	int rotatingAnimDuration = 0;
+	int rotatingAnimMaxDuration = 0;
+
+	CRaccoonTail* tail;
+	bool IsAttacking() { return rotatingAnimDuration > 0; }
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -209,10 +217,15 @@ public:
 		isOnPlatform = false;
 		coin = 0;
 		jumpedTime = 0;
+
+		tail = nullptr;
 	}
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	void Render();
 	void SetState(int state);
+
+	void SetTail(CRaccoonTail* tail) { this->tail = tail; }
+	CRaccoonTail* GetTail() { return tail; }
 
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
 
@@ -229,5 +242,7 @@ public:
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 
 	void TriggerRaccoonSlowFalling();
-	void TriggerRotate();
+
+	void TriggerRaccoonAttack();
+	void EndRaccoonAttack();
 };

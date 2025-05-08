@@ -15,14 +15,12 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	{
 	case DIK_S:
 		if (mario->IsFalling() && mario->GetLevel() == MARIO_LEVEL_RACCOON)
-		{
 			mario->TriggerRaccoonSlowFalling();
-		}
 		else
 			mario->SetState(MARIO_STATE_JUMP);
 		break;
 	case DIK_A: 
-		mario->TriggerRotate();
+		mario->TriggerRaccoonAttack();
 		break;
 	case DIK_1:
 		mario->SetLevel(MARIO_LEVEL_SMALL);

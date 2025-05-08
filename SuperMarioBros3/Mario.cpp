@@ -17,6 +17,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	vy += ay * dt;
 	vx += ax * dt;
 
+	
+
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
 	if (state == MARIO_STATE_IDLE || state == MARIO_STATE_SIT)
@@ -49,7 +51,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		tailFlapAnimationCurrentDuration -= dt;
 	}
 
-	if (rotatingAnimDuration > 0) rotatingAnimDuration -= dt;
+	if (IsAttacking())
+	{
+		rotatingAnimDuration -= dt;
+		if (rotatingAnimDuration <= 0)
+			EndRaccoonAttack();
+	}
 
 	// reset untouchable timer if untouchable time has passed
 	if (GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
@@ -67,7 +74,18 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		DebugOut(L"==========[END CONDITION LOG]==========\n");
 	}
 
+
 	CCollision::GetInstance()->Process(this, dt, coObjects);
+	if (tail != nullptr)
+	{
+		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
+
+		float t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
+		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
+		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
+
+		tail->SetPosition(x - tail_offset_x * nx, y + MARIO_RACCOON_TAIL_OFFSET_Y);
+	}
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -424,21 +442,30 @@ void CMario::TriggerRaccoonSlowFalling()
 	tailFlapAnimationCurrentDuration = CAnimations::GetInstance()->Get(ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT)->GetDuration();
 }
 
-void CMario::TriggerRotate()
+void CMario::TriggerRaccoonAttack()
 {
-	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0)
+	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT)
 		return;
-	rotatingAnimDuration = CAnimations::GetInstance()->Get(ID_ANI_MARIO_RACCOON_ROTATING_RIGHT)->GetDuration();
+	rotatingAnimMaxDuration = CAnimations::GetInstance()
+		->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_ROTATING_RIGHT : ID_ANI_MARIO_RACCOON_ROTATING_LEFT)->GetDuration();
+	rotatingAnimDuration = rotatingAnimMaxDuration;
 	DebugOut(L"Triggered!, duration: %d\n", rotatingAnimDuration);
+	tail->SetActive(true);
 }
+
+void CMario::EndRaccoonAttack()
+{
+	DebugOut(L"Hello\n");
+	tail->SetActive(false);
+}
+
 
 void CMario::SetLevel(int l)
 {
 	// Adjust position to avoid falling off platform
 	if (this->level == MARIO_LEVEL_SMALL)
-	{
-		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2;
-	}
+		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2.f;
+
 	level = l;
 }
 

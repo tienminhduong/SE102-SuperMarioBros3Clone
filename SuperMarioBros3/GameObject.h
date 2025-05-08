@@ -42,7 +42,7 @@ public:
 	virtual void Delete() { isDeleted = true;  }
 	bool IsDeleted() { return isDeleted; }
 
-	void RenderBoundingBox();
+	void RenderBoundingBox(float alpha = BBOX_ALPHA);
 
 	CGameObject();
 	CGameObject(float x, float y) :CGameObject() { this->x = x; this->y = y; }
