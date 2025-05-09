@@ -7,6 +7,7 @@
 #include "Goomba.h"
 #include "Coin.h"
 #include "Portal.h"
+#include "QuestionMarkBlock.h"
 
 #include "Collision.h"
 
@@ -110,11 +111,15 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (e->ny != 0 && e->obj->IsBlocking())
 	{
-		vy = 0;
 		if (e->ny < 0)
 		{
+			vy = 0;
 			isOnPlatform = true;
 			raccoonSlowFalling = 0;
+		}
+		else {
+			jumpedTime = MARIO_MAX_JUMP_TIME - 1;
+			vy = -0.001f;
 		}
 	}
 	else 

@@ -3,7 +3,7 @@
 mario.txt
 coin.txt
 cloud.txt
-brick.txt
+block.txt
 #
 [OBJECTS]
 # type	x	y	extra_settings per object type
@@ -33,7 +33,7 @@ brick.txt
 4	160	80
 4	180	80
 
-
+51	140	60
 
 
 #Platform

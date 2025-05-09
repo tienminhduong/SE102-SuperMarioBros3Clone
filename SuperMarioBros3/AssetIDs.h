@@ -17,6 +17,7 @@
 #define OBJECT_TYPE_PLATFORM 5
 
 #define OBJECT_TYPE_PORTAL	50
+#define OBJECT_TYPE_QUESTION_BLOCK	51
 
 
 #pragma region MARIO 
