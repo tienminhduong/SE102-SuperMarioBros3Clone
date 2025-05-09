@@ -40,6 +40,8 @@
 #define MARIO_STATE_SIT				600
 #define MARIO_STATE_SIT_RELEASE		601
 
+#define MARIO_NOT_RENDER_MAX_FRAME_COUNT 3
+
 // RACCOON TAIL FLAPPING WHILE FALLING
 #define MARIO_SLOW_FALLING_TIME 220
 #define MARIO_TAIL_FLAP_ANIM_FRAME_COUNT 1
@@ -144,6 +146,15 @@
 #define	ID_ANI_MARIO_RACCOON_ROTATING_RIGHT 1718
 #define	ID_ANI_MARIO_RACCOON_ROTATING_LEFT 1719
 
+// TRANSFORM
+#define ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT 1800
+#define ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT 1801
+
+#define ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE 1802
+
+#define ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT 1803
+#define ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT 1804
+
 #pragma endregion
 
 #define GROUND_Y 160.0f
@@ -181,9 +192,7 @@ class CMario : public CGameObject
 	float ax;				// acceleration on x 
 	float ay;				// acceleration on y 
 
-	int level; 
-	int untouchable; 
-	ULONGLONG untouchable_start;
+	int level;
 	BOOLEAN isOnPlatform;
 	int coin; 
 
@@ -201,6 +210,12 @@ class CMario : public CGameObject
 	int rotatingAnimDuration = 0;
 	int rotatingAnimMaxDuration = 0;
 
+	int transformAnimDuration = 0;
+	int currentTransformAnim = 0;
+
+	int untouchableDuration = 0;
+	int notRenderSpriteFrameCount = 0;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
 public:
@@ -212,8 +227,6 @@ public:
 		ay = MARIO_GRAVITY; 
 
 		level = MARIO_LEVEL_BIG;
-		untouchable = 0;
-		untouchable_start = -1;
 		isOnPlatform = false;
 		coin = 0;
 		jumpedTime = 0;
@@ -230,14 +243,14 @@ public:
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
 
 	int IsCollidable() { return (state != MARIO_STATE_DIE); }
-	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchable==0); }
+	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchableDuration == 0); }
 
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
 
 	void SetLevel(int l);
 	int GetLevel() { return level; }
-	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount64(); }
+	void StartUntouchable() { untouchableDuration = MARIO_UNTOUCHABLE_TIME; notRenderSpriteFrameCount = MARIO_NOT_RENDER_MAX_FRAME_COUNT; }
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 

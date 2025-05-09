@@ -14,10 +14,28 @@
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
+	if (untouchableDuration > 0) {
+		untouchableDuration -= dt;
+		if (untouchableDuration <= 0)
+		{
+			notRenderSpriteFrameCount = 0;
+		}
+		else {
+			notRenderSpriteFrameCount--;
+			if (notRenderSpriteFrameCount == -MARIO_NOT_RENDER_MAX_FRAME_COUNT) {
+				notRenderSpriteFrameCount = MARIO_NOT_RENDER_MAX_FRAME_COUNT;
+			}
+		}
+	}
+
+	if (transformAnimDuration > 0)
+	{
+		transformAnimDuration -= dt;
+		return;
+	}
+
 	vy += ay * dt;
 	vx += ax * dt;
-
-	
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
@@ -56,13 +74,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		rotatingAnimDuration -= dt;
 		if (rotatingAnimDuration <= 0)
 			EndRaccoonAttack();
-	}
-
-	// reset untouchable timer if untouchable time has passed
-	if (GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
-	{
-		untouchable_start = 0;
-		untouchable = 0;
 	}
 
 	if (STAT_LOG_CONDITION) {
@@ -135,13 +146,13 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 	}
 	else // hit by Goomba
 	{
-		if (untouchable == 0)
+		if (untouchableDuration <= 0)
 		{
 			if (goomba->GetState() != GOOMBA_STATE_DIE)
 			{
 				if (level > MARIO_LEVEL_SMALL)
 				{
-					level = MARIO_LEVEL_SMALL;
+					SetLevel(GetLevel() - 1);
 					StartUntouchable();
 				}
 				else
@@ -202,6 +213,11 @@ int mapAniId[][16] = {
 void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 {
 	aniId = -1, speed = 1.f;
+	if (transformAnimDuration > 0)
+	{
+		aniId = currentTransformAnim;
+		return;
+	}
 	if (!isOnPlatform)
 	{
 		if (isSitting)
@@ -304,7 +320,8 @@ void CMario::Render()
 	//DebugOut(L"[ANIMATION]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
 		//level, state, aniId, DEFAULT_FRAME_TIME * modifier);
 	animations->Get(aniId)->SetSpeed(speed);
-	animations->Get(aniId)->Render(x, y);
+	if (notRenderSpriteFrameCount <= 0)
+		animations->Get(aniId)->Render(x, y);
 
 	RenderBoundingBox();
 	
@@ -466,6 +483,22 @@ void CMario::SetLevel(int l)
 	if (this->level == MARIO_LEVEL_SMALL)
 		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2.f;
 
+	if (l == MARIO_LEVEL_SMALL)
+	{
+		currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;
+	}
+	else if (l == MARIO_LEVEL_BIG)
+	{
+		if (level == MARIO_LEVEL_SMALL)
+			currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT;
+		else
+			currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+	}
+	else if (l == MARIO_LEVEL_RACCOON)
+	{
+		currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+	}
+	transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
 	level = l;
 }
 
