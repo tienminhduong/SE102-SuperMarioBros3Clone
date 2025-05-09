@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "AssetIDs.h"
 
 #define QUESTION_MARK_BLOCK_BBOX_WIDTH 15
 #define QUESTION_MARK_BLOCK_BBOX_HEIGHT 15
@@ -16,8 +17,9 @@ class CQuestionMarkBlock :
     public CGameObject
 {
 	int animHitDuration = 0;
+	CGameObject* containedObj = NULL;
 public:
-	CQuestionMarkBlock(float x, float y) : CGameObject(x, y) { state = 1; }
+	CQuestionMarkBlock(float x, float y, int containedObjId);
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void OnCollisionWith(LPCOLLISIONEVENT e) override;

@@ -468,8 +468,11 @@ void CMario::TriggerRaccoonAttack()
 {
 	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT)
 		return;
-	rotatingAnimMaxDuration = CAnimations::GetInstance()
-		->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_ROTATING_RIGHT : ID_ANI_MARIO_RACCOON_ROTATING_LEFT)->GetDuration();
+
+	auto animation = CAnimations::GetInstance()
+		->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_ROTATING_RIGHT : ID_ANI_MARIO_RACCOON_ROTATING_LEFT);
+	rotatingAnimMaxDuration = animation->GetDuration();
+	animation->Reset();
 	rotatingAnimDuration = rotatingAnimMaxDuration;
 	DebugOut(L"Triggered!, duration: %d\n", rotatingAnimDuration);
 	tail->SetActive(true);
@@ -504,6 +507,7 @@ void CMario::SetLevel(int l)
 		currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
 	}
 	transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
+	CAnimations::GetInstance()->Get(currentTransformAnim)->Reset();
 	level = l;
 }
 

@@ -1,5 +1,25 @@
 #include "QuestionMarkBlock.h"
+#include "CoinFromQuesBlock.h"
+#include "PlayScene.h"
+#include <functional>
 #include "debug.h"
+
+CQuestionMarkBlock::CQuestionMarkBlock(float x, float y, int containedObjId) : CGameObject(x, y)
+{
+	state = QUESTION_MARK_BLOCK_STATE_HAS_SOMETHING;
+	switch (containedObjId)
+	{
+	case OBJECT_TYPE_COIN_FROM_QUESTION_BLOCK:
+		containedObj = new CoinFromQuesBlock(x, y-20);
+		containedObj->SetActive(false);
+		((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
+		break;
+	default:
+		break;
+	}
+
+	auto animations = CAnimations::GetInstance();
+}
 
 void CQuestionMarkBlock::Render()
 {
@@ -21,10 +41,15 @@ void CQuestionMarkBlock::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (animHitDuration <= 0)
 		{
 			SetState(QUESTION_MARK_BLOCK_STATE_EMPTY);
-			animHitDuration = 0;
+			CAnimations::GetInstance()->Get(ID_ANI_QUESTION_MARK_BLOCK_HIT)->Reset();
 		}
 	}
 	CCollision::GetInstance()->Process(this, dt, coObjects);
+
+	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	{
+		SetState(QUESTION_MARK_BLOCK_STATE_HIT);
+	}
 }
 
 void CQuestionMarkBlock::OnCollisionWith(LPCOLLISIONEVENT e)
@@ -49,7 +74,7 @@ void CQuestionMarkBlock::SetState(int state)
 	case QUESTION_MARK_BLOCK_STATE_HAS_SOMETHING:
 		break;
 	case QUESTION_MARK_BLOCK_STATE_EMPTY:
-		// shoot something out
+		containedObj->SetActive(true);
 		break;
 	case QUESTION_MARK_BLOCK_STATE_HIT:
 		animHitDuration = CAnimations::GetInstance()->Get(ID_ANI_QUESTION_MARK_BLOCK_HIT)->GetDuration();

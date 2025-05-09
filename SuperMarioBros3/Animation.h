@@ -21,7 +21,9 @@ public:
 	void SetSpeed(float speed);
 	void LogFrameTime();
 	DWORD GetDuration();
+	void GetCurrentFrameSize(int& width, int& height);
 	void Render(float x, float y);
+	void Reset();
 };
 
 typedef CAnimation* LPANIMATION;

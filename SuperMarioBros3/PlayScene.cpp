@@ -156,7 +156,10 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	break;
 
 	case OBJECT_TYPE_QUESTION_BLOCK:
-		obj = new CQuestionMarkBlock(x, y);
+	{
+		int containedObjId = atoi(tokens[3].c_str());
+		obj = new CQuestionMarkBlock(x, y, containedObjId);
+	}
 		break;
 
 	default:
