@@ -4,6 +4,8 @@
 #include "Animation.h"
 #include "Animations.h"
 
+#include "RaccoonTail.h"
+
 #include "debug.h"
 
 #define MARIO_WALKING_SPEED		0.1f
@@ -37,6 +39,8 @@
 
 #define MARIO_STATE_SIT				600
 #define MARIO_STATE_SIT_RELEASE		601
+
+#define MARIO_NOT_RENDER_MAX_FRAME_COUNT 3
 
 // RACCOON TAIL FLAPPING WHILE FALLING
 #define MARIO_SLOW_FALLING_TIME 220
@@ -139,6 +143,18 @@
 #define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT 1716
 #define ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT 1717
 
+#define	ID_ANI_MARIO_RACCOON_ROTATING_RIGHT 1718
+#define	ID_ANI_MARIO_RACCOON_ROTATING_LEFT 1719
+
+// TRANSFORM
+#define ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT 1800
+#define ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT 1801
+
+#define ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE 1802
+
+#define ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT 1803
+#define ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT 1804
+
 #pragma endregion
 
 #define GROUND_Y 160.0f
@@ -160,6 +176,12 @@
 #define MARIO_SMALL_BBOX_WIDTH  13
 #define MARIO_SMALL_BBOX_HEIGHT 12
 
+#define MARIO_RACCOON_BBOX_WIDTH  13
+#define MARIO_RACCOON_BBOX_HEIGHT 24
+#define MARIO_RACCOON_BBOX_OFFSET_X 3
+#define MARIO_RACCOON_TAIL_OFFSET_X 7
+#define MARIO_RACCOON_TAIL_OFFSET_Y 6
+
 
 #define MARIO_UNTOUCHABLE_TIME 2500
 
@@ -170,9 +192,7 @@ class CMario : public CGameObject
 	float ax;				// acceleration on x 
 	float ay;				// acceleration on y 
 
-	int level; 
-	int untouchable; 
-	ULONGLONG untouchable_start;
+	int level;
 	BOOLEAN isOnPlatform;
 	int coin; 
 
@@ -182,11 +202,22 @@ class CMario : public CGameObject
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 
-	int GetAniId();
+	void GetAniIdAndSpeed(int& aniId, float& speed);
 	int MapAniTypeToId(int animation_type);
 
 	int raccoonSlowFalling = 0;
 	int tailFlapAnimationCurrentDuration = 0;
+	int rotatingAnimDuration = 0;
+	int rotatingAnimMaxDuration = 0;
+
+	int transformAnimDuration = 0;
+	int currentTransformAnim = 0;
+
+	int untouchableDuration = 0;
+	int notRenderSpriteFrameCount = 0;
+
+	CRaccoonTail* tail;
+	bool IsAttacking() { return rotatingAnimDuration > 0; }
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -196,29 +227,35 @@ public:
 		ay = MARIO_GRAVITY; 
 
 		level = MARIO_LEVEL_BIG;
-		untouchable = 0;
-		untouchable_start = -1;
 		isOnPlatform = false;
 		coin = 0;
 		jumpedTime = 0;
+
+		tail = nullptr;
 	}
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	void Render();
 	void SetState(int state);
 
+	void SetTail(CRaccoonTail* tail) { this->tail = tail; }
+	CRaccoonTail* GetTail() { return tail; }
+
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
 
 	int IsCollidable() { return (state != MARIO_STATE_DIE); }
-	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchable==0); }
+	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchableDuration == 0); }
 
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
 
 	void SetLevel(int l);
 	int GetLevel() { return level; }
-	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount64(); }
+	void StartUntouchable() { untouchableDuration = MARIO_UNTOUCHABLE_TIME; notRenderSpriteFrameCount = MARIO_NOT_RENDER_MAX_FRAME_COUNT; }
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 
 	void TriggerRaccoonSlowFalling();
+
+	void TriggerRaccoonAttack();
+	void EndRaccoonAttack();
 };

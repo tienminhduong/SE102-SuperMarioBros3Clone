@@ -115,6 +115,12 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		player = (CMario*)obj;  
 
 		DebugOut(L"[INFO] Player object has been created!\n");
+
+		objects.push_back(obj);
+		obj = new CRaccoonTail(x, y);
+		obj->SetActive(false);
+		((CMario*)player)->SetTail((CRaccoonTail*)obj);
+
 		break;
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(x,y); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(x,y); break;

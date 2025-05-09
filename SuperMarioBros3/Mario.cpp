@@ -10,12 +10,30 @@
 
 #include "Collision.h"
 
-#define DEFAULT_FRAME_TIME 100
-
 #define STAT_LOG_CONDITION 0
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
+	if (untouchableDuration > 0) {
+		untouchableDuration -= dt;
+		if (untouchableDuration <= 0)
+		{
+			notRenderSpriteFrameCount = 0;
+		}
+		else {
+			notRenderSpriteFrameCount--;
+			if (notRenderSpriteFrameCount == -MARIO_NOT_RENDER_MAX_FRAME_COUNT) {
+				notRenderSpriteFrameCount = MARIO_NOT_RENDER_MAX_FRAME_COUNT;
+			}
+		}
+	}
+
+	if (transformAnimDuration > 0)
+	{
+		transformAnimDuration -= dt;
+		return;
+	}
+
 	vy += ay * dt;
 	vx += ax * dt;
 
@@ -51,11 +69,11 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		tailFlapAnimationCurrentDuration -= dt;
 	}
 
-	// reset untouchable timer if untouchable time has passed
-	if (GetTickCount64() - untouchable_start > MARIO_UNTOUCHABLE_TIME) 
+	if (IsAttacking())
 	{
-		untouchable_start = 0;
-		untouchable = 0;
+		rotatingAnimDuration -= dt;
+		if (rotatingAnimDuration <= 0)
+			EndRaccoonAttack();
 	}
 
 	if (STAT_LOG_CONDITION) {
@@ -67,7 +85,18 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		DebugOut(L"==========[END CONDITION LOG]==========\n");
 	}
 
+
 	CCollision::GetInstance()->Process(this, dt, coObjects);
+	if (tail != nullptr)
+	{
+		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
+
+		float t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
+		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
+		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
+
+		tail->SetPosition(x - tail_offset_x * nx, y + MARIO_RACCOON_TAIL_OFFSET_Y);
+	}
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -117,13 +146,13 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 	}
 	else // hit by Goomba
 	{
-		if (untouchable == 0)
+		if (untouchableDuration <= 0)
 		{
 			if (goomba->GetState() != GOOMBA_STATE_DIE)
 			{
 				if (level > MARIO_LEVEL_SMALL)
 				{
-					level = MARIO_LEVEL_SMALL;
+					SetLevel(GetLevel() - 1);
 					StartUntouchable();
 				}
 				else
@@ -181,9 +210,14 @@ int mapAniId[][16] = {
 	}
 };
 
-int CMario::GetAniId()
+void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 {
-	int aniId = -1;
+	aniId = -1, speed = 1.f;
+	if (transformAnimDuration > 0)
+	{
+		aniId = currentTransformAnim;
+		return;
+	}
 	if (!isOnPlatform)
 	{
 		if (isSitting)
@@ -206,7 +240,6 @@ int CMario::GetAniId()
 					aniId = MapAniTypeToId(ANI_MARIO_FALLING_RIGHT);
 				else
 					aniId = MapAniTypeToId(ANI_MARIO_FALLING_LEFT);
-				//if (raccoonSlowFalling > 0)
 				if (tailFlapAnimationCurrentDuration > 0)
 				{
 					if (nx >= 0)
@@ -243,23 +276,29 @@ int CMario::GetAniId()
 				if (ax < 0 && abs(ax) != MARIO_FRICTION)
 					aniId = MapAniTypeToId(ANI_MARIO_BRACE_RIGHT);
 				else if (ax == MARIO_ACCEL_RUN_X)
-					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_RIGHT);
+					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_RIGHT), speed = 2.f;
 				else if (ax == MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
-					aniId = MapAniTypeToId(ANI_MARIO_WALKING_RIGHT);
+					aniId = MapAniTypeToId(ANI_MARIO_WALKING_RIGHT), speed = 1.5f;
 			}
 			else // vx < 0
 			{
 				if (ax > 0 && abs(ax) != MARIO_FRICTION)
 					aniId = MapAniTypeToId(ANI_MARIO_BRACE_LEFT);
 				else if (ax == -MARIO_ACCEL_RUN_X)
-					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_LEFT);
+					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_LEFT), speed = 2.f;
 				else if (ax == -MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
-					aniId = MapAniTypeToId(ANI_MARIO_WALKING_LEFT);
+					aniId = MapAniTypeToId(ANI_MARIO_WALKING_LEFT), speed = 1.5f;
 			}
+	}
+	if (rotatingAnimDuration > 0) {
+		if (nx > 0)
+			aniId = ID_ANI_MARIO_RACCOON_ROTATING_RIGHT;
+		else
+			aniId = ID_ANI_MARIO_RACCOON_ROTATING_LEFT;
+		speed = 1.f;
 	}
 
 	if (aniId == -1) aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
-	return aniId;
 }
 
 int CMario::MapAniTypeToId(int animation_type)
@@ -271,25 +310,20 @@ void CMario::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = -1;
+	float speed = 1.f;
 
 	if (state == MARIO_STATE_DIE)
 		aniId = ID_ANI_MARIO_DIE;
 	else
-		aniId = GetAniId();
+		GetAniIdAndSpeed(aniId, speed);
 
-	float modifier = 1.f;
-	if (abs(vx) >= MARIO_WALKING_SPEED)
-		modifier = 0.75f;
-	if (abs(vx) >= MARIO_RUNNING_SPEED)
-		modifier = 0.15f;
-
-	// based on ax, set the frame time
 	//DebugOut(L"[ANIMATION]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
 		//level, state, aniId, DEFAULT_FRAME_TIME * modifier);
-	animations->Get(aniId)->SetAllFrameTime((DWORD)(DEFAULT_FRAME_TIME * modifier));
-	animations->Get(aniId)->Render(x, y);
+	animations->Get(aniId)->SetSpeed(speed);
+	if (notRenderSpriteFrameCount <= 0)
+		animations->Get(aniId)->Render(x, y);
 
-	//RenderBoundingBox();
+	RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
 }
@@ -403,6 +437,16 @@ void CMario::GetBoundingBox(float &left, float &top, float &right, float &bottom
 			right = left + MARIO_BIG_BBOX_WIDTH;
 			bottom = top + MARIO_BIG_BBOX_HEIGHT;
 		}
+		if (level == MARIO_LEVEL_RACCOON) {
+			if (nx == 1) {
+				left += MARIO_RACCOON_BBOX_OFFSET_X;
+				right += MARIO_RACCOON_BBOX_OFFSET_X;
+			}
+			else {
+				left -= MARIO_RACCOON_BBOX_OFFSET_X;
+				right -= MARIO_RACCOON_BBOX_OFFSET_X;
+			}
+		}
 	}
 }
 
@@ -415,13 +459,46 @@ void CMario::TriggerRaccoonSlowFalling()
 	tailFlapAnimationCurrentDuration = CAnimations::GetInstance()->Get(ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT)->GetDuration();
 }
 
+void CMario::TriggerRaccoonAttack()
+{
+	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT)
+		return;
+	rotatingAnimMaxDuration = CAnimations::GetInstance()
+		->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_ROTATING_RIGHT : ID_ANI_MARIO_RACCOON_ROTATING_LEFT)->GetDuration();
+	rotatingAnimDuration = rotatingAnimMaxDuration;
+	DebugOut(L"Triggered!, duration: %d\n", rotatingAnimDuration);
+	tail->SetActive(true);
+}
+
+void CMario::EndRaccoonAttack()
+{
+	DebugOut(L"Hello\n");
+	tail->SetActive(false);
+}
+
+
 void CMario::SetLevel(int l)
 {
 	// Adjust position to avoid falling off platform
 	if (this->level == MARIO_LEVEL_SMALL)
+		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2.f;
+
+	if (l == MARIO_LEVEL_SMALL)
 	{
-		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2;
+		currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;
 	}
+	else if (l == MARIO_LEVEL_BIG)
+	{
+		if (level == MARIO_LEVEL_SMALL)
+			currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT;
+		else
+			currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+	}
+	else if (l == MARIO_LEVEL_RACCOON)
+	{
+		currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+	}
+	transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
 	level = l;
 }
 

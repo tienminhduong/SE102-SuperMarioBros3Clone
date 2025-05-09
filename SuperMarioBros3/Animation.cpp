@@ -14,19 +14,16 @@ void CAnimation::Add(int spriteId, DWORD time)
 	frames.push_back(frame);
 }
 
-void CAnimation::SetAllFrameTime(DWORD time)
+void CAnimation::SetSpeed(float speed)
 {
-	for (int i = 0; i < frames.size(); i++)
-	{
-		frames[i]->SetTime(time);
-	}
+	this->speed = speed;
 }
 
 void CAnimation::LogFrameTime()
 {
 	for (int i = 0; i < frames.size(); i++)
 	{
-		DebugOut(L"Frame %d: %d\n", i, frames[i]->GetTime());
+		DebugOut(L"Frame %d: %d\n", i, (DWORD)(frames[i]->GetTime() / speed));
 	}
 }
 
@@ -34,7 +31,7 @@ DWORD CAnimation::GetDuration()
 {
 	DWORD duration = 0;
 	for (int i = 0; i < frames.size(); i++)
-		duration += frames[i]->GetTime();
+		duration += (DWORD)(frames[i]->GetTime() / speed);
 	return duration;
 }
 
@@ -49,7 +46,7 @@ void CAnimation::Render(float x, float y)
 	}
 	else
 	{
-		DWORD t = frames[currentFrame]->GetTime();
+		DWORD t = (DWORD)(frames[currentFrame]->GetTime() / speed);
 		if (now - lastFrameTime > t)
 		{
 			currentFrame++;

@@ -27,7 +27,7 @@ void CGameObject::SetActive(bool isActive)
 		OnDisable();
 }
 
-void CGameObject::RenderBoundingBox()
+void CGameObject::RenderBoundingBox(float alpha)
 {
 	D3DXVECTOR3 p(x, y, 0);
 	RECT rect;
@@ -45,7 +45,8 @@ void CGameObject::RenderBoundingBox()
 	float cx, cy; 
 	CGame::GetInstance()->GetCamPos(cx, cy);
 
-	CGame::GetInstance()->Draw(x - cx, y - cy, bbox, &rect, BBOX_ALPHA);
+	//CGame::GetInstance()->Draw(x - cx, y - cy, bbox, &rect, BBOX_ALPHA);
+	CGame::GetInstance()->Draw(l + rect.right / 2 - cx, y - cy, bbox, &rect, alpha);
 }
 
 CGameObject::~CGameObject()
