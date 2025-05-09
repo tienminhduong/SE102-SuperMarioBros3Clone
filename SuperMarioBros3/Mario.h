@@ -146,6 +146,9 @@
 #define	ID_ANI_MARIO_RACCOON_ROTATING_RIGHT 1718
 #define	ID_ANI_MARIO_RACCOON_ROTATING_LEFT 1719
 
+#define ID_ANI_MARIO_RACCOON_TAIL_FLAP_CONTINUOUS_RIGHT 1720
+#define ID_ANI_MARIO_RACCOON_TAIL_FLAP_CONTINUOUS_LEFT 1721
+
 // TRANSFORM
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT 1800
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT 1801
@@ -216,6 +219,8 @@ class CMario : public CGameObject
 	int untouchableDuration = 0;
 	int notRenderSpriteFrameCount = 0;
 
+	bool continuousTailFlap = false;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
 public:
@@ -255,7 +260,10 @@ public:
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 
 	void TriggerRaccoonSlowFalling();
+	void SwitchContinuousTailFlap(bool value) { continuousTailFlap = value; }
 
 	void TriggerRaccoonAttack();
 	void EndRaccoonAttack();
+
+	void TriggerSmallJump();
 };

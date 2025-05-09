@@ -45,15 +45,16 @@ void CQuestionMarkBlock::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 	CCollision::GetInstance()->Process(this, dt, coObjects);
-
-	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-	{
-		SetState(QUESTION_MARK_BLOCK_STATE_HIT);
-	}
 }
 
 void CQuestionMarkBlock::OnCollisionWith(LPCOLLISIONEVENT e)
 {
+	auto mario = dynamic_cast<CMario*>(e->obj);
+	if (mario != nullptr) {
+		if (e->ny > 0 || e->nx != 0)
+			return;
+	}
+
 	if (state == QUESTION_MARK_BLOCK_STATE_HAS_SOMETHING)
 		SetState(QUESTION_MARK_BLOCK_STATE_HIT);
 }

@@ -245,12 +245,20 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 					aniId = MapAniTypeToId(ANI_MARIO_FALLING_RIGHT);
 				else
 					aniId = MapAniTypeToId(ANI_MARIO_FALLING_LEFT);
-				if (tailFlapAnimationCurrentDuration > 0)
-				{
-					if (nx >= 0)
-						aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT;
-					else
-						aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT;
+				if (level == MARIO_LEVEL_RACCOON) {
+					if (tailFlapAnimationCurrentDuration > 0)
+					{
+						if (nx >= 0)
+							aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT;
+						else
+							aniId = ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT;
+					}
+					if (continuousTailFlap) {
+						if (nx >= 0)
+							aniId = ID_ANI_MARIO_RACCOON_TAIL_FLAP_CONTINUOUS_RIGHT;
+						else
+							aniId = ID_ANI_MARIO_RACCOON_TAIL_FLAP_CONTINUOUS_LEFT;
+					}
 				}
 			}
 			else
@@ -295,7 +303,7 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 					aniId = MapAniTypeToId(ANI_MARIO_WALKING_LEFT), speed = 1.5f;
 			}
 	}
-	if (rotatingAnimDuration > 0) {
+	if (IsAttacking()) {
 		if (nx > 0)
 			aniId = ID_ANI_MARIO_RACCOON_ROTATING_RIGHT;
 		else
@@ -461,7 +469,10 @@ void CMario::TriggerRaccoonSlowFalling()
 		return;
 
 	raccoonSlowFalling = MARIO_SLOW_FALLING_TIME;
-	tailFlapAnimationCurrentDuration = CAnimations::GetInstance()->Get(ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT)->GetDuration();
+	auto animation = CAnimations::GetInstance()->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT
+														: ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT);
+	tailFlapAnimationCurrentDuration = animation->GetDuration();
+	//animation->Reset();
 }
 
 void CMario::TriggerRaccoonAttack()
@@ -480,8 +491,15 @@ void CMario::TriggerRaccoonAttack()
 
 void CMario::EndRaccoonAttack()
 {
-	DebugOut(L"Hello\n");
 	tail->SetActive(false);
+}
+
+void CMario::TriggerSmallJump()
+{
+	if (!isOnPlatform)
+		return;
+	SetState(MARIO_STATE_JUMP);
+	jumpedTime = MARIO_MAX_JUMP_TIME / 3.5;
 }
 
 
