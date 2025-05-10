@@ -52,7 +52,6 @@ void CAnimation::Render(float x, float y)
 	else
 	{
 		DWORD t = (DWORD)(frames[currentFrame]->GetTime() / speed);
-		DebugOut(L"[ANIMATION] Frame %d, time: %d\n", currentFrame, t);
 		if (now - lastFrameTime > t)
 		{
 			currentFrame++;

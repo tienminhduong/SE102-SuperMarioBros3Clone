@@ -8,6 +8,7 @@
 #include "Coin.h"
 #include "Portal.h"
 #include "QuestionMarkBlock.h"
+#include "TransformMushroom.h"
 
 #include "Collision.h"
 
@@ -92,7 +93,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	{
 		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
 
-		float t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
+		int t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
 		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
 		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
 
@@ -134,6 +135,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithCoin(e);
 	else if (dynamic_cast<CPortal*>(e->obj))
 		OnCollisionWithPortal(e);
+	else if (dynamic_cast<CTransformMushroom*>(e->obj))
+		OnCollisionWithTransformItem(e);
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -180,6 +183,15 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 {
 	CPortal* p = (CPortal*)e->obj;
 	CGame::GetInstance()->InitiateSwitchScene(p->GetSceneId());
+}
+
+void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
+{
+	if (GetLevel() == MARIO_LEVEL_RACCOON)
+		return;
+
+	SetLevel(level + 1);
+	((CTransformMushroom*)e->obj)->SetActive(false);
 }
 
 int mapAniId[][16] = {

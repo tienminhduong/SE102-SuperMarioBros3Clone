@@ -24,6 +24,9 @@ public:
 	void GetCurrentFrameSize(int& width, int& height);
 	void Render(float x, float y);
 	void Reset();
+	int GetCurrentFrameIndex() { return currentFrame; }
+	int GetNumberFrames() { return (int)frames.size(); }
+	bool IsOver() { return currentFrame == frames.size() - 1; }
 };
 
 typedef CAnimation* LPANIMATION;

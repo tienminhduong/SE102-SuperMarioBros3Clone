@@ -4,6 +4,7 @@ mario.txt
 coin.txt
 cloud.txt
 block.txt
+misc.txt
 #
 [OBJECTS]
 # type	x	y	extra_settings per object type
@@ -43,5 +44,5 @@ block.txt
 #Portal 
 50	200	160	216	180	1
 
-51	140	80	52
+51	140	80	53
 
