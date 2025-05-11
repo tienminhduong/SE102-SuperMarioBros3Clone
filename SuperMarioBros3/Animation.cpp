@@ -35,6 +35,11 @@ DWORD CAnimation::GetDuration()
 	return duration;
 }
 
+void CAnimation::GetCurrentFrameSize(int& width, int& height)
+{
+	frames[currentFrame]->GetSprite()->GetSize(width, height);
+}
+
 
 void CAnimation::Render(float x, float y)
 {
@@ -57,5 +62,10 @@ void CAnimation::Render(float x, float y)
 	}
 
 	frames[currentFrame]->GetSprite()->Draw(x, y);
+}
+
+void CAnimation::Reset()
+{
+	lastFrameTime = -1; currentFrame = -1;
 }
 

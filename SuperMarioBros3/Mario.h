@@ -19,7 +19,7 @@
 
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_RUN_SPEED_Y	0.6f
-#define MARIO_MAX_JUMP_TIME 250
+#define MARIO_MAX_JUMP_TIME 200
 
 #define MARIO_GRAVITY			0.0015f
 
@@ -146,6 +146,9 @@
 #define	ID_ANI_MARIO_RACCOON_ROTATING_RIGHT 1718
 #define	ID_ANI_MARIO_RACCOON_ROTATING_LEFT 1719
 
+#define ID_ANI_MARIO_RACCOON_TAIL_FLAP_CONTINUOUS_RIGHT 1720
+#define ID_ANI_MARIO_RACCOON_TAIL_FLAP_CONTINUOUS_LEFT 1721
+
 // TRANSFORM
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT 1800
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT 1801
@@ -201,6 +204,8 @@ class CMario : public CGameObject
 	void OnCollisionWithGoomba(LPCOLLISIONEVENT e);
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
+	void OnCollisionWithTransformItem(LPCOLLISIONEVENT e);
+	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 
 	void GetAniIdAndSpeed(int& aniId, float& speed);
 	int MapAniTypeToId(int animation_type);
@@ -216,6 +221,8 @@ class CMario : public CGameObject
 	int untouchableDuration = 0;
 	int notRenderSpriteFrameCount = 0;
 
+	bool continuousTailFlap = false;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
 public:
@@ -226,7 +233,7 @@ public:
 		ax = 0.0f;
 		ay = MARIO_GRAVITY; 
 
-		level = MARIO_LEVEL_BIG;
+		level = MARIO_LEVEL_SMALL;
 		isOnPlatform = false;
 		coin = 0;
 		jumpedTime = 0;
@@ -243,7 +250,7 @@ public:
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
 
 	int IsCollidable() { return (state != MARIO_STATE_DIE); }
-	int IsBlocking() { return (state != MARIO_STATE_DIE && untouchableDuration == 0); }
+	int IsBlocking() { return 0; }
 
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
@@ -255,7 +262,10 @@ public:
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 
 	void TriggerRaccoonSlowFalling();
+	void SwitchContinuousTailFlap(bool value) { continuousTailFlap = value; }
 
 	void TriggerRaccoonAttack();
 	void EndRaccoonAttack();
+
+	void TriggerSmallJump();
 };

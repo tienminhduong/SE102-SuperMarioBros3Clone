@@ -81,4 +81,20 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 	}
 	else
 		mario->SetState(MARIO_STATE_IDLE);
+
+	if (game->IsKeyDown(DIK_Z)) {
+		mario->TriggerRaccoonAttack();
+	}
+
+	if (game->IsKeyDown(DIK_X)) {
+		mario->TriggerSmallJump();
+
+		if (mario->IsFalling())
+			mario->TriggerRaccoonSlowFalling();
+
+		mario->SwitchContinuousTailFlap(true);
+	}
+	else {
+		mario->SwitchContinuousTailFlap(false);
+	}
 }

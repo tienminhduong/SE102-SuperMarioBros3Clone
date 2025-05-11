@@ -58,6 +58,8 @@ public:
 	virtual void OnEnable() {};
 	virtual void OnDisable() {};
 
+	virtual int GetRenderLayer() { return 1; }
+
 	//
 	// Collision ON or OFF ? This can change depending on object's state. For example: die
 	//

@@ -53,3 +53,9 @@ void CSprite::Draw(float x, float y)
 	g->GetSpriteHandler()->DrawSpritesImmediate(&sprite, 1, 0, 0);
 }
 
+void CSprite::GetSize(int& width, int& height)
+{
+	width = right - left + 1;
+	height = bottom - top + 1;
+}
+

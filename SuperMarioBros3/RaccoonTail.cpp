@@ -10,5 +10,5 @@ void CRaccoonTail::GetBoundingBox(float& left, float& top, float& right, float& 
 
 void CRaccoonTail::Render()
 {
-	RenderBoundingBox(1.f);
+	RenderBoundingBox();
 }
