@@ -13,18 +13,31 @@
 #define ID_ANI_QUESTION_MARK_BLOCK_EMPTY 100001
 #define ID_ANI_QUESTION_MARK_BLOCK_HIT 100002
 
+#define QUESTION_MARK_ITEM_COIN 52
+#define QUESTION_MARK_ITEM_TRANSFORM 0
+
+#define QUES_BLOCK_TYPE_COIN 0
+#define QUES_BLOCK_TYPE_TRANSFORM 1
+#define QUES_BLOCK_TYPE_GREEN_MUSHROOM 2
+
+#define QUES_BLOCK_COIN_INDEX 0
+#define QUES_BLOCK_TRANSFORM_MUSHROOM_INDEX 1
+#define QUES_BLOCK_TRANSFORM_LEAF_INDEX 2
+
 class CQuestionMarkBlock :
     public CGameObject
 {
 	int animHitDuration = 0;
-	CGameObject* containedObj = NULL;
+	vector<LPGAMEOBJECT> containedObjs;
+	int containedObjType;
 public:
-	CQuestionMarkBlock(float x, float y, int containedObjId);
+	CQuestionMarkBlock(float x, float y, int containedObjType);
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void OnCollisionWith(LPCOLLISIONEVENT e) override;
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int IsCollidable() override { return 1; }
+	void ActivateItem();
 	void SetState(int state) override;
 };
 

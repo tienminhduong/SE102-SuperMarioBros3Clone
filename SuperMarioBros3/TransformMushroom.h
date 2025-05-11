@@ -16,7 +16,6 @@
 class CTransformMushroom :
     public CGameObject
 {
-	int direction = 1;
 	bool isOnGround = false;
 public:
 	CTransformMushroom(float x, float y);

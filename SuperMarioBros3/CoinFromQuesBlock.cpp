@@ -4,6 +4,7 @@ void CoinFromQuesBlock::OnEnable()
 {
 	y = startY;
 	vy = -COIN_QUES_BLOCK_SPEED;
+	CAnimations::GetInstance()->Get(ID_ANI_COIN_FROM_QUESTION_MARK_BLOCK)->Reset();
 }
 
 void CoinFromQuesBlock::Render()

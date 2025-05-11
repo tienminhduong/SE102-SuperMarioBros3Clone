@@ -29,7 +29,7 @@ void CTransformMushroom::SetState(int state)
 		vx = vy = 0.f;
 		break;
 	case TRANSFORM_MUSHROOM_STATE_MOVING:
-		vx = TRANSFORM_MUSHROOM_VX * direction;
+		vx = TRANSFORM_MUSHROOM_VX * nx;
 		vy = TRANSFORM_MUSHROOM_VY;
 	}
 }
@@ -42,7 +42,7 @@ void CTransformMushroom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		SetState(TRANSFORM_MUSHROOM_STATE_MOVING);
 
 	if (state == TRANSFORM_MUSHROOM_STATE_MOVING)
-		x += direction * vx * dt;
+		x += nx * vx * dt;
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }

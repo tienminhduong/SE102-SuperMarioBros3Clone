@@ -9,6 +9,7 @@
 #include "Portal.h"
 #include "QuestionMarkBlock.h"
 #include "TransformMushroom.h"
+#include "TransformLeaf.h"
 
 #include "Collision.h"
 
@@ -136,6 +137,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	else if (dynamic_cast<CPortal*>(e->obj))
 		OnCollisionWithPortal(e);
 	else if (dynamic_cast<CTransformMushroom*>(e->obj))
+		OnCollisionWithTransformItem(e);
+	else if (dynamic_cast<CTransformLeaf*>(e->obj))
 		OnCollisionWithTransformItem(e);
 }
 
