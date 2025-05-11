@@ -4,10 +4,6 @@
 // This file contains all IDs of game assets 
 //
 
-#define ID_TEX_MARIO 0
-#define ID_TEX_ENEMY 10
-#define ID_TEX_MISC 20
-
 
 #define OBJECT_TYPE_MARIO	0
 #define OBJECT_TYPE_BRICK	1
@@ -22,5 +18,6 @@
 #define OBJECT_TYPE_COIN_FROM_QUESTION_BLOCK	52
 #define OBJECT_TYPE_TRANSFORM_MUSHROOM	53
 #define OBJECT_TYPE_TRANSFORM_LEAF	54
+#define OBJECT_TYPE_STATIC	99
 
 #define MAX_RENDER_LAYER 5

@@ -233,7 +233,7 @@ public:
 		ax = 0.0f;
 		ay = MARIO_GRAVITY; 
 
-		level = MARIO_LEVEL_BIG;
+		level = MARIO_LEVEL_SMALL;
 		isOnPlatform = false;
 		coin = 0;
 		jumpedTime = 0;

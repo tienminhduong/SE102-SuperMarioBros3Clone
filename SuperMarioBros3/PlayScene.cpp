@@ -11,6 +11,7 @@
 #include "Platform.h"
 #include "Square.h"
 #include "QuestionMarkBlock.h"
+#include "StaticObject.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -171,6 +172,13 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		obj = new CQuestionMarkBlock(x, y, containedObjId);
 	}
 		break;
+
+	case OBJECT_TYPE_STATIC:
+	{
+		int ani_id = atoi(tokens[3].c_str());
+		obj = new StaticObject(x, y, ani_id);
+	}
+	break;
 
 	default:
 		DebugOut(L"[ERROR] Invalid object type: %d\n", object_type);
