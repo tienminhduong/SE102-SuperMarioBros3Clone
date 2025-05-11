@@ -66,6 +66,12 @@ void CQuestionMarkBlock::OnCollisionWith(LPCOLLISIONEVENT e)
 		SetState(QUESTION_MARK_BLOCK_STATE_HIT);
 }
 
+void CQuestionMarkBlock::TriggerOnCollisionWithMario()
+{
+	if (state == QUESTION_MARK_BLOCK_STATE_HAS_SOMETHING)
+		SetState(QUESTION_MARK_BLOCK_STATE_HIT);
+}
+
 void CQuestionMarkBlock::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	left = x - QUESTION_MARK_BLOCK_BBOX_WIDTH / 2;

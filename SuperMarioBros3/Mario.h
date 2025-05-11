@@ -205,6 +205,7 @@ class CMario : public CGameObject
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 	void OnCollisionWithTransformItem(LPCOLLISIONEVENT e);
+	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 
 	void GetAniIdAndSpeed(int& aniId, float& speed);
 	int MapAniTypeToId(int animation_type);

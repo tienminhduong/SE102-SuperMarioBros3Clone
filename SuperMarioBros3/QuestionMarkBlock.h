@@ -35,6 +35,7 @@ public:
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void OnCollisionWith(LPCOLLISIONEVENT e) override;
+	void TriggerOnCollisionWithMario();
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int IsCollidable() override { return 1; }
 	void ActivateItem();

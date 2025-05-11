@@ -140,6 +140,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CTransformLeaf*>(e->obj))
 		OnCollisionWithTransformItem(e);
+	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
+		OnCollisionWithQuestionMarkBlock(e);
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -195,6 +197,14 @@ void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 
 	SetLevel(level + 1);
 	((CTransformMushroom*)e->obj)->SetActive(false);
+}
+
+void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
+{
+	if (e->ny > 0) {
+		CQuestionMarkBlock* q = (CQuestionMarkBlock*)e->obj;
+		q->TriggerOnCollisionWithMario();
+	}
 }
 
 int mapAniId[][16] = {

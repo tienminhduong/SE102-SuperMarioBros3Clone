@@ -2,7 +2,7 @@
 [ASSETS]
 mario.txt
 coin.txt
-cloud.txt
+platform.txt
 block.txt
 misc.txt
 #
@@ -38,12 +38,9 @@ misc.txt
 
 
 #Platform
-5 	100	180	16	15	32	51000	52000	53000
-5	140	140	16	15	26	51000	52000	53000
+5 	0	180	15	15	100	51000	52000	53000
 
-#Portal 
-50	200	160	216	180	1
-
+#Question block
 51	140	80	0
 51	156	80	1
 
