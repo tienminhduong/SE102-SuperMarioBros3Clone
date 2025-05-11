@@ -14,7 +14,7 @@ void CTransformLeaf::Render()
 		animations->Get(ID_ANI_TRANSFORM_LEAF_RIGHT)->Render(x, y);
 	else
 		animations->Get(ID_ANI_TRANSFORM_LEAF_LEFT)->Render(x, y);
-	RenderBoundingBox();
+	//RenderBoundingBox();
 }
 
 void CTransformLeaf::SetState(int state)

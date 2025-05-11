@@ -361,7 +361,7 @@ void CMario::Render()
 	if (notRenderSpriteFrameCount <= 0)
 		animations->Get(aniId)->Render(x, y);
 
-	RenderBoundingBox();
+	//RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
 }
@@ -524,7 +524,7 @@ void CMario::TriggerSmallJump()
 	if (!isOnPlatform)
 		return;
 	SetState(MARIO_STATE_JUMP);
-	jumpedTime = MARIO_MAX_JUMP_TIME / 3.5;
+	jumpedTime = MARIO_MAX_JUMP_TIME / 4;
 }
 
 
