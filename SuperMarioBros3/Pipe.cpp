@@ -1,4 +1,21 @@
 #include "Pipe.h"
+#include "FirePiranhaPlant.h"
+#include "Game.h"
+#include "PlayScene.h"
+
+CPipe::CPipe(float x, float y, int height, int type) : CGameObject(x, y)
+{
+	this->height = height;
+	this->type = type;
+	CPlayScene* currentScene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
+
+	if (type == PIPE_TYPE_CONTAIN_FIRE_PIRANHA_PLANT)
+	{
+		containedObj = new FirePiranhaPlant(x, y + FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2,
+			currentScene->GetPlayer(), this);
+		((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
+	}
+}
 
 void CPipe::Render()
 {

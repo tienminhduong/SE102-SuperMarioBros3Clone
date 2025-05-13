@@ -18,12 +18,12 @@ class CPipe :
 protected:
 	int height;
 	int type;
+	LPGAMEOBJECT containedObj = NULL;
 public:
-	CPipe(float x, float y, int height, int type) : CGameObject(x, y)
-	{
-		this->height = height;
-		this->type = type;
-	}
+	CPipe(float x, float y, int height, int type);
+
+	float GetTop() { return y - PIPE_CELL_HEIGHT / 2; }
+
 	void Render();
 	void Update(DWORD dt, std::vector<LPGAMEOBJECT>* coObjects = NULL) override {}
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
