@@ -39,6 +39,10 @@ class FirePiranhaPlant :
 	LPGAMEOBJECT mario;
 	LPGAMEOBJECT pipe;
 	int movingCountdown;
+
+	float SnapAngle(float angle, int& index);
+	float FindAngleOfMario(int& index);
+	vector<float> shootAngles = { 20, 45, 135, 160, 200, 225, 315, 340 };
 public:
 	FirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe);
 	void Render() override;
