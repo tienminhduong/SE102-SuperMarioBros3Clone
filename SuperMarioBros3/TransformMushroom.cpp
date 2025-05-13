@@ -29,7 +29,7 @@ void CTransformMushroom::SetState(int state)
 		vx = vy = 0.f;
 		break;
 	case TRANSFORM_MUSHROOM_STATE_MOVING:
-		vx = TRANSFORM_MUSHROOM_VX * nx;
+		vx = TRANSFORM_MUSHROOM_VX;
 		vy = TRANSFORM_MUSHROOM_VY;
 	}
 }
@@ -41,10 +41,9 @@ void CTransformMushroom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (animation->IsOver())
 		SetState(TRANSFORM_MUSHROOM_STATE_MOVING);
 
-	if (state == TRANSFORM_MUSHROOM_STATE_MOVING)
-		x += nx * vx * dt;
-
+	vx = abs(vx) * nx;
 	CCollision::GetInstance()->Process(this, dt, coObjects);
+	
 }
 
 void CTransformMushroom::GetBoundingBox(float& l, float& t, float& r, float& b)
@@ -57,5 +56,14 @@ void CTransformMushroom::GetBoundingBox(float& l, float& t, float& r, float& b)
 
 void CTransformMushroom::OnNoCollision(DWORD dt)
 {
+	/*if (state == TRANSFORM_MUSHROOM_STATE_MOVING)
+		x += vx * dt;*/
+	x += vx * dt;
 	y += vy * dt;
+}
+
+void CTransformMushroom::OnCollisionWith(LPCOLLISIONEVENT e)
+{
+	if (e->obj->IsBlocking() && e->nx != 0)
+		nx = -nx;
 }

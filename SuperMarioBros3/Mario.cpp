@@ -192,11 +192,9 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 {
-	if (GetLevel() == MARIO_LEVEL_RACCOON)
-		return;
-
-	SetLevel(level + 1);
 	((CTransformMushroom*)e->obj)->SetActive(false);
+	if (GetLevel() < MARIO_LEVEL_RACCOON)
+		SetLevel(level + 1);
 }
 
 void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)

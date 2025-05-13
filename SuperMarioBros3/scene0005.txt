@@ -42,3 +42,6 @@ static.txt
 #double cloud
 99	139	42	56003
 
+#pipe
+7	367	134	3	0
+

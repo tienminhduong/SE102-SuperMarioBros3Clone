@@ -12,6 +12,7 @@
 #include "Square.h"
 #include "QuestionMarkBlock.h"
 #include "StaticObject.h"
+#include "Pipe.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -154,6 +155,14 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		int height = atoi(tokens[4].c_str());
 		int colorID = atoi(tokens[5].c_str());
 		obj = new CSquare(x, y, width, height, colorID);
+	}
+	break;
+
+	case OBJECT_TYPE_PIPE:
+	{
+		int height = atoi(tokens[3].c_str());
+		int type = atoi(tokens[4].c_str());
+		obj = new CPipe(x, y, height, type);
 	}
 	break;
 
