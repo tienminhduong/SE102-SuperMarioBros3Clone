@@ -17,12 +17,12 @@ class CTransformMushroom :
     public CGameObject
 {
 	bool isOnGround = false;
-	bool check = false;
 public:
 	CTransformMushroom(float x, float y);
 	void Render();
 	void OnEnable() override;
 	void SetState(int state) override;
+	void SetDirection(int direction);
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
 	void OnNoCollision(DWORD dt) override;

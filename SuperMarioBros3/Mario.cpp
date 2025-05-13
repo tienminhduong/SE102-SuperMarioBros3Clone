@@ -201,7 +201,7 @@ void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 {
 	if (e->ny > 0) {
 		CQuestionMarkBlock* q = (CQuestionMarkBlock*)e->obj;
-		q->TriggerOnCollisionWithMario();
+		q->TriggerOnCollisionWithMario(x);
 	}
 }
 

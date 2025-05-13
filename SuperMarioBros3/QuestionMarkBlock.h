@@ -2,8 +2,8 @@
 #include "GameObject.h"
 #include "AssetIDs.h"
 
-#define QUESTION_MARK_BLOCK_BBOX_WIDTH 15
-#define QUESTION_MARK_BLOCK_BBOX_HEIGHT 15
+#define QUESTION_MARK_BLOCK_BBOX_WIDTH 16
+#define QUESTION_MARK_BLOCK_BBOX_HEIGHT 16
 
 #define QUESTION_MARK_BLOCK_STATE_EMPTY 0
 #define QUESTION_MARK_BLOCK_STATE_HAS_SOMETHING 1
@@ -34,8 +34,7 @@ public:
 	CQuestionMarkBlock(float x, float y, int containedObjType);
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
-	void OnCollisionWith(LPCOLLISIONEVENT e) override;
-	void TriggerOnCollisionWithMario();
+	void TriggerOnCollisionWithMario(float marioX);
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int IsCollidable() override { return 1; }
 	void ActivateItem();

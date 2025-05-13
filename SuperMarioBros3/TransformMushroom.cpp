@@ -13,6 +13,8 @@ void CTransformMushroom::Render()
 		animations->Get(ID_ANI_TRANSFORM_MUSHROOM)->Render(x, y);
 	else if (state == TRANSFORM_MUSHROOM_STATE_MOVING)
 		animations->Get(ID_ANI_TRANSFORM_MUSHROOM_COMPLETE)->Render(x, y);
+
+	RenderBoundingBox();
 }
 
 void CTransformMushroom::OnEnable()
@@ -34,9 +36,14 @@ void CTransformMushroom::SetState(int state)
 	}
 }
 
+void CTransformMushroom::SetDirection(int direction)
+{
+	this->nx = direction;
+}
+
 void CTransformMushroom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	DebugOut(L"Current state: %d, vx: %f, vy: %f\n", state, vx, vy);
+	DebugOut(L"Current state: %d, vx: %f, vy: %f, nx: %d\n", state, vx, vy, nx);
 	auto animation = CAnimations::GetInstance()->Get(ID_ANI_TRANSFORM_MUSHROOM);
 	if (animation->IsOver())
 		SetState(TRANSFORM_MUSHROOM_STATE_MOVING);
@@ -56,14 +63,14 @@ void CTransformMushroom::GetBoundingBox(float& l, float& t, float& r, float& b)
 
 void CTransformMushroom::OnNoCollision(DWORD dt)
 {
-	/*if (state == TRANSFORM_MUSHROOM_STATE_MOVING)
-		x += vx * dt;*/
 	x += vx * dt;
 	y += vy * dt;
 }
 
 void CTransformMushroom::OnCollisionWith(LPCOLLISIONEVENT e)
 {
-	if (e->obj->IsBlocking() && e->nx != 0)
+	if (e->obj->IsBlocking() && e->nx != 0 && e->ny == 0)
 		nx = -nx;
+	if (e->obj->IsBlocking() && e->ny != 0)
+		vy = 0;
 }
