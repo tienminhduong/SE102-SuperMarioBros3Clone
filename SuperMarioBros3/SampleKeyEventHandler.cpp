@@ -37,6 +37,13 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	case DIK_R: // reset
 		//Reload();
 		break;
+	case DIK_NUMPADENTER:
+	{
+		float marioX, marioY;
+		mario->GetPosition(marioX, marioY);
+		DebugOut(L"[ENTER KEY PRESSED] Mario current position is: (%f, %f)\n", marioX, marioY);
+	}
+		break;
 	}
 }
 

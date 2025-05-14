@@ -13,8 +13,6 @@ void CTransformMushroom::Render()
 		animations->Get(ID_ANI_TRANSFORM_MUSHROOM)->Render(x, y);
 	else if (state == TRANSFORM_MUSHROOM_STATE_MOVING)
 		animations->Get(ID_ANI_TRANSFORM_MUSHROOM_COMPLETE)->Render(x, y);
-
-	RenderBoundingBox();
 }
 
 void CTransformMushroom::OnEnable()

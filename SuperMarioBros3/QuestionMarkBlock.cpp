@@ -37,7 +37,6 @@ void CQuestionMarkBlock::Render()
 		animations->Get(ID_ANI_QUESTION_MARK_BLOCK_EMPTY)->Render(x, y);
 	else
 		animations->Get(ID_ANI_QUESTION_MARK_BLOCK_HIT)->Render(x, y);
-	RenderBoundingBox();
 }
 
 void CQuestionMarkBlock::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
@@ -60,14 +59,12 @@ void CQuestionMarkBlock::TriggerOnCollisionWithMario(float marioX)
 		SetState(QUESTION_MARK_BLOCK_STATE_HIT);
 
 	int direction = (x - marioX) >= 0 ? 1 : -1;
-	//log x, marioX and direction
-	DebugOut(L"[QUES] x = %f, marioX = %f, direction = %d\n", x, marioX, direction);
 	((CTransformMushroom*)containedObjs[QUES_BLOCK_TRANSFORM_MUSHROOM_INDEX])->SetDirection(direction);
 }
 
 void CQuestionMarkBlock::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
-	left = x - QUESTION_MARK_BLOCK_BBOX_WIDTH / 2;
+	left = x - QUESTION_MARK_BLOCK_BBOX_WIDTH / 2 + 1;
 	top = y - QUESTION_MARK_BLOCK_BBOX_HEIGHT / 2;
 	right = left + QUESTION_MARK_BLOCK_BBOX_WIDTH;
 	bottom = top + QUESTION_MARK_BLOCK_BBOX_HEIGHT;

@@ -135,6 +135,12 @@ void CFirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 void CFirePiranhaPlant::GetBoundingBox(float& l, float& t, float& r, float& b)
 {
+	if (state == FIRE_PIRANHA_PLANT_STATE_UNACTIVE)
+	{
+		l = t = r = b = 0;
+		return;
+	}
+
 	l = x - FIRE_PIRANHA_PLANT_BBOX_WIDTH / 2;
 	t = y - FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2;
 	r = l + FIRE_PIRANHA_PLANT_BBOX_WIDTH;
