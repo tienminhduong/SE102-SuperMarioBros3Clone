@@ -27,29 +27,35 @@
 
 #define FIRE_PIRANHA_NOT_MOVE_UP_RANGE 27
 #define FIRE_PIRANHA_MOVE_TIME_COUNT 3000 // 3000ms
+#define FIRE_PIRANHA_SHOOT_TIME_COUNT 2000 //2000ms
 
 #define FIRE_PIRANHA_MOVE_SPEED 0.05f
 
+#define FIRE_PIRANHA_SHOOTING_OFFSET 9
 
-class FirePiranhaPlant :
+
+class CFirePiranhaPlant :
     public CGameObject
 {
 	int animationDirection = 0;
 	int GetAniID();
 	LPGAMEOBJECT mario;
 	LPGAMEOBJECT pipe;
-	int movingCountdown;
+	int movingCountdown = 0;
+	int shootCountdown = 0;
+	bool fired = false;
 
 	float SnapAngle(float angle, int& index);
 	float FindAngleOfMario(int& index);
+	void FireBullet();
 	vector<float> shootAngles = { 20, 45, 135, 160, 200, 225, 315, 340 };
 public:
-	FirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe);
+	CFirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe);
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void GetBoundingBox(float& l, float& t, float& r, float& b) override;
 	void SetState(int state) override;
 	int IsBlocking() override { return 0; }
-	int GetRenderLayer() override { return 0; }
+	int GetRenderLayer() override { return 2; }
 };
 

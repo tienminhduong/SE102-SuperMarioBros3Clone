@@ -1,18 +1,21 @@
 #include "FirePiranhaPlant.h"
+#include "FirePiranhaPlantBullet.h"
 #include "Pipe.h"
+#include "PlayScene.h"
+#include "AssetIDs.h"
 #include "debug.h"
 
-int FirePiranhaPlant::GetAniID()
+int CFirePiranhaPlant::GetAniID()
 {
 	int id = ID_ANI_FIRE_PIRANHA_DEFAULT + animationDirection + 4 * (state % 2);
 	if (id < ID_ANI_FIRE_PIRANHA_DEFAULT || id > ID_ANI_FIRE_PIRANHA_RIGHT_BOTTOM_IDLE)
 	{
-		DebugOut(L"[ERROR] Invalid animation ID: %d\n", id);
+		//DebugOut(L"[ERROR] Invalid animation ID: %d\n", id);
 		return ID_ANI_FIRE_PIRANHA_DEFAULT;
 	}
 }
 
-float FirePiranhaPlant::SnapAngle(float angle, int& index)
+float CFirePiranhaPlant::SnapAngle(float angle, int& index)
 {
 	const int angleNum = 8;
 
@@ -27,46 +30,60 @@ float FirePiranhaPlant::SnapAngle(float angle, int& index)
 	return result;
 }
 
-float FirePiranhaPlant::FindAngleOfMario(int &index)
+float CFirePiranhaPlant::FindAngleOfMario(int &index)
 {
 	float marioX, marioY;
 	mario->GetPosition(marioX, marioY);
 
-	const float pi = 3.1415926535898f;
 
 	float dx = marioX - x;
-	float dy = marioY - y;
-	float angle = dx != 0 ? ((atan(dy / dx) + pi / 2) * 180 / pi) : (dy < 0 ? 90 : 270);
+	float dy = y - marioY;
+	float angle = atan2(dy, dx) * 180 / PI;
+	angle += 180.f;
 
-	float result = SnapAngle(marioX < x ? angle : angle + 180, index);
-	DebugOut(L"angle: %f, result: %f\n", angle, result);
+	float result = SnapAngle(angle, index);
 	return result;
 }
 
-FirePiranhaPlant::FirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe) : CGameObject(x, y)
+void CFirePiranhaPlant::FireBullet()
+{
+	float shootingX = x, shootingY = y - FIRE_PIRANHA_SHOOTING_OFFSET;
+	float dirX, dirY;
+
+	int index;
+	float angle = (FindAngleOfMario(index) - 180.f) * PI / 180.f;
+	dirX = cos(angle);
+	dirY = -sin(angle);
+	DebugOut(L"angle: %f, dirX: %f, dirY: %f\n", angle, dirX, dirY);
+
+	LPGAMEOBJECT bullet = new CFirePiranhaPlantBullet(shootingX, shootingY, dirX, dirY);
+	CPlayScene* currentScene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
+	currentScene->AddNewObject(bullet);
+	fired = true;
+}
+
+CFirePiranhaPlant::CFirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe) : CGameObject(x, y)
 {
 	SetState(FIRE_PIRANHA_PLANT_STATE_UNACTIVE);
 	this->mario = mario;
 	this->pipe = pipe;
 }
 
-void FirePiranhaPlant::Render()
+void CFirePiranhaPlant::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = GetAniID();
 	// log animation id
-	DebugOut(L"aniId: %d\n", aniId);
 	animations->Get(aniId)->Render(x, y);
 	RenderBoundingBox();
 }
 
-void FirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+void CFirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	float marioX, marioY;
 	mario->GetPosition(marioX, marioY);
 	float distance = abs(marioX - x);
 
-	//DebugOut(L"movingCountdown: %d, distance: %f, STATE: %d\n", movingCountdown, distance, state);
 	switch (state)
 	{
 	case FIRE_PIRANHA_PLANT_STATE_UNACTIVE:
@@ -82,18 +99,19 @@ void FirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		y += vy * dt;
 		if (y + FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2 <= ((CPipe*)pipe)->GetTop())
-		{
-			movingCountdown = FIRE_PIRANHA_MOVE_TIME_COUNT;
 			SetState(FIRE_PIRANHA_PLANT_STATE_IDLE);
-		}
 	}
 	break;
 
 	case FIRE_PIRANHA_PLANT_STATE_IDLE:
 	{
-		//movingCountdown -= dt;
+		movingCountdown -= dt;
 		if (movingCountdown <= 0)
 			SetState(FIRE_PIRANHA_PLANT_STATE_MOVING_DOWN);
+
+		shootCountdown -= dt;
+		if (shootCountdown <= 0 && !fired)
+			FireBullet();
 	}
 	break;
 
@@ -110,11 +128,10 @@ void FirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		int snapAngleIndex;
 		float angle = FindAngleOfMario(snapAngleIndex);
 		animationDirection = snapAngleIndex / 2;
-		DebugOut(L"index: %d\n", animationDirection);
 	}
 }
 
-void FirePiranhaPlant::GetBoundingBox(float& l, float& t, float& r, float& b)
+void CFirePiranhaPlant::GetBoundingBox(float& l, float& t, float& r, float& b)
 {
 	l = x - FIRE_PIRANHA_PLANT_BBOX_WIDTH / 2;
 	t = y - FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2;
@@ -122,7 +139,7 @@ void FirePiranhaPlant::GetBoundingBox(float& l, float& t, float& r, float& b)
 	b = t + FIRE_PIRANHA_PLANT_BBOX_HEIGHT;
 }
 
-void FirePiranhaPlant::SetState(int state)
+void CFirePiranhaPlant::SetState(int state)
 {
 	CGameObject::SetState(state);
 	switch (state)
@@ -131,7 +148,9 @@ void FirePiranhaPlant::SetState(int state)
 		vy = -FIRE_PIRANHA_MOVE_SPEED;
 		break;
 	case FIRE_PIRANHA_PLANT_STATE_IDLE:
-
+		movingCountdown = FIRE_PIRANHA_MOVE_TIME_COUNT;
+		shootCountdown = FIRE_PIRANHA_SHOOT_TIME_COUNT;
+		fired = false;
 		break;
 	case FIRE_PIRANHA_PLANT_STATE_MOVING_DOWN:
 		vy = FIRE_PIRANHA_MOVE_SPEED;

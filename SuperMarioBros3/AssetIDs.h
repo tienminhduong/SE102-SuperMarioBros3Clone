@@ -22,3 +22,5 @@
 #define OBJECT_TYPE_STATIC	99
 
 #define MAX_RENDER_LAYER 5
+
+#define PI 3.1415926535898f

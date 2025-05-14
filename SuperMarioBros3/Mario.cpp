@@ -143,7 +143,7 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
-	else if (dynamic_cast<FirePiranhaPlant*>(e->obj))
+	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		TakeDamage();
 }
 
