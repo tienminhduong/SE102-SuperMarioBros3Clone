@@ -10,7 +10,7 @@ int CFirePiranhaPlant::GetAniID()
 	int id = ID_ANI_FIRE_PIRANHA_DEFAULT + animationDirection + 4 * (state % 2);
 	if (id < ID_ANI_FIRE_PIRANHA_DEFAULT || id > ID_ANI_FIRE_PIRANHA_RIGHT_BOTTOM_IDLE)
 	{
-		//DebugOut(L"[ERROR] Invalid animation ID: %d\n", id);
+		DebugOut(L"[ERROR] Invalid animation ID: %d, direction: %d, state: %d\n", id, animationDirection, state);
 		return ID_ANI_FIRE_PIRANHA_DEFAULT;
 	}
 }
@@ -20,9 +20,9 @@ float CFirePiranhaPlant::SnapAngle(float angle, int& index)
 	const int angleNum = 8;
 
 	float result = shootAngles[0];
+	index = 0;
 	for (int i = 0; i < angleNum; i++)
 	{
-		//DebugOut(L"angle: %f, a: %f, res1: %f, res2: %f\n", angle, availableAngles[i], res1, res2);
 		if (abs(angle - shootAngles[i]) < abs(result - angle))
 			result = shootAngles[i], index = i;
 	}
@@ -73,7 +73,6 @@ void CFirePiranhaPlant::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = GetAniID();
-	// log animation id
 	animations->Get(aniId)->Render(x, y);
 	RenderBoundingBox();
 }

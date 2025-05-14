@@ -56,6 +56,6 @@ public:
 	void GetBoundingBox(float& l, float& t, float& r, float& b) override;
 	void SetState(int state) override;
 	int IsBlocking() override { return 0; }
-	int GetRenderLayer() override { return 2; }
+	//int GetRenderLayer() override { return 2; }
 };
 

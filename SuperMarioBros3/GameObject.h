@@ -14,6 +14,10 @@ using namespace std;
 #define ID_TEX_BBOX -100		// special texture to draw object bounding box
 #define BBOX_ALPHA 0.25f		// Bounding box transparency
 
+//#define INGAME_CAMERA_WIDTH 251
+#define INGAME_CAMERA_WIDTH 256
+#define INGAME_CAMERA_HEIGHT 187
+
 class CGameObject
 {
 private:
@@ -32,6 +36,9 @@ protected:
 
 	bool isDeleted;
 
+	bool isOnCameraEnterCheck = false;
+	bool isOutCameraCheck = false;
+	bool IsOnCamera();
 public: 
 	void SetPosition(float x, float y) { this->x = x, this->y = y; }
 	void SetSpeed(float vx, float vy) { this->vx = vx, this->vy = vy; }
@@ -57,6 +64,9 @@ public:
 	bool GetActive() { return isActive; }
 	virtual void OnEnable() {};
 	virtual void OnDisable() {};
+
+	bool IsEnterCamera();
+	bool IsOutCamera();
 
 	virtual int GetRenderLayer() { return 1; }
 

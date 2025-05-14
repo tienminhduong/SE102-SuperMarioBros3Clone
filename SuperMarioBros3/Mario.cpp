@@ -11,6 +11,7 @@
 #include "TransformMushroom.h"
 #include "TransformLeaf.h"
 #include "FirePiranhaPlant.h"
+#include "FirePiranhaPlantBullet.h"
 
 #include "Collision.h"
 
@@ -144,6 +145,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
+		TakeDamage();
+	else if (dynamic_cast<CFirePiranhaPlantBullet*>(e->obj))
 		TakeDamage();
 }
 

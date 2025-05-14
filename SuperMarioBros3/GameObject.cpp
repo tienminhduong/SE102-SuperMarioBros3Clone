@@ -27,6 +27,28 @@ void CGameObject::SetActive(bool isActive)
 		OnDisable();
 }
 
+bool CGameObject::IsEnterCamera()
+{
+	bool prevCameraStatus = isOnCameraEnterCheck;
+	isOnCameraEnterCheck = IsOnCamera();
+	return isOnCameraEnterCheck && !prevCameraStatus;
+}
+
+bool CGameObject::IsOutCamera()
+{
+	bool prevCameraStatus = isOutCameraCheck;
+	isOutCameraCheck = IsOnCamera();
+	return !isOutCameraCheck && prevCameraStatus;
+}
+
+bool CGameObject::IsOnCamera()
+{
+	float cam_x, cam_y;
+	CGame::GetInstance()->GetCamPos(cam_x, cam_y);
+	return cam_x + INGAME_CAMERA_WIDTH > x && cam_x < x &&
+		cam_y + INGAME_CAMERA_HEIGHT > y && cam_y < y;
+}
+
 void CGameObject::RenderBoundingBox(float alpha)
 {
 	D3DXVECTOR3 p(x, y, 0);

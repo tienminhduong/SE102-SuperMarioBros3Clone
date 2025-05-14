@@ -32,6 +32,15 @@ void CPipe::Render()
 		s->Get(PIPE_SPRITE_MID_ID)->Draw(x, yy);
 		yy += PIPE_CELL_HEIGHT;
 	}
+
+	if (IsEnterCamera())
+	{
+		DebugOut(L"Pipe has come!\n");
+	}
+	if (IsOutCamera())
+	{
+		DebugOut(L"Pipe has gone!\n");
+	}
 }
 
 void CPipe::GetBoundingBox(float& l, float& t, float& r, float& b)

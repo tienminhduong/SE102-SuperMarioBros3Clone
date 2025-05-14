@@ -29,8 +29,11 @@ void CFirePiranhaPlantBullet::Render()
 
 void CFirePiranhaPlantBullet::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	x += dirX * dt * FIRE_PIRANHA_BULLET_SPEED;
-	y += dirY * dt * FIRE_PIRANHA_BULLET_SPEED;
+	vx = dirX * FIRE_PIRANHA_BULLET_SPEED;
+	vy = dirY * FIRE_PIRANHA_BULLET_SPEED;
+
+	x += vx * dt;
+	y += vy * dt;
 }
 
 void CFirePiranhaPlantBullet::GetBoundingBox(float& l, float& t, float& r, float& b)
