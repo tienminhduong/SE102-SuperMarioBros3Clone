@@ -9,6 +9,10 @@ class CRaccoonTail :
 {
 public:
 	CRaccoonTail(float x, float y) : CGameObject(x, y) { }
-    void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
+	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
+	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
+	void OnCollisionWith(LPCOLLISIONEVENT e) override;
+	int IsCollidable() override { return 1; }
+	int IsBlocking() override { return 0; }
 	void Render() override;
 };

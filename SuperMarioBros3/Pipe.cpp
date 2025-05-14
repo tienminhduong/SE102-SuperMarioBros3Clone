@@ -34,6 +34,12 @@ void CPipe::Render()
 	}
 }
 
+void CPipe::Update(DWORD dt, std::vector<LPGAMEOBJECT>* coObjects)
+{
+	if (containedObj != NULL && containedObj->IsDeleted())
+		containedObj = NULL;
+}
+
 void CPipe::GetBoundingBox(float& l, float& t, float& r, float& b)
 {
 	l = x - PIPE_CELL_WIDTH / 2;
@@ -46,6 +52,8 @@ void CPipe::OnExitCamera()
 {
 	if (type == PIPE_TYPE_CONTAIN_FIRE_PIRANHA_PLANT)
 	{
+		if (containedObj == NULL)
+			return;
 		CFirePiranhaPlant* firePiranhaPlant = (CFirePiranhaPlant*)containedObj;
 		firePiranhaPlant->SetState(FIRE_PIRANHA_PLANT_STATE_UNACTIVE);
 		firePiranhaPlant->SetPosition(x, y + FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2);

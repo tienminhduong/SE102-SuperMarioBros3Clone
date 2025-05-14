@@ -92,7 +92,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
-	if (tail != nullptr)
+	if (tail != nullptr && tail->GetActive() && rotatingAnimDuration < rotatingAnimMaxDuration)
 	{
 		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
 
@@ -100,7 +100,16 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
 		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
 
-		tail->SetPosition(x - tail_offset_x * nx, y + MARIO_RACCOON_TAIL_OFFSET_Y);
+		float tailX, tailY;
+		tail->GetPosition(tailX, tailY);
+
+		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
+		float dx = newTailX - tailX, dy = newTailY - tailY;
+		if (abs(tailX - x) < MARIO_RACCOON_TAIL_OFFSET_X)
+			tail->SetSpeed(dx / dt, dy / dt);
+		else
+			tail->SetSpeed(0, 0);
+		tail->SetPosition(newTailX, newTailY);
 	}
 }
 
@@ -518,7 +527,6 @@ void CMario::TriggerRaccoonAttack()
 	rotatingAnimMaxDuration = animation->GetDuration();
 	animation->Reset();
 	rotatingAnimDuration = rotatingAnimMaxDuration;
-	DebugOut(L"Triggered!, duration: %d\n", rotatingAnimDuration);
 	tail->SetActive(true);
 }
 
