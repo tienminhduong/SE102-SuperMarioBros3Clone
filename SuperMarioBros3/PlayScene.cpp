@@ -12,6 +12,7 @@
 #include "Square.h"
 #include "QuestionMarkBlock.h"
 #include "StaticObject.h"
+#include "Pipe.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -157,6 +158,14 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	}
 	break;
 
+	case OBJECT_TYPE_PIPE:
+	{
+		int height = atoi(tokens[3].c_str());
+		int type = atoi(tokens[4].c_str());
+		obj = new CPipe(x, y, height, type);
+	}
+	break;
+
 	case OBJECT_TYPE_PORTAL:
 	{
 		float r = (float)atof(tokens[3].c_str());
@@ -275,6 +284,8 @@ void CPlayScene::Update(DWORD dt)
 	{
 		if (objects[i]->GetActive())
 			objects[i]->Update(dt, &coObjects);
+
+		objects[i]->CheckCameraStatus();
 	}
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)

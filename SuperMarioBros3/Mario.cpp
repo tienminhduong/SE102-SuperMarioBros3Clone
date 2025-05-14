@@ -10,6 +10,8 @@
 #include "QuestionMarkBlock.h"
 #include "TransformMushroom.h"
 #include "TransformLeaf.h"
+#include "FirePiranhaPlant.h"
+#include "FirePiranhaPlantBullet.h"
 
 #include "Collision.h"
 
@@ -142,6 +144,10 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
+	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
+		TakeDamage();
+	else if (dynamic_cast<CFirePiranhaPlantBullet*>(e->obj))
+		TakeDamage();
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -159,21 +165,9 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 	}
 	else // hit by Goomba
 	{
-		if (untouchableDuration <= 0)
+		if (untouchableDuration <= 0 && goomba->GetState() != GOOMBA_STATE_DIE)
 		{
-			if (goomba->GetState() != GOOMBA_STATE_DIE)
-			{
-				if (level > MARIO_LEVEL_SMALL)
-				{
-					SetLevel(GetLevel() - 1);
-					StartUntouchable();
-				}
-				else
-				{
-					DebugOut(L">>> Mario DIE >>> \n");
-					SetState(MARIO_STATE_DIE);
-				}
-			}
+			TakeDamage();
 		}
 	}
 }
@@ -192,18 +186,32 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 {
-	if (GetLevel() == MARIO_LEVEL_RACCOON)
-		return;
-
-	SetLevel(level + 1);
 	((CTransformMushroom*)e->obj)->SetActive(false);
+	if (GetLevel() < MARIO_LEVEL_RACCOON)
+		SetLevel(level + 1);
 }
 
 void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 {
 	if (e->ny > 0) {
 		CQuestionMarkBlock* q = (CQuestionMarkBlock*)e->obj;
-		q->TriggerOnCollisionWithMario();
+		q->TriggerOnCollisionWithMario(x);
+	}
+}
+
+void CMario::TakeDamage()
+{
+	if (untouchableDuration > 0)
+		return;
+	if (level > MARIO_LEVEL_SMALL)
+	{
+		SetLevel(GetLevel() - 1);
+		StartUntouchable();
+	}
+	else
+	{
+		DebugOut(L">>> Mario DIE >>> \n");
+		SetState(MARIO_STATE_DIE);
 	}
 }
 
