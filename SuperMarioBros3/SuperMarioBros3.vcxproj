@@ -148,6 +148,7 @@
     <ClCompile Include="Portal.cpp" />
     <ClCompile Include="QuestionMarkBlock.cpp" />
     <ClCompile Include="RaccoonTail.cpp" />
+    <ClCompile Include="Respawnable.cpp" />
     <ClCompile Include="SampleKeyEventHandler.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Sprites.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Portal.h" />
     <ClInclude Include="QuestionMarkBlock.h" />
     <ClInclude Include="RaccoonTail.h" />
+    <ClInclude Include="Respawnable.h" />
     <ClInclude Include="SampleKeyEventHandler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sprite.h" />

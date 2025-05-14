@@ -6,6 +6,7 @@ platform.txt
 block.txt
 misc.txt
 static.txt
+goomba.txt
 #
 [OBJECTS]
 # type	x	y	extra_settings per object type
@@ -83,3 +84,6 @@ static.txt
 #2 small grass
 99	1047	148	56001
 99	1062	148	56001
+
+#ENEMY
+2	233	164

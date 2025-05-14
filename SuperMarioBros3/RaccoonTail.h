@@ -7,6 +7,8 @@
 class CRaccoonTail :
     public CGameObject
 {
+	void OnCollisionWithGoomba(LPCOLLISIONEVENT e);
+	void OnCollisionWithQuesBlock(LPCOLLISIONEVENT e);
 public:
 	CRaccoonTail(float x, float y) : CGameObject(x, y) { }
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;

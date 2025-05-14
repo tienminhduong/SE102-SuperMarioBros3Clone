@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Respawnable.h"
 
 #define GOOMBA_GRAVITY 0.002f
 #define GOOMBA_WALKING_SPEED 0.05f
@@ -17,7 +18,7 @@
 #define ID_ANI_GOOMBA_WALKING 5000
 #define ID_ANI_GOOMBA_DIE 5001
 
-class CGoomba : public CGameObject
+class CGoomba : public Respawnable
 {
 protected:
 	float ax;				

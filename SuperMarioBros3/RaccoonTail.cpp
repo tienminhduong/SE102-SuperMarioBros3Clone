@@ -2,6 +2,19 @@
 #include "QuestionMarkBlock.h"
 #include "FirePiranhaPlant.h"
 #include "debug.h"
+#include "Goomba.h"
+
+void CRaccoonTail::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
+{
+	CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
+	goomba->SetState(GOOMBA_STATE_DIE);
+}
+
+void CRaccoonTail::OnCollisionWithQuesBlock(LPCOLLISIONEVENT e)
+{
+	CQuestionMarkBlock* block = dynamic_cast<CQuestionMarkBlock*>(e->obj);
+	block->TriggerOnCollisionWithMario(x);
+}
 
 void CRaccoonTail::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
@@ -19,12 +32,11 @@ void CRaccoonTail::GetBoundingBox(float& left, float& top, float& right, float& 
 void CRaccoonTail::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
-	{
-		CQuestionMarkBlock* block = dynamic_cast<CQuestionMarkBlock*>(e->obj);
-		block->TriggerOnCollisionWithMario(x);
-	}
+		OnCollisionWithQuesBlock(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		e->obj->Delete();
+	else if (dynamic_cast<CGoomba*>(e->obj))
+		OnCollisionWithGoomba(e);
 }
 
 void CRaccoonTail::Render()
