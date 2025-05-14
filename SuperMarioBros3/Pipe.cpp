@@ -32,15 +32,6 @@ void CPipe::Render()
 		s->Get(PIPE_SPRITE_MID_ID)->Draw(x, yy);
 		yy += PIPE_CELL_HEIGHT;
 	}
-
-	if (IsEnterCamera())
-	{
-		DebugOut(L"Pipe has come!\n");
-	}
-	if (IsOutCamera())
-	{
-		DebugOut(L"Pipe has gone!\n");
-	}
 }
 
 void CPipe::GetBoundingBox(float& l, float& t, float& r, float& b)
@@ -49,4 +40,14 @@ void CPipe::GetBoundingBox(float& l, float& t, float& r, float& b)
 	t = y - PIPE_CELL_HEIGHT / 2;
 	r = l + PIPE_CELL_WIDTH;
 	b = t + this->height * PIPE_CELL_HEIGHT;
+}
+
+void CPipe::OnExitCamera()
+{
+	if (type == PIPE_TYPE_CONTAIN_FIRE_PIRANHA_PLANT)
+	{
+		CFirePiranhaPlant* firePiranhaPlant = (CFirePiranhaPlant*)containedObj;
+		firePiranhaPlant->SetState(FIRE_PIRANHA_PLANT_STATE_UNACTIVE);
+		firePiranhaPlant->SetPosition(x, y + FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2);
+	}
 }

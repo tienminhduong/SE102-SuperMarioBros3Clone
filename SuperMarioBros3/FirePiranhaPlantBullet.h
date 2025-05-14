@@ -23,5 +23,6 @@ public:
 	void GetBoundingBox(float& l, float& t, float& r, float& b) override;
 	int IsBlocking() override { return 0; }
 	int GetRenderLayer() override { return 2; }
+	void OnExitCamera() override { Delete(); }
 };
 

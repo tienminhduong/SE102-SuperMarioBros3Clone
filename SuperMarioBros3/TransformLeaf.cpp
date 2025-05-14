@@ -49,7 +49,6 @@ void CTransformLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		float px = x;
 		x = amplitude * sin(1.5f*pi * t / 1000) + startX + amplitude;
-		DebugOut(L"TransformLeaf x: %f\n", sin(1.5f * pi * t / 1000));
 		float dx = x - px;
 		if (dx * nx < 0) {
 			nx = dx / abs(dx);

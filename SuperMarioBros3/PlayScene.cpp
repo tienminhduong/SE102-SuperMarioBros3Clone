@@ -284,6 +284,8 @@ void CPlayScene::Update(DWORD dt)
 	{
 		if (objects[i]->GetActive())
 			objects[i]->Update(dt, &coObjects);
+
+		objects[i]->CheckCameraStatus();
 	}
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)

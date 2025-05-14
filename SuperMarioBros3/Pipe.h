@@ -28,5 +28,6 @@ public:
 	void Update(DWORD dt, std::vector<LPGAMEOBJECT>* coObjects = NULL) override {}
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
 	int IsBlocking() override { return 1; }
+	void OnExitCamera() override;
 };
 

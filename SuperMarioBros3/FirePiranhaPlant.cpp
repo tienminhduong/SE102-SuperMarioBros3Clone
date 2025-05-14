@@ -87,6 +87,9 @@ void CFirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 	case FIRE_PIRANHA_PLANT_STATE_UNACTIVE:
 	{
+		if (!IsOnCamera())
+			return;
+
 		if (movingCountdown > 0)
 			movingCountdown -= dt;
 		if (movingCountdown <= 0 && distance > FIRE_PIRANHA_NOT_MOVE_UP_RANGE)
@@ -147,7 +150,7 @@ void CFirePiranhaPlant::SetState(int state)
 		vy = -FIRE_PIRANHA_MOVE_SPEED;
 		break;
 	case FIRE_PIRANHA_PLANT_STATE_IDLE:
-		movingCountdown = FIRE_PIRANHA_MOVE_TIME_COUNT;
+		movingCountdown = FIRE_PIRANHA_MOVE_DOWN_TIME_COUNT;
 		shootCountdown = FIRE_PIRANHA_SHOOT_TIME_COUNT;
 		fired = false;
 		break;
@@ -155,7 +158,7 @@ void CFirePiranhaPlant::SetState(int state)
 		vy = FIRE_PIRANHA_MOVE_SPEED;
 		break;
 	case FIRE_PIRANHA_PLANT_STATE_UNACTIVE:
-		movingCountdown = FIRE_PIRANHA_MOVE_TIME_COUNT;
+		movingCountdown = FIRE_PIRANHA_MOVE_UP_TIME_COUNT;
 		break;
 	default:
 		break;

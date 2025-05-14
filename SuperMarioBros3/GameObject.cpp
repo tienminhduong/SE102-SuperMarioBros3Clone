@@ -49,6 +49,14 @@ bool CGameObject::IsOnCamera()
 		cam_y + INGAME_CAMERA_HEIGHT > y && cam_y < y;
 }
 
+void CGameObject::CheckCameraStatus()
+{
+	if (IsEnterCamera())
+		OnEnterCamera();
+	if (IsOutCamera())
+		OnExitCamera();
+}
+
 void CGameObject::RenderBoundingBox(float alpha)
 {
 	D3DXVECTOR3 p(x, y, 0);

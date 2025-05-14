@@ -22,6 +22,11 @@ class CGameObject
 {
 private:
 	bool isActive;
+	bool isOnCameraEnterCheck = false;
+	bool isOutCameraCheck = false;
+
+	bool IsEnterCamera();
+	bool IsOutCamera();
 protected:
 
 	float x; 
@@ -35,10 +40,6 @@ protected:
 	int state;
 
 	bool isDeleted;
-
-	bool isOnCameraEnterCheck = false;
-	bool isOutCameraCheck = false;
-	bool IsOnCamera();
 public: 
 	void SetPosition(float x, float y) { this->x = x, this->y = y; }
 	void SetSpeed(float vx, float vy) { this->vx = vx, this->vy = vy; }
@@ -60,13 +61,16 @@ public:
 	virtual void Render() = 0;
 	virtual void SetState(int state) { this->state = state; }
 
+
 	void SetActive(bool isActive);
 	bool GetActive() { return isActive; }
 	virtual void OnEnable() {};
 	virtual void OnDisable() {};
 
-	bool IsEnterCamera();
-	bool IsOutCamera();
+	bool IsOnCamera();
+	void CheckCameraStatus();
+	virtual void OnEnterCamera() {};
+	virtual void OnExitCamera() {};
 
 	virtual int GetRenderLayer() { return 1; }
 
