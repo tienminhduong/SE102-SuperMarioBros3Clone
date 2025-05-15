@@ -66,3 +66,8 @@ void CTransformLeaf::GetBoundingBox(float& left, float& top, float& right, float
 	right = left + TRANSFORM_LEAF_BBOX_WIDTH;
 	bottom = top + TRANSFORM_LEAF_BBOX_HEIGHT;
 }
+
+void CTransformLeaf::OnExitCamera()
+{
+	SetActive(false);
+}

@@ -4,10 +4,13 @@
 #include "debug.h"
 #include "Goomba.h"
 
-void CRaccoonTail::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
+void CRaccoonTail::OnCollisionWithEnemy(LPCOLLISIONEVENT e)
 {
-	CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
-	goomba->SetState(GOOMBA_STATE_DIE);
+	float eX, eY;
+	e->obj->GetPosition(eX, eY);
+	CRespawnableEnemy* enemy = dynamic_cast<CRespawnableEnemy*>(e->obj);
+	enemy->OnAttackedByTail(eX - x);
+
 }
 
 void CRaccoonTail::OnCollisionWithQuesBlock(LPCOLLISIONEVENT e)
@@ -35,8 +38,8 @@ void CRaccoonTail::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithQuesBlock(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		e->obj->Delete();
-	else if (dynamic_cast<CGoomba*>(e->obj))
-		OnCollisionWithGoomba(e);
+	else if (dynamic_cast<CRespawnableEnemy*>(e->obj))
+		OnCollisionWithEnemy(e);
 }
 
 void CRaccoonTail::Render()

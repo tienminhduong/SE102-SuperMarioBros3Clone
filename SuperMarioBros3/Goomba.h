@@ -17,14 +17,12 @@
 
 #define ID_ANI_GOOMBA_WALKING 5000
 #define ID_ANI_GOOMBA_DIE 5001
+#define ID_ANI_GOOMBA_KICKED 5002
 
-class CGoomba : public Respawnable
+class CGoomba : public CRespawnableEnemy
 {
 protected:
-	float ax;				
-	float ay; 
-
-	ULONGLONG die_start;
+	int die_start;
 
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects);
@@ -39,5 +37,6 @@ protected:
 public:
 	CGoomba(float x, float y);
 	void OnEnable() override;
+	void OnExitCamera() override;
 	virtual void SetState(int state);
 };

@@ -1,23 +1,35 @@
 #pragma once
 #include "GameObject.h"
 
-class RespawnPoint;
+#define ENEMY_STATE_KICKED -1
+#define ENEMY_KICKED_FLY_SPEED 0.15f
+#define ENEMY_KICKED_X 0.002f
+#define ENEMY_GRAVITY 0.0004f
 
-class Respawnable :
+class CRespawnPoint;
+
+class CRespawnableEnemy :
     public CGameObject
 {
-	RespawnPoint* respawnPoint = nullptr;
+	CRespawnPoint* respawnPoint = nullptr;
+	int flyDirection = 1;
+protected:
+	float ax;
+	float ay;
 public:
-	Respawnable(float x, float y);
+	CRespawnableEnemy(float x, float y);
+	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) override;
 	void OnExitCamera() override;
 	void Delete() override;
+	void OnAttackedByTail(int direction);
+	virtual void SetState(int state) override;
 };
 
-class RespawnPoint : public CGameObject {
+class CRespawnPoint : public CGameObject {
 private:
-	Respawnable* obj = nullptr;
+	CRespawnableEnemy* obj = nullptr;
 public:
-	RespawnPoint(float x, float y, Respawnable* obj) : CGameObject(x, y) { this->obj = obj; }
+	CRespawnPoint(float x, float y, CRespawnableEnemy* obj);
 	void Render() override {}
 	void GetBoundingBox(float& l, float& t, float& r, float& b) override {}
 	void OnEnterCamera() override;

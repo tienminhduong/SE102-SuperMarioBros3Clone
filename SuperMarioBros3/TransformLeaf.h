@@ -34,5 +34,6 @@ public:
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int GetRenderLayer() override { return 2; }
 	int IsBlocking() override { return 0; }
+	void OnExitCamera() override;
 };
 

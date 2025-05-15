@@ -86,4 +86,6 @@ goomba.txt
 99	1062	148	56001
 
 #ENEMY
+#gooomba
 2	233	164
+2	564	164

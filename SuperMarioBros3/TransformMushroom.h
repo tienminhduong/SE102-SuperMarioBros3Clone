@@ -29,5 +29,7 @@ public:
 	void OnCollisionWith(LPCOLLISIONEVENT e) override;
 	int IsBlocking() { return 0; }
 	int IsCollidable() { return 1; }
+
+	void OnExitCamera() override;
 };
 

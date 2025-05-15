@@ -15,8 +15,10 @@ using namespace std;
 #define BBOX_ALPHA 0.25f		// Bounding box transparency
 
 //#define INGAME_CAMERA_WIDTH 251
-#define INGAME_CAMERA_WIDTH 256
-#define INGAME_CAMERA_HEIGHT 187
+//#define INGAME_CAMERA_WIDTH 256
+//#define INGAME_CAMERA_HEIGHT 187
+#define INGAME_CAMERA_WIDTH 266
+#define INGAME_CAMERA_HEIGHT 200
 
 class CGameObject
 {

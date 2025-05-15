@@ -72,3 +72,8 @@ void CTransformMushroom::OnCollisionWith(LPCOLLISIONEVENT e)
 	if (e->obj->IsBlocking() && e->ny != 0)
 		vy = 0;
 }
+
+void CTransformMushroom::OnExitCamera()
+{
+	SetActive(false);
+}

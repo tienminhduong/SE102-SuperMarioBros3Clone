@@ -550,6 +550,9 @@ void CMario::SetLevel(int l)
 	if (this->level == MARIO_LEVEL_SMALL)
 		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2.f;
 
+	if (level == MARIO_LEVEL_RACCOON && l != level && tail != nullptr)
+		tail->SetActive(false);
+
 	if (l == MARIO_LEVEL_SMALL)
 	{
 		currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;

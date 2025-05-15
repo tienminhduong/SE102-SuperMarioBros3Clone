@@ -1,14 +1,28 @@
 #include "Respawnable.h"
 #include "PlayScene.h"
 
-Respawnable::Respawnable(float x, float y) : CGameObject(x, y)
+CRespawnableEnemy::CRespawnableEnemy(float x, float y) : CGameObject(x, y)
 {
-	respawnPoint = new RespawnPoint(x, y, this);
+	respawnPoint = new CRespawnPoint(x, y, this);
 	CPlayScene* scene = dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene());
 	scene->AddNewObject(respawnPoint);
+
+	ax = 0.f;
+	ay = ENEMY_GRAVITY;
 }
 
-void Respawnable::OnExitCamera()
+void CRespawnableEnemy::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+{
+	if (state == ENEMY_STATE_KICKED)
+	{
+		vy += ay * dt;
+		y += vy * dt;
+
+		DebugOut(L"[ENEMY] Kicked, vy: %f, position y: %f\n", vy, y);
+	}
+}
+
+void CRespawnableEnemy::OnExitCamera()
 {
 	float posX, posY;
 	respawnPoint->GetPosition(posX, posY);
@@ -16,7 +30,7 @@ void Respawnable::OnExitCamera()
 	SetActive(false);
 }
 
-void Respawnable::Delete()
+void CRespawnableEnemy::Delete()
 {
 	if (respawnPoint != nullptr)
 	{
@@ -26,13 +40,38 @@ void Respawnable::Delete()
 	isDeleted = true;
 }
 
-void RespawnPoint::OnEnterCamera()
+void CRespawnableEnemy::OnAttackedByTail(int direction)
+{
+	flyDirection = direction;
+	SetState(ENEMY_STATE_KICKED);
+}
+
+void CRespawnableEnemy::SetState(int state)
+{
+	this->state = state;
+	if (state == ENEMY_STATE_KICKED)
+	{
+		nx = flyDirection;
+		vx = flyDirection * ENEMY_KICKED_X;
+		vy = -ENEMY_KICKED_FLY_SPEED;
+	}
+}
+
+CRespawnPoint::CRespawnPoint(float x, float y, CRespawnableEnemy* obj)
+	: CGameObject(x, y)
+{
+	this->obj = obj;
+	if (!IsOnCamera())
+		obj->SetActive(false);
+}
+
+void CRespawnPoint::OnEnterCamera()
 {
 	if (obj != nullptr)
 		obj->SetActive(true);
 }
 
-void RespawnPoint::Delete()
+void CRespawnPoint::Delete()
 {
 	if (obj != nullptr)
 		obj = nullptr;

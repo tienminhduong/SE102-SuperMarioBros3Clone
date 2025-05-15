@@ -7,7 +7,7 @@
 class CRaccoonTail :
     public CGameObject
 {
-	void OnCollisionWithGoomba(LPCOLLISIONEVENT e);
+	void OnCollisionWithEnemy(LPCOLLISIONEVENT e);
 	void OnCollisionWithQuesBlock(LPCOLLISIONEVENT e);
 public:
 	CRaccoonTail(float x, float y) : CGameObject(x, y) { }
