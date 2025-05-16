@@ -1,4 +1,5 @@
 #include "Paragoomba.h"
+#include "PlayScene.h"
 
 void Paragoomba::Render()
 {
@@ -35,7 +36,81 @@ void Paragoomba::GetBoundingBox(float& left, float& top, float& right, float& bo
 
 }
 
+void Paragoomba::FindMario()
+{
+	CPlayScene* scene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
+	LPGAMEOBJECT mario = scene->GetPlayer();
+	if (mario != NULL)
+	{
+		float marioX, marioY;
+		mario->GetPosition(marioX, marioY);
+		nx = marioX > x ? 1 : -1;
+		vx = nx * GOOMBA_WALKING_SPEED;
+	}
+	else {
+		DebugOut(L"[PARAGOOMBA] Mario not found!\n");
+	}
+}
+
+Paragoomba::Paragoomba(float x, float y) : CGoomba(x, y)
+{
+	OnEnable();
+}
+
+void Paragoomba::OnEnable()
+{
+	CGoomba::OnEnable();
+	SetState(PARAGOOMBA_STATE_WALK);
+}
+
 void Paragoomba::SetState(int state)
 {
 	CGoomba::SetState(state);
+
+	//get mario
+
+	switch (state)
+	{
+	case PARAGOOMBA_STATE_WALK:
+		changeStateDuration = CAnimations::GetInstance()->Get(ID_ANI_PARAGOOMBA_WALKING)->GetDuration();
+		vy = 0;
+		FindMario();
+		break;
+	case PARAGOOMBA_STATE_JUMP:
+		jumpCount = 0;
+		vy = -PARAGOOMBA_JUMP_SPEED;
+		break;
+	case PARAGOOMBA_STATE_FLY:
+		vy = -PARAGOOMBA_FLY_SPEED;
+		break;
+	}
+}
+
+void Paragoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+{
+	CGoomba::Update(dt, coObjects);
+	if (changeStateDuration > 0)
+	{
+		changeStateDuration -= dt;
+		if (changeStateDuration <= 0)
+			SetState(PARAGOOMBA_STATE_JUMP);
+	}
+}
+
+void Paragoomba::OnCollisionWith(LPCOLLISIONEVENT e)
+{
+	CGoomba::OnCollisionWith(e);
+	if (e->ny < 0)
+	{
+		if (state == PARAGOOMBA_STATE_FLY)
+			SetState(PARAGOOMBA_STATE_WALK);
+		else if (state == PARAGOOMBA_STATE_JUMP)
+		{
+			jumpCount++;
+			if (jumpCount == PARAGOOMBA_JUMP_COUNT)
+				SetState(PARAGOOMBA_STATE_FLY);
+			else
+				vy = -PARAGOOMBA_JUMP_SPEED;
+		}
+	}
 }
