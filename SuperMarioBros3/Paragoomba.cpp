@@ -83,6 +83,11 @@ void Paragoomba::SetState(int state)
 	case PARAGOOMBA_STATE_FLY:
 		vy = -PARAGOOMBA_FLY_SPEED;
 		break;
+	case PARAGOOMBA_STATE_LOST_WINGS:
+		changeStateDuration = 0;
+		break;
+	default:
+		break;
 	}
 }
 

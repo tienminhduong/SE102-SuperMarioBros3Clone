@@ -55,6 +55,10 @@
 130015	283	667	292	676	15
 
 
+#UI
+100	35	311	290	342	40
+
+
 # ani_id	sprite1_id	time1	sprite2_id	time2	...
 [ANIMATIONS]
 #TRANSFORM MUSHROOM

@@ -34,7 +34,7 @@ void CMario::SetTailPosition(DWORD dt)
 
 		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
 		float dx = newTailX - tailX, dy = newTailY - tailY;
-		if (abs(tailX - x) < MARIO_RACCOON_TAIL_OFFSET_X)
+		if (abs(tailX - x) <= MARIO_RACCOON_TAIL_OFFSET_X)
 			tail->SetSpeed(dx / dt, dy / dt);
 		else
 			tail->SetSpeed(0, 0);

@@ -138,6 +138,7 @@
     <ClCompile Include="FirePiranhaPlant.cpp" />
     <ClCompile Include="FirePiranhaPlantBullet.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Goomba.cpp" />
     <ClCompile Include="Koopa.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="FirePiranhaPlant.h" />
     <ClInclude Include="FirePiranhaPlantBullet.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Goomba.h" />
     <ClInclude Include="KeyEventHandler.h" />

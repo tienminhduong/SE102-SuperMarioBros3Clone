@@ -15,6 +15,7 @@
 #include "Pipe.h"
 #include "RedKoopa.h"
 #include "Paragoomba.h"
+#include "GameManager.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -318,6 +319,8 @@ void CPlayScene::Render()
 			if (objects[i]->GetActive() && layer == objects[i]->GetRenderLayer())
 				objects[i]->Render();
 	}
+
+	GameManager::GetInstance()->RenderUI();
 }
 
 /*
