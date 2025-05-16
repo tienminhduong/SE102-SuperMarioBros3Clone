@@ -14,6 +14,8 @@ int Koopa::GetAniId(int defaultIdAni)
 		break;
 	case KOOPA_STATE_INSHELL:
 		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED : ID_ANI_KOOPA_INSHELL;
+		if (inShellDuration > 0 && inShellDuration < 2000)
+			aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED_TIMEOUT : ID_ANI_KOOPA_TIMEOUT_INSHELL;
 		break;
 	case KOOPA_STATE_INSHELL_RUNNING:
 		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED_RUNNING : ID_ANI_KOOPA_INSHELL_RUNNING;

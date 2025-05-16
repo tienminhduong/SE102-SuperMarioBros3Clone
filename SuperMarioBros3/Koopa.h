@@ -19,6 +19,8 @@
 #define ID_ANI_KOOPA_INSHELL_RUNNING 5103
 #define ID_ANI_KOOPA_INSHELL_FLIPPED 5104
 #define ID_ANI_KOOPA_INSHELL_FLIPPED_RUNNING 5105
+#define ID_ANI_KOOPA_TIMEOUT_INSHELL 5106
+#define ID_ANI_KOOPA_INSHELL_FLIPPED_TIMEOUT 5107
 
 #define KOOPA_WALKING_SPEED 0.05f
 #define KOOPA_INSHELL_TIME 10000
@@ -35,6 +37,7 @@ protected:
 	int inShellDuration;
 	bool isFlipped = false;
 	bool markedAsDead = false;
+	bool isRendered = true;
 public:
 	Koopa(float x, float y);
 
