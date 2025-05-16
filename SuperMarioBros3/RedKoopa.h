@@ -8,7 +8,7 @@
 
 #define RED_KOOPA_DETECTOR_OFFSET 3
 
-#define RED_KOOPA_DETECTOR_BBOX_X 2	
+#define RED_KOOPA_DETECTOR_BBOX_X 1
 #define RED_KOOPA_DETECTOR_BBOX_Y 25
 
 class CRedKoopaDetector;

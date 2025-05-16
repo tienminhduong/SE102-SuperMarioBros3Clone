@@ -52,6 +52,7 @@ void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	float temp;
 	koopa->GetPosition(x, temp);
+	x += koopa->GetDirection();
 	
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
