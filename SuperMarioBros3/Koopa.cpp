@@ -33,17 +33,6 @@ void Koopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 	}
 }
 
-void Koopa::OnHoldedUpdate(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
-{
-	/*float prevX = x, prevY = y;
-	SetPosition(mario->GetX() + KOOPA_BBOX_WIDTH / 2, mario->GetY() + KOOPA_BBOX_HEIGHT / 2);
-	float dx = x - prevX, dy = y - prevY;
-	SetSpeed(dx / dt, dy / dt);*/
-	//float mvx, mvy;
-	//mario->GetSpeed(mvx, mvy);
-	//SetSpeed(mvx, mvy);
-}
-
 Koopa::Koopa(float x, float y)
 	: CRespawnableEnemy(x, y)
 {
@@ -70,6 +59,21 @@ void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		vy += ay * dt;
 	}
 
+	if (state == KOOPA_STATE_INSHELL && inShellDuration > 0)
+	{
+		inShellDuration -= dt;
+		if (inShellDuration <= 0)
+		{
+			SetState(KOOPA_STATE_WALKING);
+			if (IsHold()) {
+				((CMario*)mario)->ReleaseKoopa();
+				mario = nullptr;
+			}
+			y -= KOOPA_BBOX_OFFSET_Y;
+		}
+	}
+
+	DebugOut(L"y = %f\n", y);
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
 
@@ -106,7 +110,7 @@ void Koopa::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 
 int Koopa::IsBlocking()
 {
-	return !IsHold();
+	return 0;
 }
 
 void Koopa::GetKicked(int direction)
@@ -126,6 +130,7 @@ void Koopa::SetState(int state)
 		break;
 	case KOOPA_STATE_INSHELL:
 		vx = 0;
+		inShellDuration = KOOPA_INSHELL_TIME;
 		break;
 	case KOOPA_STATE_INSHELL_RUNNING:
 		ay *= 2;

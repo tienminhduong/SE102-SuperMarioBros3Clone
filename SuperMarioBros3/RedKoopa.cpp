@@ -30,7 +30,6 @@ void RedKoopa::Delete()
 void RedKoopa::OnEnable()
 {
 	Koopa::OnEnable();
-	detector->SetPosition(x, y);
 	detector->SetActive(true);
 }
 
@@ -46,10 +45,32 @@ void RedKoopa::ChangeDirection()
 	nx = -nx;
 }
 
+void RedKoopa::OnNoCollision(DWORD dt)
+{
+	Koopa::OnNoCollision(dt);
+	isOnPlatform = false;
+}
+
+void RedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
+{
+	Koopa::OnCollisionWith(e);
+	if (e->ny != 0)
+	{
+		if (e->obj->IsBlocking())
+			isOnPlatform = true;
+	}
+}
+
 void RedKoopa::SetState(int state)
 {
 	Koopa::SetState(state);
 	detector->SetActive(state == KOOPA_STATE_WALKING);
+}
+
+void CRedKoopaDetector::OnEnable()
+{
+	SetPosition(koopa->GetX(), koopa->GetY() - RED_KOOPA_DETECTOR_OFFSET);
+	//SetPosition(koopa->GetX(), koopa->GetY());
 }
 
 void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
@@ -62,7 +83,8 @@ void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 void CRedKoopaDetector::OnNoCollision(DWORD dt)
 {
-	koopa->ChangeDirection();
+	if (koopa->IsOnPlatform())
+		koopa->ChangeDirection();
 }
 
 void CRedKoopaDetector::OnCollisionWith(LPCOLLISIONEVENT e)

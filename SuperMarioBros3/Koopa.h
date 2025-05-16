@@ -19,6 +19,7 @@
 #define ID_ANI_KOOPA_INSHELL_RUNNING 5103
 
 #define KOOPA_WALKING_SPEED 0.05f
+#define KOOPA_INSHELL_TIME 10000
 
 class Koopa :
     public CRespawnableEnemy
@@ -29,7 +30,7 @@ protected:
 	int GetAniId(int defaultIdAni);
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 
-	void OnHoldedUpdate(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
+	int inShellDuration;
 public:
 	Koopa(float x, float y);
 
