@@ -76,10 +76,10 @@ bool CGoomba::CheckKoopaCollision(LPCOLLISIONEVENT e)
 
 	if (koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING || koopa->IsHold())
 	{
-		OnAttackedByTail(koopa->GetDirection());
+		OnAttackedByTail((float)koopa->GetDirection());
 		if (koopa->IsHold())
 		{
-			koopa->OnAttackedByTail(koopa->GetDirection());
+			koopa->OnAttackedByTail((float)koopa->GetDirection());
 			koopa->ReleaseFromMario();
 			koopa->SetDead();
 		}

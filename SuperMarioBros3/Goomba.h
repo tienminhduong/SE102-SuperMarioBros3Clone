@@ -23,9 +23,15 @@ class CGoomba : public CRespawnableEnemy
 {
 protected:
 	int die_start;
+	bool CheckKoopaCollision(LPCOLLISIONEVENT e);
+public:
+	CGoomba(float x, float y);
+	void OnEnable() override;
+	void OnExitCamera() override;
+	virtual void SetState(int state);
 
-	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
-	virtual void Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects);
+	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	virtual void Render();
 
 	virtual int IsCollidable() { return 1; };
@@ -33,11 +39,4 @@ protected:
 	virtual void OnNoCollision(DWORD dt);
 
 	virtual void OnCollisionWith(LPCOLLISIONEVENT e);
-
-	bool CheckKoopaCollision(LPCOLLISIONEVENT e);
-public:
-	CGoomba(float x, float y);
-	void OnEnable() override;
-	void OnExitCamera() override;
-	virtual void SetState(int state);
 };

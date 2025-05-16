@@ -122,15 +122,15 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 		{
 			Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
 			if (koopa->IsHold() || koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING) {
-				OnAttackedByTail(koopa->GetDirection());
+				OnAttackedByTail((float)koopa->GetDirection());
 				SetDead();
 
 				koopa->ReleaseFromMario();
 				koopa->SetDead();
 				if (koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING)
-					koopa->OnAttackedByTail(-koopa->GetDirection());
+					koopa->OnAttackedByTail(-(float)koopa->GetDirection());
 				else
-					koopa->OnAttackedByTail(koopa->GetDirection());
+					koopa->OnAttackedByTail((float)koopa->GetDirection());
 			}
 		}
 	}

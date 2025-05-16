@@ -229,7 +229,7 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 	if (koopa->IsHold())
 		return;
 
-	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold()) {
+	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold() && e->nx != 0) {
 		SetHoldKoopa(koopa);
 		return;
 	}
