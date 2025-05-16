@@ -3,7 +3,7 @@
 
 #define ENEMY_STATE_KICKED -1
 #define ENEMY_KICKED_FLY_SPEED 0.15f
-#define ENEMY_KICKED_X 0.002f
+#define ENEMY_KICKED_X 0.05f
 #define ENEMY_GRAVITY 0.0004f
 
 class CRespawnPoint;
@@ -22,7 +22,7 @@ public:
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) override;
 	void OnExitCamera() override;
 	void Delete() override;
-	void OnAttackedByTail(int direction);
+	void OnAttackedByTail(float direction);
 	virtual void SetState(int state) override;
 };
 

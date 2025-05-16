@@ -6,11 +6,10 @@
 
 void CRaccoonTail::OnCollisionWithEnemy(LPCOLLISIONEVENT e)
 {
-	float eX, eY;
-	e->obj->GetPosition(eX, eY);
+	//float eX, eY;
+	//e->obj->GetPosition(eX, eY);
 	CRespawnableEnemy* enemy = dynamic_cast<CRespawnableEnemy*>(e->obj);
-	enemy->OnAttackedByTail(eX - x);
-
+	enemy->OnAttackedByTail(e->obj->GetX() - x);
 }
 
 void CRaccoonTail::OnCollisionWithQuesBlock(LPCOLLISIONEVENT e)

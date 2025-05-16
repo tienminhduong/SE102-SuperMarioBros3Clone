@@ -34,6 +34,7 @@ protected:
 
 	virtual void OnCollisionWith(LPCOLLISIONEVENT e);
 
+	bool CheckKoopaCollision(LPCOLLISIONEVENT e);
 public:
 	CGoomba(float x, float y);
 	void OnEnable() override;

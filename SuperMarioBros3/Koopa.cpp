@@ -1,5 +1,6 @@
 #include "Koopa.h"
 #include "Mario.h"
+#include "QuestionMarkBlock.h"
 #include "debug.h"
 
 int Koopa::GetAniId(int defaultIdAni)
@@ -14,13 +15,22 @@ int Koopa::GetAniId(int defaultIdAni)
 		aniId = ID_ANI_KOOPA_INSHELL;
 		break;
 	case KOOPA_STATE_INSHELL_RUNNING:
-		aniId = ID_ANI_KOOPA_INSHELL;
+		aniId = ID_ANI_KOOPA_INSHELL_RUNNING;
 		break;
 	default:
 		break;
 	}
 
 	return defaultIdAni - KOOPA_START_ANI_ID + aniId;
+}
+
+void Koopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
+{
+	if (state == KOOPA_STATE_INSHELL_RUNNING && e->nx != 0)
+	{
+		CQuestionMarkBlock* q = dynamic_cast<CQuestionMarkBlock*>(e->obj);
+		q->TriggerOnCollisionWithMario(x);
+	}
 }
 
 Koopa::Koopa(float x, float y)
@@ -62,8 +72,10 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (e->ny < 0)
 		vy = 0;
-	if (e->nx != 0 && !IsOtherEnemyOrMario(e->obj)) {
+	if (e->nx != 0) {
 		vx = -vx, nx = -nx;
+		if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
+			OnCollisionWithQuestionMarkBlock(e);
 	}
 }
 
@@ -84,6 +96,7 @@ void Koopa::GetKicked(int direction)
 void Koopa::SetState(int state)
 {
 	CRespawnableEnemy::SetState(state);
+	ay = ENEMY_GRAVITY;
 	switch (state)
 	{
 	case KOOPA_STATE_WALKING:
@@ -91,6 +104,9 @@ void Koopa::SetState(int state)
 		break;
 	case KOOPA_STATE_INSHELL:
 		vx = 0;
+		break;
+	case KOOPA_STATE_INSHELL_RUNNING:
+		ay *= 2;
 		break;
 	default:
 		break;

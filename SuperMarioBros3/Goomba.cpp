@@ -1,5 +1,6 @@
 #include "Goomba.h"
 #include "PlayScene.h"
+#include "Koopa.h"
 
 CGoomba::CGoomba(float x, float y) : CRespawnableEnemy(x, y)
 {
@@ -53,12 +54,29 @@ void CGoomba::OnNoCollision(DWORD dt)
 void CGoomba::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (!e->obj->IsBlocking()) return; 
-	if (dynamic_cast<CGoomba*>(e->obj)) return; 
+	if (dynamic_cast<CGoomba*>(e->obj)) return;
+
+	if (CheckKoopaCollision(e))
+		return;
 
 	if (e->ny != 0)
 		vy = 0;
-	else if (e->nx != 0 && !IsOtherEnemyOrMario(e->obj))
+	else if (e->nx != 0)
 		vx = -vx;
+}
+
+bool CGoomba::CheckKoopaCollision(LPCOLLISIONEVENT e)
+{
+	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+	if (koopa == nullptr)
+		return false;
+
+	if (koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING)
+	{
+		OnAttackedByTail(koopa->GetDirection());
+		return true;
+	}
+	return false;
 }
 
 void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)

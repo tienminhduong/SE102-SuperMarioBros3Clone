@@ -55,10 +55,7 @@ void RedKoopa::SetState(int state)
 void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	vy += ay * dt;
-
-	float temp;
-	koopa->GetPosition(x, temp);
-	x += koopa->GetDirection();
+	x = koopa->GetX() + koopa->GetDirection();
 	
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }

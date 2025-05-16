@@ -51,9 +51,9 @@ void CRespawnableEnemy::Delete()
 	isDeleted = true;
 }
 
-void CRespawnableEnemy::OnAttackedByTail(int direction)
+void CRespawnableEnemy::OnAttackedByTail(float direction)
 {
-	flyDirection = direction;
+	flyDirection = (int)(direction / abs(direction));
 	SetState(ENEMY_STATE_KICKED);
 }
 

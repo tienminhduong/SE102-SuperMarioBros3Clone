@@ -9,13 +9,14 @@
 #define KOOPA_STATE_INSHELL 1
 #define KOOPA_STATE_INSHELL_RUNNING 2
 
-#define KOOPA_INSHELL_RUNNING_SPEED 0.1f
+#define KOOPA_INSHELL_RUNNING_SPEED 0.23f
 
 #define KOOPA_START_ANI_ID 5100
 
 #define ID_ANI_KOOPA_WALK_RIGHT 5100
 #define ID_ANI_KOOPA_WALK_LEFT 5101
 #define ID_ANI_KOOPA_INSHELL 5102
+#define ID_ANI_KOOPA_INSHELL_RUNNING 5103
 
 #define KOOPA_WALKING_SPEED 0.05f
 
@@ -24,6 +25,7 @@ class Koopa :
 {
 protected:
 	int GetAniId(int defaultIdAni);
+	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 public:
 	Koopa(float x, float y);
 
