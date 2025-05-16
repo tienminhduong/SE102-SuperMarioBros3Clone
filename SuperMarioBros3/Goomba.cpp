@@ -27,6 +27,7 @@ void CGoomba::OnEnable()
 
 void CGoomba::OnExitCamera()
 {
+	CRespawnableEnemy::OnExitCamera();
 	if (state == ENEMY_STATE_KICKED)
 		Delete();
 }
@@ -49,15 +50,17 @@ void CGoomba::GetBoundingBox(float &left, float &top, float &right, float &botto
 void CGoomba::OnNoCollision(DWORD dt)
 {
 	x += vx * dt;
+	y += vy * dt;
 };
 
 void CGoomba::OnCollisionWith(LPCOLLISIONEVENT e)
 {
+	if (CheckKoopaCollision(e))
+		return;
+
 	if (!e->obj->IsBlocking()) return; 
 	if (dynamic_cast<CGoomba*>(e->obj)) return;
 
-	if (CheckKoopaCollision(e))
-		return;
 
 	if (e->ny != 0)
 		vy = 0;
@@ -71,9 +74,15 @@ bool CGoomba::CheckKoopaCollision(LPCOLLISIONEVENT e)
 	if (koopa == nullptr)
 		return false;
 
-	if (koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING)
+	if (koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING || koopa->IsHold())
 	{
 		OnAttackedByTail(koopa->GetDirection());
+		if (koopa->IsHold())
+		{
+			koopa->OnAttackedByTail(koopa->GetDirection());
+			koopa->ReleaseFromMario();
+			koopa->SetDead();
+		}
 		return true;
 	}
 	return false;

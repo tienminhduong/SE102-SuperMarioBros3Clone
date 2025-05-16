@@ -221,9 +221,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 	else // hit by Goomba
 	{
 		if (untouchableDuration <= 0 && goomba->GetState() != GOOMBA_STATE_DIE)
-		{
 			TakeDamage();
-		}
 	}
 }
 
@@ -261,7 +259,8 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 		}
 	}
 	else {
-		if (koopa->GetState() != KOOPA_STATE_INSHELL && untouchableDuration <= 0)
+		if (koopa->GetState() != KOOPA_STATE_INSHELL && koopa->GetState() != ENEMY_STATE_KICKED
+			&& untouchableDuration <= 0)
 			TakeDamage();
 	}
 }
@@ -670,8 +669,9 @@ void CMario::ReleaseKoopa()
 			holdingKoopa->GetKicked(nx);
 			PlayKickKoopaAnim();
 		}
-		else
+		else if (holdingKoopa->GetState() != ENEMY_STATE_KICKED) {
 			TakeDamage();
+		}
 		holdingKoopa = nullptr;
 	}
 }

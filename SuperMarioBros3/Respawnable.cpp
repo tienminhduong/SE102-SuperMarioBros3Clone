@@ -29,7 +29,7 @@ void CRespawnableEnemy::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		vy += ay * dt;
 		y += vy * dt;
 
-		//DebugOut(L"[ENEMY] Kicked, vy: %f, position y: %f\n", vy, y);
+		DebugOut(L"[ENEMY] Kicked, vy: %f, position y: %f\n", vy, y);
 	}
 }
 
