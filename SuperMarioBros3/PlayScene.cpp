@@ -14,6 +14,8 @@
 #include "StaticObject.h"
 #include "Pipe.h"
 #include "RedKoopa.h"
+#include "Paragoomba.h"
+#include "GameManager.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -128,6 +130,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 		break;
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(x,y); break;
+	case OBJECT_TYPE_PARAGOOMBA: obj = new Paragoomba(x, y); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(x,y); break;
 	case OBJECT_TYPE_COIN: obj = new CCoin(x, y); break;
 	case OBJECT_TYPE_KOOPAS: obj = new Koopa(x, y); break;
@@ -316,6 +319,8 @@ void CPlayScene::Render()
 			if (objects[i]->GetActive() && layer == objects[i]->GetRenderLayer())
 				objects[i]->Render();
 	}
+
+	GameManager::GetInstance()->RenderUI();
 }
 
 /*

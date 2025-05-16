@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include "Goomba.h"
+#include "Paragoomba.h"
 #include "Koopa.h"
 #include "Coin.h"
 #include "Portal.h"
@@ -33,7 +34,7 @@ void CMario::SetTailPosition(DWORD dt)
 
 		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
 		float dx = newTailX - tailX, dy = newTailY - tailY;
-		if (abs(tailX - x) < MARIO_RACCOON_TAIL_OFFSET_X)
+		if (abs(tailX - x) <= MARIO_RACCOON_TAIL_OFFSET_X)
 			tail->SetSpeed(dx / dt, dy / dt);
 		else
 			tail->SetSpeed(0, 0);
@@ -61,11 +62,8 @@ void CMario::SetKoopaPosition(DWORD dt)
 		this->GetBoundingBox(l, t, r, b);
 
 		float kx2, ky2;
-		if (nx > 0)
-			kx2 = r + KOOPA_BBOX_WIDTH / 2;
-		else
-			kx2 = l - KOOPA_BBOX_WIDTH / 2;
-		ky2 = y;
+		kx2 = x + MARIO_KOOPA_HOLDING_OFFSET_X * nx;
+		ky2 = y - MARIO_KOOPA_HOLDING_OFFSET_Y;
 
 		float dx = kx2 - kx, dy = ky2 - ky;
 		holdingKoopa->SetSpeed(dx / dt, dy / dt);
@@ -212,7 +210,12 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 	// jump on top >> kill Goomba and deflect a bit 
 	if (e->ny < 0)
 	{
-		if (goomba->GetState() != GOOMBA_STATE_DIE)
+		if (goomba->GetState() > GOOMBA_CHECKISPARAGOOMBA)
+		{
+			goomba->SetState(PARAGOOMBA_STATE_LOST_WINGS);
+			vy = -MARIO_JUMP_DEFLECT_SPEED;
+		}
+		else if (goomba->GetState() != GOOMBA_STATE_DIE)
 		{
 			goomba->SetState(GOOMBA_STATE_DIE);
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
@@ -221,9 +224,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 	else // hit by Goomba
 	{
 		if (untouchableDuration <= 0 && goomba->GetState() != GOOMBA_STATE_DIE)
-		{
 			TakeDamage();
-		}
 	}
 }
 
@@ -234,7 +235,7 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 	if (koopa->IsHold())
 		return;
 
-	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold()) {
+	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold() && e->nx != 0) {
 		SetHoldKoopa(koopa);
 		return;
 	}
@@ -261,7 +262,8 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 		}
 	}
 	else {
-		if (koopa->GetState() != KOOPA_STATE_INSHELL && untouchableDuration <= 0)
+		if (koopa->GetState() != KOOPA_STATE_INSHELL && koopa->GetState() != ENEMY_STATE_KICKED
+			&& untouchableDuration <= 0)
 			TakeDamage();
 	}
 }
@@ -319,10 +321,10 @@ int mapAniId[][24] = {
 		ID_ANI_MARIO_SMALL_BRACE_RIGHT, ID_ANI_MARIO_SMALL_BRACE_LEFT,
 		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT, // small Mario has no sit animation
 		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT, // small Mario has no falling animation
-		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT,
-		ID_ANI_MARIO_SMALL_WALKING_RIGHT, ID_ANI_MARIO_SMALL_WALKING_LEFT,
-		ID_ANI_MARIO_SMALL_RUNNING_RIGHT, ID_ANI_MARIO_SMALL_RUNNING_LEFT,
-		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT,
+		ID_ANI_MARIO_SMALL_HOLDING_IDLE_RIGHT, ID_ANI_MARIO_SMALL_HOLDING_IDLE_LEFT,
+		ID_ANI_MARIO_SMALL_HOLDING_RUNNING_RIGHT, ID_ANI_MARIO_SMALL_HOLDING_RUNNING_LEFT,
+		ID_ANI_MARIO_SMALL_HOLDING_JUMPING_RIGHT, ID_ANI_MARIO_SMALL_HOLDING_JUMPING_LEFT,
+		ID_ANI_MARIO_SMALL_KICKING_RIGHT, ID_ANI_MARIO_SMALL_KICKING_LEFT,
 	},
 	{
 		ID_ANI_MARIO_IDLE_RIGHT, ID_ANI_MARIO_IDLE_LEFT,
@@ -347,10 +349,10 @@ int mapAniId[][24] = {
 		ID_ANI_MARIO_RACCOON_BRACE_RIGHT, ID_ANI_MARIO_RACCOON_BRACE_LEFT,
 		ID_ANI_MARIO_RACCOON_SIT_RIGHT, ID_ANI_MARIO_RACCOON_SIT_LEFT,
 		ID_ANI_MARIO_RACCOON_FALLING_RIGHT, ID_ANI_MARIO_RACCOON_FALLING_LEFT,
-		ID_ANI_MARIO_RACCOON_IDLE_RIGHT, ID_ANI_MARIO_RACCOON_IDLE_LEFT,
-		ID_ANI_MARIO_RACCOON_WALKING_RIGHT, ID_ANI_MARIO_RACCOON_WALKING_LEFT,
-		ID_ANI_MARIO_RACCOON_RUNNING_RIGHT, ID_ANI_MARIO_RACCOON_RUNNING_LEFT,
-		ID_ANI_MARIO_RACCOON_JUMP_WALK_RIGHT, ID_ANI_MARIO_RACCOON_JUMP_WALK_LEFT,
+		ID_ANI_MARIO_RACCOON_HOLDING_IDLE_RIGHT, ID_ANI_MARIO_RACCOON_HOLDING_IDLE_LEFT,
+		ID_ANI_MARIO_RACCOON_HOLDING_RUNNING_RIGHT, ID_ANI_MARIO_RACCOON_HOLDING_RUNNING_LEFT,
+		ID_ANI_MARIO_RACCOON_HOLDING_JUMPING_RIGHT, ID_ANI_MARIO_RACCOON_HOLDING_JUMPING_LEFT,
+		ID_ANI_MARIO_RACCOON_KICKING_RIGHT, ID_ANI_MARIO_RACCOON_KICKING_LEFT,
 	}
 };
 
@@ -365,9 +367,9 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 	if (kickAnimDuration > 0)
 	{
 		if (nx > 0)
-			aniId = ID_ANI_MARIO_KICKING_RIGHT;
+			aniId = MapAniTypeToId(ANI_MARIO_KICKING_RIGHT);
 		else
-			aniId = ID_ANI_MARIO_KICKING_LEFT;
+			aniId = MapAniTypeToId(ANI_MARIO_KICKING_LEFT);
 		return;
 	}
 	if (!isOnPlatform)
@@ -670,8 +672,9 @@ void CMario::ReleaseKoopa()
 			holdingKoopa->GetKicked(nx);
 			PlayKickKoopaAnim();
 		}
-		else
+		else if (holdingKoopa->GetState() != ENEMY_STATE_KICKED) {
 			TakeDamage();
+		}
 		holdingKoopa = nullptr;
 	}
 }

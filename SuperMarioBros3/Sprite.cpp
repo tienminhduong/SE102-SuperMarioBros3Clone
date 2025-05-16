@@ -53,6 +53,22 @@ void CSprite::Draw(float x, float y)
 	g->GetSpriteHandler()->DrawSpritesImmediate(&sprite, 1, 0, 0);
 }
 
+void CSprite::DrawOnScreen(float x, float y)
+{
+	CGame* g = CGame::GetInstance();
+
+	D3DXMATRIX matTranslation;
+
+	x = (FLOAT)floor(x);
+	y = (FLOAT)floor(y);
+
+	D3DXMatrixTranslation(&matTranslation, x, g->GetBackBufferHeight() - y, 0.1f);
+
+	this->sprite.matWorld = (this->matScaling * matTranslation);
+
+	g->GetSpriteHandler()->DrawSpritesImmediate(&sprite, 1, 0, 0);
+}
+
 void CSprite::GetSize(int& width, int& height)
 {
 	width = right - left + 1;

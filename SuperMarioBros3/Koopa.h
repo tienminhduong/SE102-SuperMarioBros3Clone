@@ -19,6 +19,8 @@
 #define ID_ANI_KOOPA_INSHELL_RUNNING 5103
 #define ID_ANI_KOOPA_INSHELL_FLIPPED 5104
 #define ID_ANI_KOOPA_INSHELL_FLIPPED_RUNNING 5105
+#define ID_ANI_KOOPA_TIMEOUT_INSHELL 5106
+#define ID_ANI_KOOPA_INSHELL_FLIPPED_TIMEOUT 5107
 
 #define KOOPA_WALKING_SPEED 0.05f
 #define KOOPA_INSHELL_TIME 10000
@@ -34,11 +36,14 @@ protected:
 
 	int inShellDuration;
 	bool isFlipped = false;
+	bool markedAsDead = false;
+	bool isRendered = true;
 public:
 	Koopa(float x, float y);
 
 	virtual void Render() override;
 	virtual void OnEnable() override;
+	virtual void OnDisable() override;
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) override;
 
 	void OnNoCollision(DWORD dt) override;
@@ -46,7 +51,7 @@ public:
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int IsBlocking() override;
-	int IsCollidable() override { return 1; }
+	int IsCollidable() override { return !markedAsDead; }
 
 	void OnAttackedByTail(float direction) override;
 
@@ -58,5 +63,7 @@ public:
 	bool IsHold() { return mario != nullptr; }
 
 	int GetRenderLayer() override { return 0; }
+	void ReleaseFromMario();
+	void SetDead() { markedAsDead = true; }
 };
 

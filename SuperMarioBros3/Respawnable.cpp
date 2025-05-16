@@ -29,7 +29,7 @@ void CRespawnableEnemy::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		vy += ay * dt;
 		y += vy * dt;
 
-		//DebugOut(L"[ENEMY] Kicked, vy: %f, position y: %f\n", vy, y);
+		DebugOut(L"[ENEMY] Kicked, vy: %f, position y: %f\n", vy, y);
 	}
 }
 
@@ -53,7 +53,9 @@ void CRespawnableEnemy::Delete()
 
 void CRespawnableEnemy::OnAttackedByTail(float direction)
 {
-	flyDirection = (int)(direction / abs(direction));
+	if (direction != 0)
+		flyDirection = (int)(direction / abs(direction));
+	else flyDirection = 1;
 	SetState(ENEMY_STATE_KICKED);
 }
 

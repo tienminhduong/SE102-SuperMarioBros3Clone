@@ -1,6 +1,7 @@
 #include "Koopa.h"
 #include "Mario.h"
 #include "QuestionMarkBlock.h"
+#include "Goomba.h"
 #include "debug.h"
 
 int Koopa::GetAniId(int defaultIdAni)
@@ -13,6 +14,8 @@ int Koopa::GetAniId(int defaultIdAni)
 		break;
 	case KOOPA_STATE_INSHELL:
 		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED : ID_ANI_KOOPA_INSHELL;
+		if (inShellDuration > 0 && inShellDuration < 2000)
+			aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED_TIMEOUT : ID_ANI_KOOPA_TIMEOUT_INSHELL;
 		break;
 	case KOOPA_STATE_INSHELL_RUNNING:
 		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED_RUNNING : ID_ANI_KOOPA_INSHELL_RUNNING;
@@ -52,6 +55,14 @@ void Koopa::Render()
 void Koopa::OnEnable()
 {
 	SetState(KOOPA_STATE_WALKING);
+	markedAsDead = false;
+}
+
+void Koopa::OnDisable()
+{
+	CRespawnableEnemy::OnDisable();
+	if (markedAsDead)
+		Delete();
 }
 
 void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
@@ -77,7 +88,7 @@ void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	DebugOut(L"Current koopa state: %d\n", state);
+	//DebugOut(L"Current koopa state: %d\n", state);
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
@@ -101,10 +112,26 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 			if (state == ENEMY_STATE_KICKED)
 				SetState(KOOPA_STATE_INSHELL);
 		}
-		if (e->nx != 0) {
+		if (e->nx != 0 && e->obj->IsBlocking()) {
 			vx = -vx, nx = -nx;
 			if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 				OnCollisionWithQuestionMarkBlock(e);
+		}
+
+		if (dynamic_cast<Koopa*>(e->obj))
+		{
+			Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+			if (koopa->IsHold() || koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING) {
+				OnAttackedByTail((float)koopa->GetDirection());
+				SetDead();
+
+				koopa->ReleaseFromMario();
+				koopa->SetDead();
+				if (koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING)
+					koopa->OnAttackedByTail(-(float)koopa->GetDirection());
+				else
+					koopa->OnAttackedByTail((float)koopa->GetDirection());
+			}
 		}
 	}
 }
@@ -115,6 +142,7 @@ void Koopa::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 	top = y - KOOPA_BBOX_HEIGHT / 2 + KOOPA_BBOX_OFFSET_Y * (state == KOOPA_STATE_WALKING);
 	right = left + KOOPA_BBOX_WIDTH;
 	bottom = top + KOOPA_BBOX_HEIGHT;
+
 }
 
 int Koopa::IsBlocking()
@@ -159,4 +187,13 @@ void Koopa::SetState(int state)
 void Koopa::SetHold(LPGAMEOBJECT mario)
 {
 	this->mario = mario;
+}
+
+void Koopa::ReleaseFromMario()
+{
+	if (IsHold())
+	{
+		((CMario*)mario)->ReleaseKoopa();
+		mario = nullptr;
+	}
 }

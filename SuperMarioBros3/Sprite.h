@@ -18,6 +18,7 @@ public:
 	CSprite(int id, int left, int top, int right, int bottom, LPTEXTURE tex);
 
 	void Draw(float x, float y);
+	void DrawOnScreen(float x, float y);
 	void GetSize(int& width, int& height);
 };
 
