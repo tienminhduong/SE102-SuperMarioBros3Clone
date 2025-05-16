@@ -105,6 +105,15 @@
     <ClCompile Include="Respawnable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Paragoomba.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Koopa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RedKoopa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -210,6 +219,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Respawnable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Paragoomba.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Koopa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RedKoopa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

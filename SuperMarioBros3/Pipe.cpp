@@ -32,6 +32,8 @@ void CPipe::Render()
 		s->Get(PIPE_SPRITE_MID_ID)->Draw(x, yy);
 		yy += PIPE_CELL_HEIGHT;
 	}
+
+	RenderBoundingBox();
 }
 
 void CPipe::Update(DWORD dt, std::vector<LPGAMEOBJECT>* coObjects)

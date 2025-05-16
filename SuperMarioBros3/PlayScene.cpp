@@ -13,6 +13,7 @@
 #include "QuestionMarkBlock.h"
 #include "StaticObject.h"
 #include "Pipe.h"
+#include "RedKoopa.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -129,6 +130,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(x,y); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(x,y); break;
 	case OBJECT_TYPE_COIN: obj = new CCoin(x, y); break;
+	case OBJECT_TYPE_KOOPAS: obj = new Koopa(x, y); break;
+	case OBJECT_TYPE_RED_KOOPA: obj = new RedKoopa(x, y); break;
 
 	case OBJECT_TYPE_PLATFORM:
 	{

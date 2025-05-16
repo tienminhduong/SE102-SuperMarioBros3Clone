@@ -10,6 +10,9 @@
 #FLY DEAD
 32002	406	3	423	20	15
 
+#PARAGOOMBA
+#WALK
+
 # ani_id	sprite1_id	time1	sprite2_id	time2	...
 [ANIMATIONS]
 # WALK

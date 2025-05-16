@@ -3,8 +3,6 @@
 
 CGoomba::CGoomba(float x, float y) : CRespawnableEnemy(x, y)
 {
-	//this->ax = 0;
-	//this->ay = GOOMBA_GRAVITY;
 	die_start = -1;
 	SetState(GOOMBA_STATE_WALKING);
 	OnEnable();
@@ -50,7 +48,6 @@ void CGoomba::GetBoundingBox(float &left, float &top, float &right, float &botto
 void CGoomba::OnNoCollision(DWORD dt)
 {
 	x += vx * dt;
-	//y += vy * dt;
 };
 
 void CGoomba::OnCollisionWith(LPCOLLISIONEVENT e)

@@ -378,7 +378,7 @@ void CMario::Render()
 	if (notRenderSpriteFrameCount <= 0)
 		animations->Get(aniId)->Render(x, y);
 
-	//RenderBoundingBox();
+	RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
 }

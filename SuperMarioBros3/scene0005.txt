@@ -7,6 +7,7 @@ block.txt
 misc.txt
 static.txt
 goomba.txt
+koopa.txt
 #
 [OBJECTS]
 # type	x	y	extra_settings per object type
@@ -89,3 +90,6 @@ goomba.txt
 #gooomba
 2	233	164
 2	564	164
+
+#koopa
+30	573	120

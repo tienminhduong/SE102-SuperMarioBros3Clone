@@ -1,0 +1,24 @@
+# id	left	top	right	bottom	texture_id
+[SPRITES]
+#GREEN KOOPA
+
+#RED KOOPA
+#walk left
+35000	214	198	231	225	15
+35001	254	198	271	225	15
+#walk right
+35002	164	198	181	225	15
+35003	124	198	141	225	15
+
+#RED KOOPA SHELL
+
+#GREEN KOOPA WITH WINGS
+
+
+# ani_id	sprite1_id	time1	sprite2_id	time2	...
+[ANIMATIONS]
+
+#RED KOOPA
+#walk right
+5200	35000	100	35001	100
+5201	35002	100	35003	100
