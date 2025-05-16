@@ -83,8 +83,12 @@ void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 void CRedKoopaDetector::OnNoCollision(DWORD dt)
 {
+	y += vy * dt;
 	if (koopa->IsOnPlatform())
+	{
 		koopa->ChangeDirection();
+		SetActive(true);
+	}
 }
 
 void CRedKoopaDetector::OnCollisionWith(LPCOLLISIONEVENT e)

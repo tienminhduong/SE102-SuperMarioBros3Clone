@@ -12,10 +12,13 @@ int Koopa::GetAniId(int defaultIdAni)
 		aniId = vx > 0 ? ID_ANI_KOOPA_WALK_RIGHT : ID_ANI_KOOPA_WALK_LEFT;
 		break;
 	case KOOPA_STATE_INSHELL:
-		aniId = ID_ANI_KOOPA_INSHELL;
+		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED : ID_ANI_KOOPA_INSHELL;
 		break;
 	case KOOPA_STATE_INSHELL_RUNNING:
-		aniId = ID_ANI_KOOPA_INSHELL_RUNNING;
+		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED_RUNNING : ID_ANI_KOOPA_INSHELL_RUNNING;
+		break;
+	case ENEMY_STATE_KICKED:
+		aniId = isFlipped ? ID_ANI_KOOPA_INSHELL_FLIPPED : ID_ANI_KOOPA_INSHELL;
 		break;
 	default:
 		break;
@@ -53,6 +56,7 @@ void Koopa::OnEnable()
 
 void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
+	CRespawnableEnemy::Update(dt, coObjects);
 	if (state != ENEMY_STATE_KICKED && !IsHold())
 	{
 		vx += ax * dt;
@@ -73,7 +77,8 @@ void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	DebugOut(L"y = %f\n", y);
+	DebugOut(L"Current koopa state: %d\n", state);
+
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
 
@@ -91,7 +96,11 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 	if (!IsHold())
 	{
 		if (e->ny < 0)
+		{
 			vy = 0;
+			if (state == ENEMY_STATE_KICKED)
+				SetState(KOOPA_STATE_INSHELL);
+		}
 		if (e->nx != 0) {
 			vx = -vx, nx = -nx;
 			if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
@@ -113,6 +122,12 @@ int Koopa::IsBlocking()
 	return 0;
 }
 
+void Koopa::OnAttackedByTail(float direction)
+{
+	CRespawnableEnemy::OnAttackedByTail(direction);
+	isFlipped = true;
+}
+
 void Koopa::GetKicked(int direction)
 {
 	SetState(KOOPA_STATE_INSHELL_RUNNING);
@@ -127,6 +142,7 @@ void Koopa::SetState(int state)
 	{
 	case KOOPA_STATE_WALKING:
 		vx = nx * KOOPA_WALKING_SPEED;
+		isFlipped = false;
 		break;
 	case KOOPA_STATE_INSHELL:
 		vx = 0;

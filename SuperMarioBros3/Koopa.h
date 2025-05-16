@@ -17,6 +17,8 @@
 #define ID_ANI_KOOPA_WALK_LEFT 5101
 #define ID_ANI_KOOPA_INSHELL 5102
 #define ID_ANI_KOOPA_INSHELL_RUNNING 5103
+#define ID_ANI_KOOPA_INSHELL_FLIPPED 5104
+#define ID_ANI_KOOPA_INSHELL_FLIPPED_RUNNING 5105
 
 #define KOOPA_WALKING_SPEED 0.05f
 #define KOOPA_INSHELL_TIME 10000
@@ -31,6 +33,7 @@ protected:
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 
 	int inShellDuration;
+	bool isFlipped = false;
 public:
 	Koopa(float x, float y);
 
@@ -45,11 +48,15 @@ public:
 	int IsBlocking() override;
 	int IsCollidable() override { return 1; }
 
+	void OnAttackedByTail(float direction) override;
+
 	void GetKicked(int direction);
 
 	void SetState(int state) override;
 
 	void SetHold(LPGAMEOBJECT mario);
 	bool IsHold() { return mario != nullptr; }
+
+	int GetRenderLayer() override { return 0; }
 };
 

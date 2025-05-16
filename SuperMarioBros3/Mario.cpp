@@ -160,8 +160,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 void CMario::OnNoCollision(DWORD dt)
 {
-	static int count = 0;
-	DebugOut(L"Arise %d\n", count++);
 	x += vx * dt;
 	y += vy * dt;
 	isOnPlatform = false;
