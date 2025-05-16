@@ -16,6 +16,7 @@ class CRespawnableEnemy :
 protected:
 	float ax;
 	float ay;
+	bool IsOtherEnemyOrMario(LPGAMEOBJECT obj);
 public:
 	CRespawnableEnemy(float x, float y);
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) override;

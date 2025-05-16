@@ -24,6 +24,7 @@ public:
 	void OnEnable() override;
 	void OnDisable() override;
 	void ChangeDirection();
+	void SetState(int state) override;
 };
 
 class CRedKoopaDetector : public CGameObject

@@ -46,6 +46,12 @@ void RedKoopa::ChangeDirection()
 	nx = -nx;
 }
 
+void RedKoopa::SetState(int state)
+{
+	Koopa::SetState(state);
+	detector->SetActive(state == KOOPA_STATE_WALKING);
+}
+
 void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	vy += ay * dt;

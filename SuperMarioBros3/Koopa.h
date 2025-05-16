@@ -6,11 +6,16 @@
 #define KOOPA_BBOX_OFFSET_Y 3
 
 #define KOOPA_STATE_WALKING 0
+#define KOOPA_STATE_INSHELL 1
+#define KOOPA_STATE_INSHELL_RUNNING 2
+
+#define KOOPA_INSHELL_RUNNING_SPEED 0.1f
 
 #define KOOPA_START_ANI_ID 5100
 
 #define ID_ANI_KOOPA_WALK_RIGHT 5100
 #define ID_ANI_KOOPA_WALK_LEFT 5101
+#define ID_ANI_KOOPA_INSHELL 5102
 
 #define KOOPA_WALKING_SPEED 0.05f
 
@@ -32,6 +37,8 @@ public:
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int IsBlocking() override { return 1; }
 	int IsCollidable() override { return 1; }
+
+	void GetKicked(int direction);
 
 	void SetState(int state) override;
 };

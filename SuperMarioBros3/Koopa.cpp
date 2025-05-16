@@ -1,4 +1,5 @@
 #include "Koopa.h"
+#include "Mario.h"
 #include "debug.h"
 
 int Koopa::GetAniId(int defaultIdAni)
@@ -8,6 +9,12 @@ int Koopa::GetAniId(int defaultIdAni)
 	{
 	case KOOPA_STATE_WALKING:
 		aniId = vx > 0 ? ID_ANI_KOOPA_WALK_RIGHT : ID_ANI_KOOPA_WALK_LEFT;
+		break;
+	case KOOPA_STATE_INSHELL:
+		aniId = ID_ANI_KOOPA_INSHELL;
+		break;
+	case KOOPA_STATE_INSHELL_RUNNING:
+		aniId = ID_ANI_KOOPA_INSHELL;
 		break;
 	default:
 		break;
@@ -53,18 +60,25 @@ void Koopa::OnNoCollision(DWORD dt)
 
 void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
-	if (e->ny != 0)
+	if (e->ny < 0)
 		vy = 0;
-	else if (e->nx != 0)
+	if (e->nx != 0 && !IsOtherEnemyOrMario(e->obj)) {
 		vx = -vx, nx = -nx;
+	}
 }
 
 void Koopa::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	left = x - KOOPA_BBOX_WIDTH / 2;
-	top = y - KOOPA_BBOX_HEIGHT / 2 + KOOPA_BBOX_OFFSET_Y;
+	top = y - KOOPA_BBOX_HEIGHT / 2 + KOOPA_BBOX_OFFSET_Y * (state == KOOPA_STATE_WALKING);
 	right = left + KOOPA_BBOX_WIDTH;
 	bottom = top + KOOPA_BBOX_HEIGHT;
+}
+
+void Koopa::GetKicked(int direction)
+{
+	SetState(KOOPA_STATE_INSHELL_RUNNING);
+	vx = direction * KOOPA_INSHELL_RUNNING_SPEED;
 }
 
 void Koopa::SetState(int state)
@@ -74,6 +88,9 @@ void Koopa::SetState(int state)
 	{
 	case KOOPA_STATE_WALKING:
 		vx = nx * KOOPA_WALKING_SPEED;
+		break;
+	case KOOPA_STATE_INSHELL:
+		vx = 0;
 		break;
 	default:
 		break;

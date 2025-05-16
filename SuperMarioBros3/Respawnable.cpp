@@ -1,5 +1,16 @@
 #include "Respawnable.h"
 #include "PlayScene.h"
+#include "Mario.h"
+#include <typeinfo>
+
+bool CRespawnableEnemy::IsOtherEnemyOrMario(LPGAMEOBJECT obj)
+{
+	if (dynamic_cast<CMario*>(obj) != nullptr)
+		return true;
+	if (dynamic_cast<CRespawnableEnemy*>(obj) != nullptr) {
+		return typeid(*obj) != typeid(*this);
+	}
+}
 
 CRespawnableEnemy::CRespawnableEnemy(float x, float y) : CGameObject(x, y)
 {

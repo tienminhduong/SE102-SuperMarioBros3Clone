@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include "Goomba.h"
+#include "Koopa.h"
 #include "Coin.h"
 #include "Portal.h"
 #include "QuestionMarkBlock.h"
@@ -143,6 +144,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 
 	if (dynamic_cast<CGoomba*>(e->obj))
 		OnCollisionWithGoomba(e);
+	else if (dynamic_cast<Koopa*>(e->obj))
+		OnCollisionWithKoopa(e);
 	else if (dynamic_cast<CCoin*>(e->obj))
 		OnCollisionWithCoin(e);
 	else if (dynamic_cast<CPortal*>(e->obj))
@@ -178,6 +181,32 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 		{
 			TakeDamage();
 		}
+	}
+}
+
+void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
+{
+	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+
+	if (koopa->GetState() == KOOPA_STATE_INSHELL)
+	{
+		float kx, ky;
+		koopa->GetPosition(kx, ky);
+		int direction = (int)((kx - x) / abs(kx - x));
+		koopa->GetKicked(direction);
+		return;
+	}
+
+	if (e->ny < 0)
+	{
+		if (koopa->GetState() != KOOPA_STATE_INSHELL && koopa->GetState() != ENEMY_STATE_KICKED) {
+			koopa->SetState(KOOPA_STATE_INSHELL);
+			vy = -MARIO_JUMP_DEFLECT_SPEED;
+		}
+	}
+	else {
+		if (koopa->GetState() != KOOPA_STATE_INSHELL && untouchableDuration <= 0)
+			TakeDamage();
 	}
 }
 
