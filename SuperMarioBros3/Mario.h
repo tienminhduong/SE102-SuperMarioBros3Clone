@@ -5,6 +5,7 @@
 #include "Animations.h"
 
 #include "RaccoonTail.h"
+#include "Koopa.h"
 
 #include "debug.h"
 
@@ -64,6 +65,14 @@
 #define ANI_MARIO_SIT_LEFT 13
 #define ANI_MARIO_FALLING_RIGHT 14
 #define ANI_MARIO_FALLING_LEFT 15
+#define ANI_MARIO_HOLDING_IDLE_RIGHT 16
+#define ANI_MARIO_HOLDING_IDLE_LEFT 17
+#define ANI_MARIO_HOLDING_RUNNING_RIGHT 18
+#define ANI_MARIO_HOLDING_RUNNING_LEFT 19
+#define ANI_MARIO_HOLDING_JUMPING_RIGHT 20
+#define ANI_MARIO_HOLDING_JUMPING_LEFT 21
+#define ANI_MARIO_KICKING_RIGHT 22
+#define ANI_MARIO_KICKING_LEFT 23
 
 #pragma endregion
 
@@ -93,6 +102,18 @@
 
 #define ID_ANI_MARIO_FALLING_RIGHT 1093
 #define ID_ANI_MARIO_FALLING_LEFT 1094
+
+#define ID_ANI_MARIO_HOLDING_IDLE_RIGHT 1095
+#define ID_ANI_MARIO_HOLDING_IDLE_LEFT 1096
+
+#define ID_ANI_MARIO_HOLDING_RUNNING_RIGHT 1097
+#define ID_ANI_MARIO_HOLDING_RUNNING_LEFT 1098
+
+#define ID_ANI_MARIO_HOLDING_JUMPING_RIGHT 1083
+#define ID_ANI_MARIO_HOLDING_JUMPING_LEFT 1084
+
+#define ID_ANI_MARIO_KICKING_RIGHT 1085
+#define ID_ANI_MARIO_KICKING_LEFT 1086
 
 #define ID_ANI_MARIO_DIE 999
 
@@ -202,6 +223,7 @@ class CMario : public CGameObject
 	int jumpedTime;
 
 	void OnCollisionWithGoomba(LPCOLLISIONEVENT e);
+	void OnCollisionWithKoopa(LPCOLLISIONEVENT e);
 	void OnCollisionWithCoin(LPCOLLISIONEVENT e);
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 	void OnCollisionWithTransformItem(LPCOLLISIONEVENT e);
@@ -224,8 +246,18 @@ class CMario : public CGameObject
 
 	bool continuousTailFlap = false;
 
+	bool readyToHoldKoopa = false;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
+	void SetTailPosition(DWORD dt);
+
+	Koopa* holdingKoopa = nullptr;
+	void SetHoldKoopa(Koopa* koopa);
+	void SetKoopaPosition(DWORD dt);
+	bool IsHoldingKoopa() { return holdingKoopa != nullptr; }
+
+	int kickAnimDuration = 0;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -269,4 +301,9 @@ public:
 	void EndRaccoonAttack();
 
 	void TriggerSmallJump();
+
+	void SetReadyHoldKoopa(bool value);
+	void ReleaseKoopa();
+
+	void PlayKickKoopaAnim();
 };

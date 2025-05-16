@@ -54,7 +54,6 @@ void CFirePiranhaPlant::FireBullet()
 	float angle = (FindAngleOfMario(index) - 180.f) * PI / 180.f;
 	dirX = cos(angle);
 	dirY = -sin(angle);
-	DebugOut(L"angle: %f, dirX: %f, dirY: %f\n", angle, dirX, dirY);
 
 	LPGAMEOBJECT bullet = new CFirePiranhaPlantBullet(shootingX, shootingY, dirX, dirY);
 	CPlayScene* currentScene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
@@ -74,7 +73,6 @@ void CFirePiranhaPlant::Render()
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = GetAniID();
 	animations->Get(aniId)->Render(x, y);
-	RenderBoundingBox();
 }
 
 void CFirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
@@ -87,12 +85,9 @@ void CFirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 	case FIRE_PIRANHA_PLANT_STATE_UNACTIVE:
 	{
-		if (!IsOnCamera())
-			return;
-
 		if (movingCountdown > 0)
 			movingCountdown -= dt;
-		if (movingCountdown <= 0 && distance > FIRE_PIRANHA_NOT_MOVE_UP_RANGE)
+		if (movingCountdown <= 0 && distance > FIRE_PIRANHA_NOT_MOVE_UP_RANGE && IsOnCamera())
 			SetState(FIRE_PIRANHA_PLANT_STATE_MOVING_UP);
 	}
 	break;

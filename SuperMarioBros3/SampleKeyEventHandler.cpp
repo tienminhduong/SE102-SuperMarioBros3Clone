@@ -21,6 +21,7 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 		break;
 	case DIK_A: 
 		mario->TriggerRaccoonAttack();
+		mario->SetReadyHoldKoopa(true);
 		break;
 	case DIK_1:
 		mario->SetLevel(MARIO_LEVEL_SMALL);
@@ -59,6 +60,9 @@ void CSampleKeyHandler::OnKeyUp(int KeyCode)
 		break;
 	case DIK_DOWN:
 		mario->SetState(MARIO_STATE_SIT_RELEASE);
+		break;
+	case DIK_A:
+		mario->SetReadyHoldKoopa(false);
 		break;
 	}
 }

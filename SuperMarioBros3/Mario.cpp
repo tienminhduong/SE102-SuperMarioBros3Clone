@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include "Goomba.h"
+#include "Koopa.h"
 #include "Coin.h"
 #include "Portal.h"
 #include "QuestionMarkBlock.h"
@@ -16,6 +17,62 @@
 #include "Collision.h"
 
 #define STAT_LOG_CONDITION 0
+
+void CMario::SetTailPosition(DWORD dt)
+{
+	if (tail != nullptr && tail->GetActive() && rotatingAnimDuration < rotatingAnimMaxDuration)
+	{
+		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
+
+		int t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
+		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
+		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
+
+		float tailX, tailY;
+		tail->GetPosition(tailX, tailY);
+
+		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
+		float dx = newTailX - tailX, dy = newTailY - tailY;
+		if (abs(tailX - x) < MARIO_RACCOON_TAIL_OFFSET_X)
+			tail->SetSpeed(dx / dt, dy / dt);
+		else
+			tail->SetSpeed(0, 0);
+		tail->SetPosition(newTailX, newTailY);
+	}
+}
+
+void CMario::SetHoldKoopa(Koopa* koopa)
+{
+	if (holdingKoopa)
+		return;
+
+	holdingKoopa = koopa;
+	holdingKoopa->SetHold(this);
+}
+
+void CMario::SetKoopaPosition(DWORD dt)
+{
+	if (holdingKoopa != nullptr)
+	{
+		float kx, ky;
+		holdingKoopa->GetPosition(kx, ky);
+
+		float t, l, r, b;
+		this->GetBoundingBox(l, t, r, b);
+
+		float kx2, ky2;
+		if (nx > 0)
+			kx2 = r + KOOPA_BBOX_WIDTH / 2;
+		else
+			kx2 = l - KOOPA_BBOX_WIDTH / 2;
+		ky2 = y;
+
+		float dx = kx2 - kx, dy = ky2 - ky;
+		holdingKoopa->SetSpeed(dx / dt, dy / dt);
+
+		holdingKoopa->SetPosition(kx2, ky2);
+	}
+}
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
@@ -74,12 +131,22 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		tailFlapAnimationCurrentDuration -= dt;
 	}
 
+	if (kickAnimDuration > 0)
+		kickAnimDuration -= dt;
+
 	if (IsAttacking())
 	{
 		rotatingAnimDuration -= dt;
 		if (rotatingAnimDuration <= 0)
 			EndRaccoonAttack();
 	}
+
+
+
+	CCollision::GetInstance()->Process(this, dt, coObjects);
+
+	SetTailPosition(dt);
+	SetKoopaPosition(dt);
 
 	if (STAT_LOG_CONDITION) {
 		DebugOut(L"==========[CONDITION LOG]==========\n");
@@ -88,19 +155,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
 		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
 		DebugOut(L"==========[END CONDITION LOG]==========\n");
-	}
-
-
-	CCollision::GetInstance()->Process(this, dt, coObjects);
-	if (tail != nullptr)
-	{
-		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
-
-		int t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
-		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
-		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
-
-		tail->SetPosition(x - tail_offset_x * nx, y + MARIO_RACCOON_TAIL_OFFSET_Y);
 	}
 }
 
@@ -126,14 +180,15 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 			vy = -0.001f;
 		}
 	}
-	else 
-	if (e->nx != 0 && e->obj->IsBlocking())
+	else if (e->nx != 0 && e->obj->IsBlocking())
 	{
 		vx = 0;
 	}
 
 	if (dynamic_cast<CGoomba*>(e->obj))
 		OnCollisionWithGoomba(e);
+	else if (dynamic_cast<Koopa*>(e->obj))
+		OnCollisionWithKoopa(e);
 	else if (dynamic_cast<CCoin*>(e->obj))
 		OnCollisionWithCoin(e);
 	else if (dynamic_cast<CPortal*>(e->obj))
@@ -169,6 +224,45 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 		{
 			TakeDamage();
 		}
+	}
+}
+
+void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
+{
+	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+
+	if (koopa->IsHold())
+		return;
+
+	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold()) {
+		SetHoldKoopa(koopa);
+		return;
+	}
+
+	if (koopa->GetState() == KOOPA_STATE_INSHELL)
+	{
+		float kx, ky;
+		koopa->GetPosition(kx, ky);
+		int direction;
+		if (kx != x)
+			direction = (int)((kx - x) / abs(kx - x));
+		else direction = 1;
+		koopa->SetPosition(kx + KOOPA_BBOX_WIDTH / 2 * direction, ky);
+		koopa->GetKicked(direction);
+		PlayKickKoopaAnim();
+		return;
+	}
+
+	if (e->ny < 0)
+	{
+		if (koopa->GetState() != KOOPA_STATE_INSHELL && koopa->GetState() != ENEMY_STATE_KICKED) {
+			koopa->SetState(KOOPA_STATE_INSHELL);
+			vy = -MARIO_JUMP_DEFLECT_SPEED;
+		}
+	}
+	else {
+		if (koopa->GetState() != KOOPA_STATE_INSHELL && untouchableDuration <= 0)
+			TakeDamage();
 	}
 }
 
@@ -215,7 +309,7 @@ void CMario::TakeDamage()
 	}
 }
 
-int mapAniId[][16] = {
+int mapAniId[][24] = {
 	{
 		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT,
 		ID_ANI_MARIO_SMALL_WALKING_RIGHT, ID_ANI_MARIO_SMALL_WALKING_LEFT,
@@ -224,7 +318,11 @@ int mapAniId[][16] = {
 		ID_ANI_MARIO_SMALL_JUMP_RUN_RIGHT, ID_ANI_MARIO_SMALL_JUMP_RUN_LEFT,
 		ID_ANI_MARIO_SMALL_BRACE_RIGHT, ID_ANI_MARIO_SMALL_BRACE_LEFT,
 		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT, // small Mario has no sit animation
-		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT // small Mario has no falling animation
+		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT, // small Mario has no falling animation
+		ID_ANI_MARIO_SMALL_IDLE_RIGHT, ID_ANI_MARIO_SMALL_IDLE_LEFT,
+		ID_ANI_MARIO_SMALL_WALKING_RIGHT, ID_ANI_MARIO_SMALL_WALKING_LEFT,
+		ID_ANI_MARIO_SMALL_RUNNING_RIGHT, ID_ANI_MARIO_SMALL_RUNNING_LEFT,
+		ID_ANI_MARIO_SMALL_JUMP_WALK_RIGHT, ID_ANI_MARIO_SMALL_JUMP_WALK_LEFT,
 	},
 	{
 		ID_ANI_MARIO_IDLE_RIGHT, ID_ANI_MARIO_IDLE_LEFT,
@@ -234,7 +332,11 @@ int mapAniId[][16] = {
 		ID_ANI_MARIO_JUMP_RUN_RIGHT, ID_ANI_MARIO_JUMP_RUN_LEFT,
 		ID_ANI_MARIO_BRACE_RIGHT, ID_ANI_MARIO_BRACE_LEFT,
 		ID_ANI_MARIO_SIT_RIGHT, ID_ANI_MARIO_SIT_LEFT,
-		ID_ANI_MARIO_FALLING_RIGHT, ID_ANI_MARIO_FALLING_LEFT
+		ID_ANI_MARIO_FALLING_RIGHT, ID_ANI_MARIO_FALLING_LEFT,
+		ID_ANI_MARIO_HOLDING_IDLE_RIGHT, ID_ANI_MARIO_HOLDING_IDLE_LEFT,
+		ID_ANI_MARIO_HOLDING_RUNNING_RIGHT, ID_ANI_MARIO_HOLDING_RUNNING_LEFT,
+		ID_ANI_MARIO_HOLDING_JUMPING_RIGHT, ID_ANI_MARIO_HOLDING_JUMPING_LEFT,
+		ID_ANI_MARIO_KICKING_RIGHT, ID_ANI_MARIO_KICKING_LEFT,
 	},
 	{
 		ID_ANI_MARIO_RACCOON_IDLE_RIGHT, ID_ANI_MARIO_RACCOON_IDLE_LEFT,
@@ -244,7 +346,11 @@ int mapAniId[][16] = {
 		ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT, ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT,
 		ID_ANI_MARIO_RACCOON_BRACE_RIGHT, ID_ANI_MARIO_RACCOON_BRACE_LEFT,
 		ID_ANI_MARIO_RACCOON_SIT_RIGHT, ID_ANI_MARIO_RACCOON_SIT_LEFT,
-		ID_ANI_MARIO_RACCOON_FALLING_RIGHT, ID_ANI_MARIO_RACCOON_FALLING_LEFT
+		ID_ANI_MARIO_RACCOON_FALLING_RIGHT, ID_ANI_MARIO_RACCOON_FALLING_LEFT,
+		ID_ANI_MARIO_RACCOON_IDLE_RIGHT, ID_ANI_MARIO_RACCOON_IDLE_LEFT,
+		ID_ANI_MARIO_RACCOON_WALKING_RIGHT, ID_ANI_MARIO_RACCOON_WALKING_LEFT,
+		ID_ANI_MARIO_RACCOON_RUNNING_RIGHT, ID_ANI_MARIO_RACCOON_RUNNING_LEFT,
+		ID_ANI_MARIO_RACCOON_JUMP_WALK_RIGHT, ID_ANI_MARIO_RACCOON_JUMP_WALK_LEFT,
 	}
 };
 
@@ -254,6 +360,14 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 	if (transformAnimDuration > 0)
 	{
 		aniId = currentTransformAnim;
+		return;
+	}
+	if (kickAnimDuration > 0)
+	{
+		if (nx > 0)
+			aniId = ID_ANI_MARIO_KICKING_RIGHT;
+		else
+			aniId = ID_ANI_MARIO_KICKING_LEFT;
 		return;
 	}
 	if (!isOnPlatform)
@@ -268,16 +382,16 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 		else if (abs(ax) == MARIO_ACCEL_RUN_X)
 		{
 			if (nx >= 0)
-				aniId = MapAniTypeToId(ANI_MARIO_JUMP_RUN_RIGHT);
+				aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_RIGHT : ANI_MARIO_JUMP_RUN_RIGHT);
 			else
-				aniId = MapAniTypeToId(ANI_MARIO_JUMP_RUN_LEFT);
+				aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_LEFT : ANI_MARIO_JUMP_RUN_LEFT);
 		}
 		else {
 			if (vy > 0) {
 				if (nx >= 0)
-					aniId = MapAniTypeToId(ANI_MARIO_FALLING_RIGHT);
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_RIGHT : ANI_MARIO_FALLING_RIGHT);
 				else
-					aniId = MapAniTypeToId(ANI_MARIO_FALLING_LEFT);
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_LEFT : ANI_MARIO_FALLING_LEFT);
 				if (level == MARIO_LEVEL_RACCOON) {
 					if (tailFlapAnimationCurrentDuration > 0)
 					{
@@ -297,9 +411,9 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			else
 			{
 				if (nx >= 0)
-					aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_RIGHT);
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_RIGHT : ANI_MARIO_JUMP_WALK_RIGHT);
 				else
-					aniId = MapAniTypeToId(ANI_MARIO_JUMP_WALK_LEFT);
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_LEFT : ANI_MARIO_JUMP_WALK_LEFT);
 			}
 		}
 	}
@@ -314,26 +428,26 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 		else
 			if (vx == 0)
 			{
-				if (nx > 0) aniId = MapAniTypeToId(ANI_MARIO_IDLE_RIGHT);
-				else aniId = MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
+				if (nx > 0) aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_IDLE_RIGHT : ANI_MARIO_IDLE_RIGHT);
+				else aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_IDLE_LEFT : ANI_MARIO_IDLE_LEFT);
 			}
 			else if (vx > 0)
 			{
 				if (ax < 0 && abs(ax) != MARIO_FRICTION)
-					aniId = MapAniTypeToId(ANI_MARIO_BRACE_RIGHT);
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_LEFT : ANI_MARIO_BRACE_RIGHT);
 				else if (ax == MARIO_ACCEL_RUN_X)
-					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_RIGHT), speed = 2.f;
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_RIGHT : ANI_MARIO_RUNNING_RIGHT), speed = 2.f;
 				else if (ax == MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
-					aniId = MapAniTypeToId(ANI_MARIO_WALKING_RIGHT), speed = 1.5f;
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_RIGHT : ANI_MARIO_WALKING_RIGHT), speed = 1.5f;
 			}
 			else // vx < 0
 			{
 				if (ax > 0 && abs(ax) != MARIO_FRICTION)
-					aniId = MapAniTypeToId(ANI_MARIO_BRACE_LEFT);
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_RIGHT : ANI_MARIO_BRACE_LEFT);
 				else if (ax == -MARIO_ACCEL_RUN_X)
-					aniId = MapAniTypeToId(ANI_MARIO_RUNNING_LEFT), speed = 2.f;
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_LEFT : ANI_MARIO_RUNNING_LEFT), speed = 2.f;
 				else if (ax == -MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
-					aniId = MapAniTypeToId(ANI_MARIO_WALKING_LEFT), speed = 1.5f;
+					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_LEFT : ANI_MARIO_WALKING_LEFT), speed = 1.5f;
 			}
 	}
 	if (IsAttacking()) {
@@ -343,8 +457,11 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			aniId = ID_ANI_MARIO_RACCOON_ROTATING_LEFT;
 		speed = 1.f;
 	}
-
-	if (aniId == -1) aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
+	if (aniId == -1)
+		if (IsHoldingKoopa())
+			aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_HOLDING_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_HOLDING_IDLE_LEFT);
+		else
+			aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
 }
 
 int CMario::MapAniTypeToId(int animation_type)
@@ -369,7 +486,7 @@ void CMario::Render()
 	if (notRenderSpriteFrameCount <= 0)
 		animations->Get(aniId)->Render(x, y);
 
-	//RenderBoundingBox();
+	RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
 }
@@ -518,7 +635,6 @@ void CMario::TriggerRaccoonAttack()
 	rotatingAnimMaxDuration = animation->GetDuration();
 	animation->Reset();
 	rotatingAnimDuration = rotatingAnimMaxDuration;
-	DebugOut(L"Triggered!, duration: %d\n", rotatingAnimDuration);
 	tail->SetActive(true);
 }
 
@@ -535,12 +651,46 @@ void CMario::TriggerSmallJump()
 	jumpedTime = MARIO_MAX_JUMP_TIME / 4;
 }
 
+void CMario::SetReadyHoldKoopa(bool value)
+{
+	this->readyToHoldKoopa = value;
+
+	// Release koopa if holding
+	if (!value && holdingKoopa != nullptr)
+		ReleaseKoopa();
+}
+
+void CMario::ReleaseKoopa()
+{
+	if (holdingKoopa != nullptr)
+	{
+		holdingKoopa->SetHold(nullptr);
+		if (holdingKoopa->GetState() == KOOPA_STATE_INSHELL)
+		{
+			holdingKoopa->GetKicked(nx);
+			PlayKickKoopaAnim();
+		}
+		else
+			TakeDamage();
+		holdingKoopa = nullptr;
+	}
+}
+
+void CMario::PlayKickKoopaAnim()
+{
+	CAnimations* animations = CAnimations::GetInstance();
+	kickAnimDuration = animations->Get(mapAniId[level - 1][ANI_MARIO_KICKING_RIGHT])->GetDuration();
+}
+
 
 void CMario::SetLevel(int l)
 {
 	// Adjust position to avoid falling off platform
 	if (this->level == MARIO_LEVEL_SMALL)
 		y -= (MARIO_BIG_BBOX_HEIGHT - MARIO_SMALL_BBOX_HEIGHT) / 2.f;
+
+	if (level == MARIO_LEVEL_RACCOON && l != level && tail != nullptr)
+		tail->SetActive(false);
 
 	if (l == MARIO_LEVEL_SMALL)
 	{

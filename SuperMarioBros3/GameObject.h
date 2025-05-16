@@ -15,8 +15,10 @@ using namespace std;
 #define BBOX_ALPHA 0.25f		// Bounding box transparency
 
 //#define INGAME_CAMERA_WIDTH 251
-#define INGAME_CAMERA_WIDTH 256
-#define INGAME_CAMERA_HEIGHT 187
+//#define INGAME_CAMERA_WIDTH 256
+//#define INGAME_CAMERA_HEIGHT 187
+#define INGAME_CAMERA_WIDTH 266
+#define INGAME_CAMERA_HEIGHT 200
 
 class CGameObject
 {
@@ -45,6 +47,9 @@ public:
 	void SetSpeed(float vx, float vy) { this->vx = vx, this->vy = vy; }
 	void GetPosition(float &x, float &y) { x = this->x; y = this->y; }
 	void GetSpeed(float &vx, float &vy) { vx = this->vx; vy = this->vy; }
+	int GetDirection() { return (int)(vx / abs(vx)); }
+	float GetX() { return x; }
+	float GetY() { return y; }
 
 	int GetState() { return this->state; }
 	virtual void Delete() { isDeleted = true;  }

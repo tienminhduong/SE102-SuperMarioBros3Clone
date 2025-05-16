@@ -25,7 +25,7 @@ public:
 	float GetTop() { return y - PIPE_CELL_HEIGHT / 2; }
 
 	void Render();
-	void Update(DWORD dt, std::vector<LPGAMEOBJECT>* coObjects = NULL) override {}
+	void Update(DWORD dt, std::vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
 	int IsBlocking() override { return 1; }
 	void OnExitCamera() override;

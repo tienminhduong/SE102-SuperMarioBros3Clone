@@ -30,6 +30,7 @@ class CQuestionMarkBlock :
 	int animHitDuration = 0;
 	vector<LPGAMEOBJECT> containedObjs;
 	int containedObjType;
+	void ActivateItem();
 public:
 	CQuestionMarkBlock(float x, float y, int containedObjType);
 	void Render() override;
@@ -37,7 +38,6 @@ public:
 	void TriggerOnCollisionWithMario(float marioX);
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
 	int IsCollidable() override { return 1; }
-	void ActivateItem();
 	void SetState(int state) override;
 };
 

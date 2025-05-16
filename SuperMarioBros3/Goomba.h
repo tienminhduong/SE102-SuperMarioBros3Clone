@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Respawnable.h"
 
 #define GOOMBA_GRAVITY 0.002f
 #define GOOMBA_WALKING_SPEED 0.05f
@@ -16,14 +17,12 @@
 
 #define ID_ANI_GOOMBA_WALKING 5000
 #define ID_ANI_GOOMBA_DIE 5001
+#define ID_ANI_GOOMBA_KICKED 5002
 
-class CGoomba : public CGameObject
+class CGoomba : public CRespawnableEnemy
 {
 protected:
-	float ax;				
-	float ay; 
-
-	ULONGLONG die_start;
+	int die_start;
 
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects);
@@ -35,7 +34,10 @@ protected:
 
 	virtual void OnCollisionWith(LPCOLLISIONEVENT e);
 
-public: 	
+	bool CheckKoopaCollision(LPCOLLISIONEVENT e);
+public:
 	CGoomba(float x, float y);
+	void OnEnable() override;
+	void OnExitCamera() override;
 	virtual void SetState(int state);
 };
