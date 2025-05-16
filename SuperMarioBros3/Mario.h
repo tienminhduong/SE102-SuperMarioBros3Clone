@@ -5,6 +5,7 @@
 #include "Animations.h"
 
 #include "RaccoonTail.h"
+#include "Koopa.h"
 
 #include "debug.h"
 
@@ -225,8 +226,13 @@ class CMario : public CGameObject
 
 	bool continuousTailFlap = false;
 
+	bool readyToHoldKoopa = false;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
+
+	Koopa* holdingKoopa = nullptr;
+	void SetHoldKoopa(Koopa* koopa);
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -270,4 +276,6 @@ public:
 	void EndRaccoonAttack();
 
 	void TriggerSmallJump();
+
+	void SetReadyHoldKoopa(bool value);
 };

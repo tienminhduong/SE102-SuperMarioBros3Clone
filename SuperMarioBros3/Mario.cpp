@@ -18,6 +18,15 @@
 
 #define STAT_LOG_CONDITION 0
 
+void CMario::SetHoldKoopa(Koopa* koopa)
+{
+	if (holdingKoopa)
+		return;
+
+	holdingKoopa = koopa;
+	holdingKoopa->SetHold(this);
+}
+
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
 	if (untouchableDuration > 0) {
@@ -93,6 +102,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 
 	CCollision::GetInstance()->Process(this, dt, coObjects);
+
 	if (tail != nullptr && tail->GetActive() && rotatingAnimDuration < rotatingAnimMaxDuration)
 	{
 		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
@@ -111,6 +121,24 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		else
 			tail->SetSpeed(0, 0);
 		tail->SetPosition(newTailX, newTailY);
+	}
+
+	if (holdingKoopa != nullptr)
+	{
+		float kx, ky;
+		holdingKoopa->GetPosition(kx, ky);
+
+		float t, l, r, b;
+		this->GetBoundingBox(l, t, r, b);
+
+		float kx2, ky2;
+		kx2 = r + KOOPA_BBOX_WIDTH / 2;
+		ky2 = y;
+
+		float dx = kx2 - kx, dy = ky2 - ky;
+		holdingKoopa->SetSpeed(dx / dt, dy / dt);
+
+		holdingKoopa->SetPosition(kx2, ky2);
 	}
 }
 
@@ -136,10 +164,11 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 			vy = -0.001f;
 		}
 	}
-	else 
-	if (e->nx != 0 && e->obj->IsBlocking())
+	else if (e->nx != 0 && e->obj->IsBlocking())
 	{
-		vx = 0;
+		Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+		if (koopa == nullptr || !koopa->IsHold())
+			vx = 0;
 	}
 
 	if (dynamic_cast<CGoomba*>(e->obj))
@@ -188,11 +217,21 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 {
 	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
 
+	if (koopa->IsHold())
+		return;
+
+	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold())
+		SetHoldKoopa(koopa);
+
 	if (koopa->GetState() == KOOPA_STATE_INSHELL)
 	{
 		float kx, ky;
 		koopa->GetPosition(kx, ky);
-		int direction = (int)((kx - x) / abs(kx - x));
+		int direction;
+		if (kx != x)
+			direction = (int)((kx - x) / abs(kx - x));
+		else direction = 1;
+		koopa->SetPosition(kx + KOOPA_BBOX_WIDTH / 2 * direction, ky);
 		koopa->GetKicked(direction);
 		return;
 	}
@@ -570,6 +609,19 @@ void CMario::TriggerSmallJump()
 		return;
 	SetState(MARIO_STATE_JUMP);
 	jumpedTime = MARIO_MAX_JUMP_TIME / 4;
+}
+
+void CMario::SetReadyHoldKoopa(bool value)
+{
+	this->readyToHoldKoopa = value;
+
+	// Release koopa if holding
+	if (!value && holdingKoopa != nullptr)
+	{
+		holdingKoopa->SetHold(nullptr);
+		holdingKoopa->GetKicked(nx);
+		holdingKoopa = nullptr;
+	}
 }
 
 

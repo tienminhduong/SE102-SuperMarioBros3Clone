@@ -24,8 +24,12 @@ class Koopa :
     public CRespawnableEnemy
 {
 protected:
+	LPGAMEOBJECT mario = nullptr;
+
 	int GetAniId(int defaultIdAni);
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
+
+	void OnHoldedUpdate(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 public:
 	Koopa(float x, float y);
 
@@ -43,5 +47,8 @@ public:
 	void GetKicked(int direction);
 
 	void SetState(int state) override;
+
+	void SetHold(LPGAMEOBJECT mario);
+	bool IsHold() { return mario != nullptr; }
 };
 

@@ -33,6 +33,17 @@ void Koopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 	}
 }
 
+void Koopa::OnHoldedUpdate(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+{
+	/*float prevX = x, prevY = y;
+	SetPosition(mario->GetX() + KOOPA_BBOX_WIDTH / 2, mario->GetY() + KOOPA_BBOX_HEIGHT / 2);
+	float dx = x - prevX, dy = y - prevY;
+	SetSpeed(dx / dt, dy / dt);*/
+	//float mvx, mvy;
+	//mario->GetSpeed(mvx, mvy);
+	//SetSpeed(mvx, mvy);
+}
+
 Koopa::Koopa(float x, float y)
 	: CRespawnableEnemy(x, y)
 {
@@ -59,23 +70,35 @@ void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		vy += ay * dt;
 	}
 
+	if (IsHold())
+	{
+		OnHoldedUpdate(dt, coObjects);
+	}
+
 	CCollision::GetInstance()->Process(this, dt, coObjects);
+
 }
 
 void Koopa::OnNoCollision(DWORD dt)
 {
+	if (IsHold())
+		return;
+
 	x += vx * dt;
 	y += vy * dt;
 }
 
 void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
-	if (e->ny < 0)
-		vy = 0;
-	if (e->nx != 0) {
-		vx = -vx, nx = -nx;
-		if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
-			OnCollisionWithQuestionMarkBlock(e);
+	if (!IsHold())
+	{
+		if (e->ny < 0)
+			vy = 0;
+		if (e->nx != 0) {
+			vx = -vx, nx = -nx;
+			if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
+				OnCollisionWithQuestionMarkBlock(e);
+		}
 	}
 }
 
@@ -111,4 +134,11 @@ void Koopa::SetState(int state)
 	default:
 		break;
 	}
+}
+
+void Koopa::SetHold(LPGAMEOBJECT mario)
+{
+	this->mario = mario;
+
+
 }
