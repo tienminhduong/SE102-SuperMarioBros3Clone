@@ -230,9 +230,11 @@ class CMario : public CGameObject
 
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
+	void SetTailPosition(DWORD dt);
 
 	Koopa* holdingKoopa = nullptr;
 	void SetHoldKoopa(Koopa* koopa);
+	void SetKoopaPosition(DWORD dt);
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{

@@ -18,6 +18,29 @@
 
 #define STAT_LOG_CONDITION 0
 
+void CMario::SetTailPosition(DWORD dt)
+{
+	if (tail != nullptr && tail->GetActive() && rotatingAnimDuration < rotatingAnimMaxDuration)
+	{
+		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
+
+		int t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
+		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
+		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
+
+		float tailX, tailY;
+		tail->GetPosition(tailX, tailY);
+
+		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
+		float dx = newTailX - tailX, dy = newTailY - tailY;
+		if (abs(tailX - x) < MARIO_RACCOON_TAIL_OFFSET_X)
+			tail->SetSpeed(dx / dt, dy / dt);
+		else
+			tail->SetSpeed(0, 0);
+		tail->SetPosition(newTailX, newTailY);
+	}
+}
+
 void CMario::SetHoldKoopa(Koopa* koopa)
 {
 	if (holdingKoopa)
@@ -25,6 +48,30 @@ void CMario::SetHoldKoopa(Koopa* koopa)
 
 	holdingKoopa = koopa;
 	holdingKoopa->SetHold(this);
+}
+
+void CMario::SetKoopaPosition(DWORD dt)
+{
+	if (holdingKoopa != nullptr)
+	{
+		float kx, ky;
+		holdingKoopa->GetPosition(kx, ky);
+
+		float t, l, r, b;
+		this->GetBoundingBox(l, t, r, b);
+
+		float kx2, ky2;
+		if (nx > 0)
+			kx2 = r + KOOPA_BBOX_WIDTH / 2;
+		else
+			kx2 = l - KOOPA_BBOX_WIDTH / 2;
+		ky2 = y;
+
+		float dx = kx2 - kx, dy = ky2 - ky;
+		holdingKoopa->SetSpeed(dx / dt, dy / dt);
+
+		holdingKoopa->SetPosition(kx2, ky2);
+	}
 }
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
@@ -91,6 +138,13 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 			EndRaccoonAttack();
 	}
 
+
+
+	CCollision::GetInstance()->Process(this, dt, coObjects);
+
+	SetTailPosition(dt);
+	SetKoopaPosition(dt);
+
 	if (STAT_LOG_CONDITION) {
 		DebugOut(L"==========[CONDITION LOG]==========\n");
 		if (state != 0)
@@ -99,51 +153,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
 		DebugOut(L"==========[END CONDITION LOG]==========\n");
 	}
-
-
-	CCollision::GetInstance()->Process(this, dt, coObjects);
-
-	if (tail != nullptr && tail->GetActive() && rotatingAnimDuration < rotatingAnimMaxDuration)
-	{
-		float tail_offset_x = MARIO_RACCOON_TAIL_OFFSET_X;
-
-		int t = rotatingAnimDuration, t0 = rotatingAnimMaxDuration;
-		float c = 2.f * RACCOON_TAIL_BBOX_WIDTH / (MARIO_RACCOON_BBOX_WIDTH + RACCOON_TAIL_BBOX_WIDTH);
-		tail_offset_x *= abs((4 + 2 * c) * (t - t0 / 2) / t0) - (1 + c);
-
-		float tailX, tailY;
-		tail->GetPosition(tailX, tailY);
-
-		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
-		float dx = newTailX - tailX, dy = newTailY - tailY;
-		if (abs(tailX - x) < MARIO_RACCOON_TAIL_OFFSET_X)
-			tail->SetSpeed(dx / dt, dy / dt);
-		else
-			tail->SetSpeed(0, 0);
-		tail->SetPosition(newTailX, newTailY);
-	}
-
-	if (holdingKoopa != nullptr)
-	{
-		float kx, ky;
-		holdingKoopa->GetPosition(kx, ky);
-
-		float t, l, r, b;
-		this->GetBoundingBox(l, t, r, b);
-
-		float kx2, ky2;
-		kx2 = r + KOOPA_BBOX_WIDTH / 2;
-		ky2 = y;
-
-		float dx = kx2 - kx, dy = ky2 - ky;
-		holdingKoopa->SetSpeed(dx / dt, dy / dt);
-
-		holdingKoopa->SetPosition(kx2, ky2);
-	}
 }
 
 void CMario::OnNoCollision(DWORD dt)
 {
+	static int count = 0;
+	DebugOut(L"Arise %d\n", count++);
 	x += vx * dt;
 	y += vy * dt;
 	isOnPlatform = false;
@@ -166,9 +181,7 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	}
 	else if (e->nx != 0 && e->obj->IsBlocking())
 	{
-		Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
-		if (koopa == nullptr || !koopa->IsHold())
-			vx = 0;
+		vx = 0;
 	}
 
 	if (dynamic_cast<CGoomba*>(e->obj))
@@ -220,8 +233,10 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 	if (koopa->IsHold())
 		return;
 
-	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold())
+	if (koopa->GetState() == KOOPA_STATE_INSHELL && readyToHoldKoopa && !koopa->IsHold()) {
 		SetHoldKoopa(koopa);
+		return;
+	}
 
 	if (koopa->GetState() == KOOPA_STATE_INSHELL)
 	{

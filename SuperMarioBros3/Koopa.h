@@ -41,7 +41,7 @@ public:
 	void OnCollisionWith(LPCOLLISIONEVENT e) override;
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
-	int IsBlocking() override { return 1; }
+	int IsBlocking() override;
 	int IsCollidable() override { return 1; }
 
 	void GetKicked(int direction);

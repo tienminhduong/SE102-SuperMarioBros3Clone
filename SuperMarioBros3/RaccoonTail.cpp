@@ -43,5 +43,5 @@ void CRaccoonTail::OnCollisionWith(LPCOLLISIONEVENT e)
 
 void CRaccoonTail::Render()
 {
-	RenderBoundingBox(1.f);
+	//RenderBoundingBox(1.f);
 }

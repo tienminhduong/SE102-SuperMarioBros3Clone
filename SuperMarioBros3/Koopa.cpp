@@ -64,6 +64,8 @@ void Koopa::OnEnable()
 
 void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
+	if (IsHold())
+		return;
 	if (state != ENEMY_STATE_KICKED)
 	{
 		vx += ax * dt;
@@ -110,6 +112,11 @@ void Koopa::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 	bottom = top + KOOPA_BBOX_HEIGHT;
 }
 
+int Koopa::IsBlocking()
+{
+	return !IsHold();
+}
+
 void Koopa::GetKicked(int direction)
 {
 	SetState(KOOPA_STATE_INSHELL_RUNNING);
@@ -139,6 +146,4 @@ void Koopa::SetState(int state)
 void Koopa::SetHold(LPGAMEOBJECT mario)
 {
 	this->mario = mario;
-
-
 }
