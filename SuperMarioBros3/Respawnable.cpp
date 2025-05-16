@@ -78,7 +78,7 @@ CRespawnPoint::CRespawnPoint(float x, float y, CRespawnableEnemy* obj)
 
 void CRespawnPoint::OnEnterCamera()
 {
-	if (obj != nullptr)
+	if (obj != nullptr && !obj->GetActive())
 		obj->SetActive(true);
 }
 

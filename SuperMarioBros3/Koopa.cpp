@@ -64,21 +64,13 @@ void Koopa::OnEnable()
 
 void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	if (IsHold())
-		return;
-	if (state != ENEMY_STATE_KICKED)
+	if (state != ENEMY_STATE_KICKED && !IsHold())
 	{
 		vx += ax * dt;
 		vy += ay * dt;
 	}
 
-	if (IsHold())
-	{
-		OnHoldedUpdate(dt, coObjects);
-	}
-
 	CCollision::GetInstance()->Process(this, dt, coObjects);
-
 }
 
 void Koopa::OnNoCollision(DWORD dt)
