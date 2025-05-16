@@ -7,7 +7,7 @@ int Koopa::GetAniId(int defaultIdAni)
 	switch (state)
 	{
 	case KOOPA_STATE_WALKING:
-		aniId = nx > 0 ? ID_ANI_KOOPA_WALK_RIGHT : ID_ANI_KOOPA_WALK_LEFT;
+		aniId = vx > 0 ? ID_ANI_KOOPA_WALK_RIGHT : ID_ANI_KOOPA_WALK_LEFT;
 		break;
 	default:
 		break;

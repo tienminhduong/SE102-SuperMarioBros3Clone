@@ -4,10 +4,14 @@
 RedKoopa::RedKoopa(float x, float y)
 	: Koopa(x, y)
 {
-	float detectorX = x + nx * (RED_KOOPA_DETECTOR_OFFSET + RED_KOOPA_DETECTOR_BBOX_X / 2);
-	detector = new CRedKoopaDetector(detectorX, y + RED_KOOPA_DETECTOR_OFFSET, this);
+	detector = new CRedKoopaDetector(x, y, this);
 	CPlayScene* scene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
 	scene->AddNewObject(detector);
+
+	if (IsOnCamera())
+		SetActive(true);
+	else
+		SetActive(false);
 }
 
 void RedKoopa::Render()
@@ -26,7 +30,7 @@ void RedKoopa::Delete()
 void RedKoopa::OnEnable()
 {
 	Koopa::OnEnable();
-	detector->SetPosition(x + nx * (RED_KOOPA_DETECTOR_OFFSET + KOOPA_BBOX_WIDTH / 2), y + RED_KOOPA_DETECTOR_OFFSET);
+	detector->SetPosition(x, y);
 	detector->SetActive(true);
 }
 
@@ -36,49 +40,31 @@ void RedKoopa::OnDisable()
 	detector->SetActive(false);
 }
 
-void RedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
-{
-	if (e->ny != 0)
-		vy = 0;
-	else if (e->nx != 0)
-		ChangeDirection();
-}
-
 void RedKoopa::ChangeDirection()
 {
 	vx = -vx;
 	nx = -nx;
-
-	float detectorX = x + nx * (RED_KOOPA_DETECTOR_OFFSET + KOOPA_BBOX_WIDTH / 2);
-	detector->SetPosition(detectorX, y);
-	
-
-	float deX, deY;
-	detector->GetPosition(deX, deY);
-	//DebugOut(L"[Red koopa] x = %f, y = %f, deX = %f, deY = %f\n", x, y, deX, deY);
 }
 
 void CRedKoopaDetector::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	//koopa->GetSpeed(vx, vy);
-	//x += vx * dt;
-	//y += vy * dt;
+	vy += ay * dt;
 
-	DebugOut(L"[detector] vx = %f, vy = %f\n", vx, vy);
+	float temp;
+	koopa->GetPosition(x, temp);
+	
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
 
 void CRedKoopaDetector::OnNoCollision(DWORD dt)
 {
-	DebugOut(L"Arise!%d\n", count++);
-	//if (isCollideLastFrame)
-		koopa->ChangeDirection();
-	isCollideLastFrame = false;
+	koopa->ChangeDirection();
 }
 
 void CRedKoopaDetector::OnCollisionWith(LPCOLLISIONEVENT e)
 {
-	isCollideLastFrame = true;
+	if (e->ny != 0)
+		vy = 0.f;
 }
 
 void CRedKoopaDetector::GetBoundingBox(float& left, float& top, float& right, float& bottom)

@@ -54,7 +54,6 @@ void CFirePiranhaPlant::FireBullet()
 	float angle = (FindAngleOfMario(index) - 180.f) * PI / 180.f;
 	dirX = cos(angle);
 	dirY = -sin(angle);
-	DebugOut(L"angle: %f, dirX: %f, dirY: %f\n", angle, dirX, dirY);
 
 	LPGAMEOBJECT bullet = new CFirePiranhaPlantBullet(shootingX, shootingY, dirX, dirY);
 	CPlayScene* currentScene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
