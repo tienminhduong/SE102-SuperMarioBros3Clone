@@ -7,6 +7,10 @@ CPipe::CPipe(float x, float y, int height, int type) : CGameObject(x, y)
 {
 	this->height = height;
 	this->type = type;
+
+	if (type == PIPE_TYPE_EMPTY || type == PIPE_TYPE_EMPTY_UPSIDE_DOWN)
+		return;
+
 	CPlayScene* currentScene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
 
 	if (type == PIPE_TYPE_CONTAIN_FIRE_PIRANHA_PLANT)

@@ -59,7 +59,6 @@ void CGameObject::CheckCameraStatus()
 
 void CGameObject::RenderBoundingBox(float alpha)
 {
-	return;
 	D3DXVECTOR3 p(x, y, 0);
 	RECT rect;
 

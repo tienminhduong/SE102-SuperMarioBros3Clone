@@ -95,8 +95,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	}
 
 	vy += ay * dt;
-	if (isOnPlatform)
-		vx += ax * dt;
+	vx += ax * dt;
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
