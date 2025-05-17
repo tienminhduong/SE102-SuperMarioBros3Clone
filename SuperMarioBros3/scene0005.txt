@@ -14,13 +14,17 @@ koopa.txt
 # type: 0 = Mario , 1 = Brick, 2 = Goomba, 3 = Koopas
 # See OBJECT_TYPE constants in AssetIDs.h
 
+
+
 # MARIO
 0	120	10
+
 
 
 #Platform
 5 	0	196	15	47	43	50001	50002	50003
 5	646	180	15	47	30	50001	50002	50003
+5	1160	196	15	47	24	50001	50002	50003
 
 #Square
 6	273	96	6	10	1
@@ -98,4 +102,17 @@ koopa.txt
 #koopa
 30	573	128
 #30	500	159
-#30	920	144
+30	920	144
+
+#AFTER THE HOLE
+#triple grass
+99	1197	164	56001
+99	1212	164	56001
+99	1227	164	56001
+
+#squares
+6	1336	80	14	12	1
+6	1304	112	14	8	0
+6	1272	144	14	4	2
+
+51	1484	128	1

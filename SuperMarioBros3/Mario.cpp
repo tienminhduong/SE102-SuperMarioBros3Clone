@@ -154,6 +154,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
 		DebugOut(L"==========[END CONDITION LOG]==========\n");
 	}
+	if (x < 15)
+		x = 15;
 }
 
 void CMario::OnNoCollision(DWORD dt)

@@ -7,6 +7,7 @@ CGoomba::CGoomba(float x, float y) : CRespawnableEnemy(x, y)
 	die_start = -1;
 	SetState(GOOMBA_STATE_WALKING);
 	OnEnable();
+	nx = -1;
 }
 
 void CGoomba::OnEnable()
@@ -57,9 +58,17 @@ void CGoomba::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (CheckKoopaCollision(e))
 		return;
+	if (dynamic_cast<CGoomba*>(e->obj))
+	{
+		if (e->nx != 0) {
+			vx = -vx;
+			float tvx, tvy;
+			e->obj->GetSpeed(tvx, tvy);
+			e->obj->SetSpeed(-tvx, tvy);
+		}
+	}
 
 	if (!e->obj->IsBlocking()) return; 
-	if (dynamic_cast<CGoomba*>(e->obj)) return;
 
 
 	if (e->ny != 0)
@@ -84,6 +93,17 @@ bool CGoomba::CheckKoopaCollision(LPCOLLISIONEVENT e)
 			koopa->SetDead();
 		}
 		return true;
+	}
+	else {
+		if (e->nx != 0)
+		{
+			if (e->nx != 0) {
+				vx = -vx;
+				float tvx, tvy;
+				e->obj->GetSpeed(tvx, tvy);
+				e->obj->SetSpeed(-tvx, tvy);
+			}
+		}
 	}
 	return false;
 }
