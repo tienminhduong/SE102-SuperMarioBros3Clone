@@ -1,0 +1,17 @@
+#pragma once
+#include "GameObject.h"
+
+#define ID_ANI_GOLD_BRICK 0
+
+#define GOLD_BRICK_BBOX_WIDTH 15
+#define GOLD_BRICK_BBOX_HEIGHT 15
+
+class GoldBrick :
+    public CGameObject
+{
+public:
+	GoldBrick(float x, float y) : CGameObject(x, y) {}
+	void Render() override;
+	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
+};
+

@@ -156,6 +156,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	}
 	if (x < 15)
 		x = 15;
+
+	// log charge
+	DebugOut(L"[CHARGE] ");
+	for (int i = 0; i < GetChargeInScale(7); ++i)
+		DebugOut(L"=");
+	DebugOut(L"\n");
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -383,7 +389,7 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			else
 				aniId = MapAniTypeToId(ANI_MARIO_SIT_LEFT);
 		}
-		else if (abs(ax) == MARIO_ACCEL_RUN_X)
+		else if (abs(vx) == MARIO_RUNNING_SPEED)
 		{
 			if (nx >= 0)
 				aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_RIGHT : ANI_MARIO_JUMP_RUN_RIGHT);
@@ -439,7 +445,7 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			{
 				if (ax < 0 && abs(ax) != MARIO_FRICTION)
 					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_LEFT : ANI_MARIO_BRACE_RIGHT);
-				else if (ax == MARIO_ACCEL_RUN_X)
+				else if (vx == MARIO_RUNNING_SPEED)
 					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_RIGHT : ANI_MARIO_RUNNING_RIGHT), speed = 2.f;
 				else if (ax == MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
 					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_RIGHT : ANI_MARIO_WALKING_RIGHT), speed = 1.5f;
@@ -448,7 +454,7 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			{
 				if (ax > 0 && abs(ax) != MARIO_FRICTION)
 					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_RIGHT : ANI_MARIO_BRACE_LEFT);
-				else if (ax == -MARIO_ACCEL_RUN_X)
+				else if (vx == -MARIO_RUNNING_SPEED)
 					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_LEFT : ANI_MARIO_RUNNING_LEFT), speed = 2.f;
 				else if (ax == -MARIO_ACCEL_WALK_X || abs(ax) == MARIO_FRICTION)
 					aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_RUNNING_LEFT : ANI_MARIO_WALKING_LEFT), speed = 1.5f;
@@ -537,6 +543,9 @@ void CMario::SetState(int state)
 			vy = -MARIO_JUMP_RUN_SPEED_Y;
 		else
 			ay = -MARIO_ACCEL_JUMP, jumpedTime = 0;
+
+		if (abs(vx) > MARIO_WALKING_SPEED && abs(vx) < MARIO_RUNNING_SPEED)
+			vx = MARIO_WALKING_SPEED * nx;
 
 		break;
 
@@ -685,6 +694,22 @@ void CMario::PlayKickKoopaAnim()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	kickAnimDuration = animations->Get(mapAniId[level - 1][ANI_MARIO_KICKING_RIGHT])->GetDuration();
+}
+
+float CMario::GetChargePercent()
+{
+	float avx = abs(vx);
+	if (avx < MARIO_WALKING_SPEED)
+		return 0;
+
+	avx -= MARIO_WALKING_SPEED;
+	float maxCharge = MARIO_RUNNING_SPEED - MARIO_WALKING_SPEED;
+	return avx / maxCharge;
+}
+
+int CMario::GetChargeInScale(int maxValue)
+{
+	return (int)(GetChargePercent() * maxValue);
 }
 
 

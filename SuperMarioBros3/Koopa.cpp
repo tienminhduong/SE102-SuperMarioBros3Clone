@@ -2,6 +2,7 @@
 #include "Mario.h"
 #include "QuestionMarkBlock.h"
 #include "Goomba.h"
+#include "FirePiranhaPlant.h"
 #include "debug.h"
 
 int Koopa::GetAniId(int defaultIdAni)
@@ -36,6 +37,14 @@ void Koopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 	{
 		CQuestionMarkBlock* q = dynamic_cast<CQuestionMarkBlock*>(e->obj);
 		q->TriggerOnCollisionWithMario(x);
+	}
+}
+
+void Koopa::OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e)
+{
+	if (state == KOOPA_STATE_INSHELL_RUNNING)
+	{
+		e->obj->Delete();
 	}
 }
 
@@ -112,10 +121,13 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 			if (state == ENEMY_STATE_KICKED)
 				SetState(KOOPA_STATE_INSHELL);
 		}
-		if (e->nx != 0 && e->obj->IsBlocking()) {
-			vx = -vx, nx = -nx;
+		if (e->nx != 0) {
+			if (e->obj->IsBlocking())
+				vx = -vx, nx = -nx;
 			if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 				OnCollisionWithQuestionMarkBlock(e);
+			if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
+				OnCollisionWithFirePiranhaPlant(e);
 		}
 
 		if (dynamic_cast<Koopa*>(e->obj))
@@ -133,6 +145,17 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 					koopa->OnAttackedByTail((float)koopa->GetDirection());
 			}
 		}
+	}
+	else {
+		// check collision with fire piranha, destory it if it collide, and release the koopa
+		if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
+		{
+			e->obj->Delete();
+			ReleaseFromMario();
+			SetDead();
+			OnAttackedByTail((float)nx);
+		}
+
 	}
 }
 
@@ -164,8 +187,8 @@ void Koopa::GetKicked(int direction)
 
 void Koopa::SetState(int state)
 {
-	CRespawnableEnemy::SetState(state);
 	ay = ENEMY_GRAVITY;
+	CRespawnableEnemy::SetState(state);
 	switch (state)
 	{
 	case KOOPA_STATE_WALKING:

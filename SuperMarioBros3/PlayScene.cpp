@@ -17,6 +17,7 @@
 #include "Paragoomba.h"
 #include "GameManager.h"
 #include "Wall.h"
+#include "HardBrick.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -136,6 +137,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_COIN: obj = new CCoin(x, y); break;
 	case OBJECT_TYPE_KOOPAS: obj = new Koopa(x, y); break;
 	case OBJECT_TYPE_RED_KOOPA: obj = new RedKoopa(x, y); break;
+	case OBJECT_TYPE_HARD_BRICK: obj = new HardBrick(x, y); break;
 
 	case OBJECT_TYPE_PLATFORM:
 	{
@@ -315,8 +317,9 @@ void CPlayScene::Update(DWORD dt)
 	cy -= game->GetBackBufferHeight() / 2;
 
 	if (cx < 0) cx = 0;
+	if (cy > 0) cy = 0;
 
-	CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	CGame::GetInstance()->SetCamPos(cx, 0);
 
 	PurgeDeletedObjects();
 }
