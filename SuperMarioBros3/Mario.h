@@ -10,10 +10,10 @@
 #include "debug.h"
 
 #define MARIO_WALKING_SPEED		0.1f
-#define MARIO_RUNNING_SPEED		0.2f
+#define MARIO_RUNNING_SPEED		0.3f
 
 #define MARIO_ACCEL_WALK_X	0.00025f
-#define MARIO_ACCEL_RUN_X	0.00035f
+#define MARIO_ACCEL_RUN_X	0.00025f
 #define MARIO_ACCEL_JUMP	0.00266666666666666f
 
 #define MARIO_FRICTION	0.0002f
@@ -334,4 +334,7 @@ public:
 
 	void PlayKickKoopaAnim();
 	int GetRenderLayer() { return 3; }
+
+	float GetChargePercent();
+	int GetChargeInScale(int maxValue);
 };
