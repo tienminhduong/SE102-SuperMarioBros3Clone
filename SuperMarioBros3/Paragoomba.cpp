@@ -94,7 +94,7 @@ void Paragoomba::SetState(int state)
 void Paragoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CGoomba::Update(dt, coObjects);
-	if (changeStateDuration > 0)
+	if (changeStateDuration > 0 && state == PARAGOOMBA_STATE_WALK)
 	{
 		changeStateDuration -= dt;
 		if (changeStateDuration <= 0)

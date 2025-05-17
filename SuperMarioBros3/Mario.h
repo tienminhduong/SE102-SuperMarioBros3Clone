@@ -333,4 +333,5 @@ public:
 	void ReleaseKoopa();
 
 	void PlayKickKoopaAnim();
+	int GetRenderLayer() { return 3; }
 };

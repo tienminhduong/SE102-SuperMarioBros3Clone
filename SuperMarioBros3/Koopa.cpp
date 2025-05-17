@@ -104,6 +104,11 @@ void Koopa::OnNoCollision(DWORD dt)
 
 void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
+	if (state == ENEMY_STATE_KICKED && e->ny < 0 && e->obj->IsBlocking())
+	{
+		vy = 0;
+		SetState(KOOPA_STATE_INSHELL);
+	}
 	if (!IsHold())
 	{
 		if (e->ny < 0)
@@ -164,8 +169,8 @@ void Koopa::GetKicked(int direction)
 
 void Koopa::SetState(int state)
 {
-	CRespawnableEnemy::SetState(state);
 	ay = ENEMY_GRAVITY;
+	CRespawnableEnemy::SetState(state);
 	switch (state)
 	{
 	case KOOPA_STATE_WALKING:

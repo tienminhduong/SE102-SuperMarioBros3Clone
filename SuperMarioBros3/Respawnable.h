@@ -2,9 +2,9 @@
 #include "GameObject.h"
 
 #define ENEMY_STATE_KICKED -1
-#define ENEMY_KICKED_FLY_SPEED 0.15f
+#define ENEMY_KICKED_FLY_SPEED 0.3f
 #define ENEMY_KICKED_X 0.05f
-#define ENEMY_GRAVITY 0.0004f
+#define ENEMY_GRAVITY 0.0008f
 
 class CRespawnPoint;
 
