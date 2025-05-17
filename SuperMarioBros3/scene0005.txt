@@ -102,7 +102,7 @@ koopa.txt
 #koopa
 30	573	128
 #30	500	159
-#30	920	144
+30	920	144
 
 #AFTER THE HOLE
 #triple grass
