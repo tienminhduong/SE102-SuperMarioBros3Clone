@@ -162,6 +162,7 @@
     <ClCompile Include="TransformLeaf.cpp" />
     <ClCompile Include="TransformMushroom.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -205,6 +206,7 @@
     <ClInclude Include="TransformLeaf.h" />
     <ClInclude Include="TransformMushroom.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

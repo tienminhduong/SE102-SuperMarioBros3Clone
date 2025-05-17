@@ -16,6 +16,7 @@
 #include "RedKoopa.h"
 #include "Paragoomba.h"
 #include "GameManager.h"
+#include "Wall.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -192,6 +193,14 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	{
 		int ani_id = atoi(tokens[3].c_str());
 		obj = new StaticObject(x, y, ani_id);
+	}
+	break;
+	case OBJECT_TYPE_WALL:
+	{
+		int width = atoi(tokens[3].c_str());
+		int height = atoi(tokens[4].c_str());
+
+		obj = new Wall(x, y, width, height);
 	}
 	break;
 

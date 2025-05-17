@@ -7,6 +7,7 @@ CGoomba::CGoomba(float x, float y) : CRespawnableEnemy(x, y)
 	die_start = -1;
 	SetState(GOOMBA_STATE_WALKING);
 	OnEnable();
+	nx = -1;
 }
 
 void CGoomba::OnEnable()
