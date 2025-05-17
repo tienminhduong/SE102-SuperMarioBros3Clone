@@ -63,7 +63,7 @@ public:
 	void SetHold(LPGAMEOBJECT mario);
 	bool IsHold() { return mario != nullptr; }
 
-	int GetRenderLayer() override { return 0; }
+	int GetRenderLayer() override { return 4; }
 	void ReleaseFromMario();
 	void SetDead() { markedAsDead = true; }
 };

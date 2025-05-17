@@ -38,7 +38,7 @@ public:
 	virtual int IsBlocking() { return 0; }
 	virtual void OnNoCollision(DWORD dt);
 
-	int GetRenderLayer() { return 2; }
+	int GetRenderLayer() { return 4; }
 
 	virtual void OnCollisionWith(LPCOLLISIONEVENT e);
 };

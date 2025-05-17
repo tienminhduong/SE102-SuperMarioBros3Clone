@@ -32,7 +32,7 @@ public:
 	void RenderBoundingBox();
 
 	int IsDirectionColliable(float nx, float ny);
-	int GetRenderLayer() override { return 4; }
+	int GetRenderLayer() override { return 3; }
 };
 
 typedef CPlatform* LPPLATFORM;
