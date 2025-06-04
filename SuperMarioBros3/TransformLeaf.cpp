@@ -50,6 +50,7 @@ void CTransformLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		float px = x;
 		x = amplitude * sin(1.5f*pi * t / 1000) + startX + amplitude;
 		float dx = x - px;
+		vx = dx / dt;
 		if (dx * nx < 0) {
 			nx = dx / abs(dx);
 		}

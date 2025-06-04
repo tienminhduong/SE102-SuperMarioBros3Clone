@@ -57,9 +57,18 @@ void CGameObject::CheckCameraStatus()
 		OnExitCamera();
 }
 
+void CGameObject::SetPosition(float x, float y, DWORD dt)
+{
+	float px = this->x, py = this->y;
+	this->x = x;
+	this->y = y;
+
+	vx = (x - px) / dt;
+	vy = (y - py) / dt;
+}
+
 void CGameObject::RenderBoundingBox(float alpha)
 {
-	return;
 	D3DXVECTOR3 p(x, y, 0);
 	RECT rect;
 

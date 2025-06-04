@@ -17,4 +17,5 @@ public:
 	int IsCollidable() override { return 1; }
 	int IsBlocking() override { return 0; }
 	void Render() override;
+	int GetRenderLayer() override { return 4; }
 };
