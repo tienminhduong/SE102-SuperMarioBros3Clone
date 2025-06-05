@@ -93,7 +93,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	}
 
 	vy += ay * dt;
-	if (!IsFlying())
+	if (isEnergyGeneratable)
 		vx += ax * dt;
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
@@ -133,6 +133,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	if (flyCountDownTime > 0)
 	{
 		flyCountDownTime -= dt;
+		if (flyCountDownTime <= 0)
+			vx = (vx / abs(vx)) * MARIO_WALKING_SPEED;
 	}
 
 	if (kickAnimDuration > 0)
@@ -741,8 +743,6 @@ void CMario::PlayKickKoopaAnim()
 
 float CMario::GetChargePercent()
 {
-	if (!isEnergyGeneratable)
-		return 0.f;
 	float avx = abs(vx);
 	if (avx < MARIO_WALKING_SPEED)
 		return 0;
