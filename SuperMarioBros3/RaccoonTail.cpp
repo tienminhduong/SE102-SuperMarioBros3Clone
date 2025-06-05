@@ -3,6 +3,7 @@
 #include "FirePiranhaPlant.h"
 #include "debug.h"
 #include "Goomba.h"
+#include "GoldBrick.h"
 
 void CRaccoonTail::OnCollisionWithEnemy(LPCOLLISIONEVENT e)
 {
@@ -16,6 +17,12 @@ void CRaccoonTail::OnCollisionWithQuesBlock(LPCOLLISIONEVENT e)
 {
 	CQuestionMarkBlock* block = dynamic_cast<CQuestionMarkBlock*>(e->obj);
 	block->TriggerOnCollisionWithMario(x);
+}
+
+void CRaccoonTail::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
+{
+	GoldBrick* gb = dynamic_cast<GoldBrick*>(e->obj);
+	gb->TriggerOnCollision();
 }
 
 void CRaccoonTail::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
@@ -35,6 +42,8 @@ void CRaccoonTail::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuesBlock(e);
+	else if (dynamic_cast<GoldBrick*>(e->obj))
+		OnCollisionWithGoldBrick(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		e->obj->Delete();
 	else if (dynamic_cast<CRespawnableEnemy*>(e->obj))

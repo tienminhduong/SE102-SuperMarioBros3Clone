@@ -14,6 +14,7 @@
 #include "TransformLeaf.h"
 #include "FirePiranhaPlant.h"
 #include "FirePiranhaPlantBullet.h"
+#include "GoldBrick.h"
 
 #include "Collision.h"
 
@@ -166,10 +167,10 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		x = 15;
 
 	// log charge
-	DebugOut(L"[CHARGE] ");
-	for (int i = 0; i < GetChargeInScale(7); ++i)
-		DebugOut(L"=");
-	DebugOut(L"\n");
+	//DebugOut(L"[CHARGE] ");
+	//for (int i = 0; i < GetChargeInScale(7); ++i)
+	//	DebugOut(L"=");
+	//DebugOut(L"\n");
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -215,6 +216,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
+	else if (dynamic_cast<GoldBrick*>(e->obj))
+		OnCollisionWithGoldBrick(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		TakeDamage();
 	else if (dynamic_cast<CFirePiranhaPlantBullet*>(e->obj))
@@ -310,6 +313,18 @@ void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 	if (e->ny > 0) {
 		CQuestionMarkBlock* q = (CQuestionMarkBlock*)e->obj;
 		q->TriggerOnCollisionWithMario(x);
+	}
+}
+
+void CMario::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
+{
+	GoldBrick* gb = (GoldBrick*)e->obj;
+	if (e->ny > 0) {
+		if (level > MARIO_LEVEL_SMALL)
+			gb->TriggerOnCollision();
+		else {
+			gb->SetState(GOLD_BRICK_STATE_HIT_NOTBROKEN);
+		}
 	}
 }
 

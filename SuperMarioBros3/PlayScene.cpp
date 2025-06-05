@@ -18,6 +18,7 @@
 #include "GameManager.h"
 #include "Wall.h"
 #include "HardBrick.h"
+#include "GoldBrick.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -138,6 +139,14 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_KOOPAS: obj = new Koopa(x, y); break;
 	case OBJECT_TYPE_RED_KOOPA: obj = new RedKoopa(x, y); break;
 	case OBJECT_TYPE_HARD_BRICK: obj = new HardBrick(x, y); break;
+
+	case OBJECT_TYPE_GOLD_BRICK:
+	{
+		DebugOut(L"[INFO] Gold Brick object has been created!\n");
+		int containBtn = atoi(tokens[3].c_str());
+		obj = new GoldBrick(x, y, containBtn);
+		break;
+	}
 
 	case OBJECT_TYPE_PLATFORM:
 	{
