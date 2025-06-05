@@ -3,6 +3,7 @@
 #include "debug.h"
 
 #define ID_ANI_GOLD_BRICK 100003
+#define ID_ANI_GOLD_BRICK_EMPTY 100001
 
 #define GOLD_BRICK_BBOX_WIDTH 15
 #define GOLD_BRICK_BBOX_HEIGHT 15
@@ -12,17 +13,17 @@
 #define GOLD_BRICK_STATE_COIN 2
 #define GOLD_BRICK_STATE_HIT_NOTBROKEN 3
 
-#define GOLD_BRICK_MOVE_SPEED 0.075f
+#define GOLD_BRICK_MOVE_SPEED 0.1f
 #define GOLD_BRICK_MAX_MOVE_DY GOLD_BRICK_BBOX_HEIGHT / 2
 
-class GoldBrick :
+class CGoldBrick :
     public CGameObject
 {
 	bool containButton;
 	float dy = 0;
 	int moveDirection = -1;
 public:
-	GoldBrick(float x, float y, int containBtn) : CGameObject(x, y) { containButton = containBtn; }
+	CGoldBrick(float x, float y, int containBtn) : CGameObject(x, y) { containButton = containBtn; }
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;

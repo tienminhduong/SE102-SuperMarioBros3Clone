@@ -21,7 +21,7 @@ void CRaccoonTail::OnCollisionWithQuesBlock(LPCOLLISIONEVENT e)
 
 void CRaccoonTail::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
 {
-	GoldBrick* gb = dynamic_cast<GoldBrick*>(e->obj);
+	CGoldBrick* gb = dynamic_cast<CGoldBrick*>(e->obj);
 	gb->TriggerOnCollision();
 }
 
@@ -42,7 +42,7 @@ void CRaccoonTail::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuesBlock(e);
-	else if (dynamic_cast<GoldBrick*>(e->obj))
+	else if (dynamic_cast<CGoldBrick*>(e->obj))
 		OnCollisionWithGoldBrick(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		e->obj->Delete();

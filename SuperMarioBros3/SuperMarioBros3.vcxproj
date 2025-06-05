@@ -141,6 +141,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GoldBrick.cpp" />
+    <ClCompile Include="GoldBrickButton.cpp" />
     <ClCompile Include="Goomba.cpp" />
     <ClCompile Include="HardBrick.cpp" />
     <ClCompile Include="Koopa.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GoldBrick.h" />
+    <ClInclude Include="GoldBrickButton.h" />
     <ClInclude Include="Goomba.h" />
     <ClInclude Include="HardBrick.h" />
     <ClInclude Include="KeyEventHandler.h" />

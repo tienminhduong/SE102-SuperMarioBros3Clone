@@ -15,6 +15,7 @@
 #include "FirePiranhaPlant.h"
 #include "FirePiranhaPlantBullet.h"
 #include "GoldBrick.h"
+#include "GoldBrickButton.h"
 
 #include "Collision.h"
 
@@ -216,8 +217,10 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
-	else if (dynamic_cast<GoldBrick*>(e->obj))
+	else if (dynamic_cast<CGoldBrick*>(e->obj))
 		OnCollisionWithGoldBrick(e);
+	else if (dynamic_cast<CGoldBrickButton*>(e->obj))
+		OnCollisionWithGoldBrickButton(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		TakeDamage();
 	else if (dynamic_cast<CFirePiranhaPlantBullet*>(e->obj))
@@ -318,7 +321,7 @@ void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
 {
-	GoldBrick* gb = (GoldBrick*)e->obj;
+	CGoldBrick* gb = (CGoldBrick*)e->obj;
 	if (e->ny > 0) {
 		if (level > MARIO_LEVEL_SMALL)
 			gb->TriggerOnCollision();
@@ -326,6 +329,12 @@ void CMario::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
 			gb->SetState(GOLD_BRICK_STATE_HIT_NOTBROKEN);
 		}
 	}
+}
+
+void CMario::OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e)
+{
+	CGoldBrickButton* gbbtn = (CGoldBrickButton*)e->obj;
+	gbbtn->TriggerOnCollision();
 }
 
 void CMario::TakeDamage()

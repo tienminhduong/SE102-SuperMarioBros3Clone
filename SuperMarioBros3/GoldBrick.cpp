@@ -1,13 +1,18 @@
 #include "GoldBrick.h"
+#include "GoldBrickButton.h"
+#include "PlayScene.h"
 
-void GoldBrick::Render()
+void CGoldBrick::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
-	animations->Get(ID_ANI_GOLD_BRICK)->Render(x, y);
+	if (state == GOLD_BRICK_STATE_BUTTON_OUT)
+		animations->Get(ID_ANI_GOLD_BRICK_EMPTY)->Render(x, y);
+	else
+		animations->Get(ID_ANI_GOLD_BRICK)->Render(x, y);
 	RenderBoundingBox();
 }
 
-void GoldBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+void CGoldBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	if (state == GOLD_BRICK_STATE_HIT_NOTBROKEN) {
 		y -= dy;
@@ -23,7 +28,7 @@ void GoldBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 }
 
-void GoldBrick::GetBoundingBox(float& left, float& top, float& right, float& bottom)
+void CGoldBrick::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	left = x - GOLD_BRICK_BBOX_WIDTH / 2;
 	top = y - GOLD_BRICK_BBOX_HEIGHT / 2;
@@ -31,8 +36,11 @@ void GoldBrick::GetBoundingBox(float& left, float& top, float& right, float& bot
 	bottom = top + GOLD_BRICK_BBOX_HEIGHT;
 }
 
-void GoldBrick::SetState(int state)
+void CGoldBrick::SetState(int state)
 {
+	if (this->state == GOLD_BRICK_STATE_BUTTON_OUT)
+		return;
+
 	CGameObject::SetState(state);
 	switch (state)
 	{
@@ -46,10 +54,16 @@ void GoldBrick::SetState(int state)
 	}
 }
 
-void GoldBrick::TriggerOnCollision()
+void CGoldBrick::TriggerOnCollision()
 {
 	if (!containButton) {
 		Delete();
+	}
+	else if (state != GOLD_BRICK_STATE_BUTTON_OUT) {
+		CGoldBrickButton* button = new CGoldBrickButton(x, y - GOLD_BRICK_BBOX_HEIGHT);
+		((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(button);
+
+		SetState(GOLD_BRICK_STATE_BUTTON_OUT);
 	}
 }
 

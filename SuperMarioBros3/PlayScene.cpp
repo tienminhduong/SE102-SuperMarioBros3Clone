@@ -144,7 +144,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	{
 		DebugOut(L"[INFO] Gold Brick object has been created!\n");
 		int containBtn = atoi(tokens[3].c_str());
-		obj = new GoldBrick(x, y, containBtn);
+		obj = new CGoldBrick(x, y, containBtn);
 		break;
 	}
 
