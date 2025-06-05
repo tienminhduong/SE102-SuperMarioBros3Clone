@@ -2,11 +2,22 @@
 #include "GoldBrickButton.h"
 #include "PlayScene.h"
 
+CGoldBrick::CGoldBrick(float x, float y, int containBtn)
+	: CGameObject(x, y)
+{
+	containButton = containBtn;
+	callbackId = -1;
+	if (!containBtn)
+		callbackId = CGoldBrickButton::Subscribe([this]() { this->ChangeToGold(); });
+}
+
 void CGoldBrick::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	if (state == GOLD_BRICK_STATE_BUTTON_OUT)
 		animations->Get(ID_ANI_GOLD_BRICK_EMPTY)->Render(x, y);
+	else if (state == GOLD_BRICK_STATE_COIN)
+		animations->Get(ID_ANI_GOLD_BRICK_COIN)->Render(x, y);
 	else
 		animations->Get(ID_ANI_GOLD_BRICK)->Render(x, y);
 	RenderBoundingBox();
@@ -25,6 +36,13 @@ void CGoldBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else {
 				SetState(GOLD_BRICK_STATE_NORMAL);
 			}
+	}
+
+	if (coinTimeCountDown > 0)
+	{
+		coinTimeCountDown -= dt;
+		if (coinTimeCountDown <= 0)
+			SetState(GOLD_BRICK_STATE_NORMAL);
 	}
 }
 
@@ -48,6 +66,8 @@ void CGoldBrick::SetState(int state)
 		moveDirection = -1; // Move up
 		dy = 0;
 		break;
+	case GOLD_BRICK_STATE_COIN:
+		coinTimeCountDown = GOLD_BRICK_COIN_TIME;
 	default:
 		y -= dy;
 		break;
@@ -65,5 +85,16 @@ void CGoldBrick::TriggerOnCollision()
 
 		SetState(GOLD_BRICK_STATE_BUTTON_OUT);
 	}
+}
+
+void CGoldBrick::ChangeToGold()
+{
+	SetState(GOLD_BRICK_STATE_COIN);
+}
+
+void CGoldBrick::Delete()
+{
+	CGameObject::Delete();
+	CGoldBrickButton::Unsubscribe(callbackId);
 }
 

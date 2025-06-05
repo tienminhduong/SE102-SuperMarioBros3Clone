@@ -1,4 +1,24 @@
 #include "GoldBrickButton.h"
+#include <algorithm>
+
+std::vector<pair<int, function<void()>>> CGoldBrickButton::callbacks;
+
+int CGoldBrickButton::Subscribe(function<void()> func)
+{
+	int id;
+	if (callbacks.empty())
+		id = 0;
+	else
+		id = callbacks[callbacks.size() - 1].first + 1;
+	callbacks.push_back({ id, func });
+	return id;
+}
+
+void CGoldBrickButton::Unsubscribe(int id)
+{
+	callbacks.erase(std::remove_if(callbacks.begin(), callbacks.end(),
+		[id](const pair<int, function<void()>>& item) {return item.first == id; }), callbacks.end());
+}
 
 void CGoldBrickButton::Render()
 {
@@ -25,5 +45,10 @@ void CGoldBrickButton::GetBoundingBox(float& left, float& top, float& right, flo
 
 void CGoldBrickButton::TriggerOnCollision()
 {
+	if (state == GOLD_BRICK_BTN_STATE_ACTIVE)
+	{
+		for (auto& f : callbacks)
+			f.second();
+	}
 	SetState(GOLD_BRICK_BTN_STATE_INACTIVE);
 }

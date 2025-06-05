@@ -16,7 +16,7 @@
 #include "FirePiranhaPlantBullet.h"
 #include "GoldBrick.h"
 #include "GoldBrickButton.h"
-
+#include "GameManager.h"
 #include "Collision.h"
 
 #define STAT_LOG_CONDITION 0
@@ -322,6 +322,14 @@ void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 void CMario::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
 {
 	CGoldBrick* gb = (CGoldBrick*)e->obj;
+
+	if (gb->GetState() == GOLD_BRICK_STATE_COIN)
+	{
+		gb->Delete();
+		GameManager::GetInstance()->CollectCoin();
+		return;
+	}
+
 	if (e->ny > 0) {
 		if (level > MARIO_LEVEL_SMALL)
 			gb->TriggerOnCollision();
