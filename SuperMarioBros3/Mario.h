@@ -12,8 +12,8 @@
 #define MARIO_WALKING_SPEED		0.1f
 #define MARIO_RUNNING_SPEED		0.2f
 
-#define MARIO_ACCEL_WALK_X	0.00025f
-#define MARIO_ACCEL_RUN_X	0.00025f
+#define MARIO_ACCEL_WALK_X	0.00015f
+#define MARIO_ACCEL_RUN_X	0.00015f
 #define MARIO_ACCEL_JUMP	0.00266666666666666f
 
 #define MARIO_FRICTION	0.0002f
@@ -42,6 +42,8 @@
 #define MARIO_STATE_SIT_RELEASE		601
 
 #define MARIO_NOT_RENDER_MAX_FRAME_COUNT 3
+
+#define MARIO_FLY_TIME_LIMIT 5000 // 5s
 
 // RACCOON TAIL FLAPPING WHILE FALLING
 #define MARIO_SLOW_FALLING_TIME 220
@@ -275,6 +277,8 @@ class CMario : public CGameObject
 
 	bool readyToHoldKoopa = false;
 
+	int flyCountDownTime = 0;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
 	void SetTailPosition(DWORD dt);
@@ -308,6 +312,7 @@ public:
 	CRaccoonTail* GetTail() { return tail; }
 
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
+	bool IsFlyable() { return (level == MARIO_LEVEL_RACCOON && GetChargePercent() == 1); }
 
 	int IsCollidable() { return (state != MARIO_STATE_DIE); }
 	int IsBlocking() { return 0; }
@@ -323,6 +328,9 @@ public:
 
 	void TriggerRaccoonSlowFalling();
 	void SwitchContinuousTailFlap(bool value) { continuousTailFlap = value; }
+
+	void TriggerRaccoonFLy();
+	bool IsFlying() { return flyCountDownTime > 0; }
 
 	void TriggerRaccoonAttack();
 	void EndRaccoonAttack();

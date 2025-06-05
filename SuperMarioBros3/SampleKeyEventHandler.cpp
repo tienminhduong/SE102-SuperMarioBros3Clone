@@ -18,6 +18,7 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 			mario->TriggerRaccoonSlowFalling();
 		else
 			mario->SetState(MARIO_STATE_JUMP);
+		mario->TriggerRaccoonFLy();
 		break;
 	case DIK_A: 
 		mario->TriggerRaccoonAttack();
@@ -102,6 +103,8 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 
 		if (mario->IsFalling())
 			mario->TriggerRaccoonSlowFalling();
+
+		mario->TriggerRaccoonFLy();
 
 		mario->SwitchContinuousTailFlap(true);
 	}

@@ -123,8 +123,15 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	if (raccoonSlowFalling > 0)
 	{
 		vy = MARIO_JUMP_SPEED_Y / 10;
+		if (flyCountDownTime > 0)
+			vy = -vy;
 		raccoonSlowFalling -= dt;
 		tailFlapAnimationCurrentDuration -= dt;
+	}
+
+	if (flyCountDownTime > 0)
+	{
+		flyCountDownTime -= dt;
 	}
 
 	if (kickAnimDuration > 0)
@@ -634,6 +641,14 @@ void CMario::TriggerRaccoonSlowFalling()
 														: ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT);
 	tailFlapAnimationCurrentDuration = animation->GetDuration();
 	//animation->Reset();
+}
+
+void CMario::TriggerRaccoonFLy()
+{
+	if (level != MARIO_LEVEL_RACCOON || !IsFlyable() || flyCountDownTime > 0)
+		return;
+
+	flyCountDownTime = MARIO_FLY_TIME_LIMIT;
 }
 
 void CMario::TriggerRaccoonAttack()
