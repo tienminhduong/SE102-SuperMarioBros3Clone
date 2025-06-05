@@ -354,4 +354,7 @@ public:
 
 	float GetChargePercent();
 	int GetChargeInScale(int maxValue);
+
+	void ChangeDirection(float direction);
+	bool CanRechargeEnergy() { return isEnergyGeneratable; }
 };

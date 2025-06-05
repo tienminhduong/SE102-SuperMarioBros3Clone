@@ -757,6 +757,13 @@ int CMario::GetChargeInScale(int maxValue)
 	return (int)(GetChargePercent() * maxValue);
 }
 
+void CMario::ChangeDirection(float direction)
+{
+	nx = (int)direction;
+	vx = abs(vx) * nx;
+	ax = abs(ax) * nx;
+}
+
 
 void CMario::SetLevel(int l)
 {

@@ -80,11 +80,8 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 		else
 			mario->SetState(MARIO_STATE_WALKING_RIGHT);
 
-		if (mario->IsFlying()) {
-			float vx, vy;
-			mario->GetSpeed(vx, vy);
-			vx = abs(vx);
-			mario->SetSpeed(vx, vy);
+		if (!mario->CanRechargeEnergy()) {
+			mario->ChangeDirection(1);
 		}
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
@@ -94,11 +91,8 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 		else
 			mario->SetState(MARIO_STATE_WALKING_LEFT);
 
-		if (mario->IsFlying()) {
-			float vx, vy;
-			mario->GetSpeed(vx, vy);
-			vx = -abs(vx);
-			mario->SetSpeed(vx, vy);
+		if (!mario->CanRechargeEnergy()) {
+			mario->ChangeDirection(-1);
 		}
 	}
 	else if (game->IsKeyDown(DIK_DOWN))
