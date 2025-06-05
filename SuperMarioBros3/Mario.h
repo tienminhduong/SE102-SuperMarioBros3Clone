@@ -163,8 +163,6 @@
 #define ID_ANI_MARIO_RACCOON_JUMP_WALK_RIGHT 1706
 #define ID_ANI_MARIO_RACCOON_JUMP_WALK_LEFT 1707
 
-#define ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT 1708
-#define ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT 1709
 
 #define ID_ANI_MARIO_RACCOON_BRACE_RIGHT 1710
 #define ID_ANI_MARIO_RACCOON_BRACE_LEFT 1711
@@ -195,6 +193,16 @@
 
 #define ID_ANI_MARIO_RACCOON_KICKING_RIGHT 1728
 #define ID_ANI_MARIO_RACCOON_KICKING_LEFT 1729
+
+#define ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT 1730
+#define ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT 1731
+
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_RIGHT 1732
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_LEFT 1733
+
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_RIGHT 1734
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_LEFT 1735
+
 
 // TRANSFORM
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT 1800
@@ -259,7 +267,7 @@ class CMario : public CGameObject
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 	void TakeDamage();
 
-	void GetAniIdAndSpeed(int& aniId, float& speed);
+	void GetAniIdAndAniSpeed(int& aniId, float& speed);
 	int MapAniTypeToId(int animation_type);
 
 	int raccoonSlowFalling = 0;
@@ -289,6 +297,7 @@ class CMario : public CGameObject
 	bool IsHoldingKoopa() { return holdingKoopa != nullptr; }
 
 	int kickAnimDuration = 0;
+	bool isEnergyGeneratable = true;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -312,7 +321,7 @@ public:
 	CRaccoonTail* GetTail() { return tail; }
 
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
-	bool IsFlyable() { return (level == MARIO_LEVEL_RACCOON && GetChargePercent() == 1); }
+	bool IsFlyable() { return (level == MARIO_LEVEL_RACCOON && GetChargePercent() == 1 && isOnPlatform); }
 
 	int IsCollidable() { return (state != MARIO_STATE_DIE); }
 	int IsBlocking() { return 0; }

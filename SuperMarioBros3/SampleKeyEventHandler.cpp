@@ -14,7 +14,7 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_S:
-		if (mario->IsFalling() && mario->GetLevel() == MARIO_LEVEL_RACCOON)
+		if ((mario->IsFalling() || mario->IsFlying()) && mario->GetLevel() == MARIO_LEVEL_RACCOON)
 			mario->TriggerRaccoonSlowFalling();
 		else
 			mario->SetState(MARIO_STATE_JUMP);
@@ -79,6 +79,13 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 			mario->SetState(MARIO_STATE_RUNNING_RIGHT);
 		else
 			mario->SetState(MARIO_STATE_WALKING_RIGHT);
+
+		if (mario->IsFlying()) {
+			float vx, vy;
+			mario->GetSpeed(vx, vy);
+			vx = abs(vx);
+			mario->SetSpeed(vx, vy);
+		}
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
@@ -86,6 +93,13 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 			mario->SetState(MARIO_STATE_RUNNING_LEFT);
 		else
 			mario->SetState(MARIO_STATE_WALKING_LEFT);
+
+		if (mario->IsFlying()) {
+			float vx, vy;
+			mario->GetSpeed(vx, vy);
+			vx = -abs(vx);
+			mario->SetSpeed(vx, vy);
+		}
 	}
 	else if (game->IsKeyDown(DIK_DOWN))
 	{
@@ -101,7 +115,7 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 	if (game->IsKeyDown(DIK_X)) {
 		mario->TriggerSmallJump();
 
-		if (mario->IsFalling())
+		if (mario->IsFalling() || mario->IsFlying())
 			mario->TriggerRaccoonSlowFalling();
 
 		mario->TriggerRaccoonFLy();

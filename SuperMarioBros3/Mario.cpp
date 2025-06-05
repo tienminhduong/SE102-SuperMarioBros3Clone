@@ -93,7 +93,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	}
 
 	vy += ay * dt;
-	vx += ax * dt;
+	if (!IsFlying())
+		vx += ax * dt;
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
@@ -184,7 +185,9 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		{
 			vy = 0;
 			isOnPlatform = true;
+			isEnergyGeneratable = true;
 			raccoonSlowFalling = 0;
+			flyCountDownTime = 0;
 		}
 		else {
 			jumpedTime = MARIO_MAX_JUMP_TIME - 1;
@@ -369,7 +372,7 @@ int mapAniId[][24] = {
 	}
 };
 
-void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
+void CMario::GetAniIdAndAniSpeed(int &aniId, float& speed)
 {
 	aniId = -1, speed = 1.f;
 	if (transformAnimDuration > 0)
@@ -387,14 +390,36 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 	}
 	if (!isOnPlatform)
 	{
-		if (isSitting)
+		if (level == MARIO_LEVEL_RACCOON && IsFlying())
+		{
+			DebugOut(L"[ANIMATION] Mario is flying\n");
+			if (nx >= 0)
+				aniId = ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT;
+			else
+				aniId = ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT;
+
+			if (tailFlapAnimationCurrentDuration > 0)
+			{
+				if (nx >= 0)
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_RIGHT;
+				else
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_LEFT;
+			}
+			if (continuousTailFlap) {
+				if (nx >= 0)
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_RIGHT;
+				else
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_LEFT;
+			}
+		}
+		else if (isSitting)
 		{
 			if (nx > 0)
 				aniId = MapAniTypeToId(ANI_MARIO_SIT_RIGHT);
 			else
 				aniId = MapAniTypeToId(ANI_MARIO_SIT_LEFT);
 		}
-		else if (abs(vx) == MARIO_RUNNING_SPEED)
+		else if (abs(vx) == MARIO_RUNNING_SPEED && tailFlapAnimationCurrentDuration <= 0)
 		{
 			if (nx >= 0)
 				aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_RIGHT : ANI_MARIO_JUMP_RUN_RIGHT);
@@ -477,6 +502,9 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_HOLDING_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_HOLDING_IDLE_LEFT);
 		else
 			aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
+
+	//log aniId
+	//DebugOut(L"[ANIMATION] Mario aniId: %d, speed: %f\n", aniId, speed);
 }
 
 int CMario::MapAniTypeToId(int animation_type)
@@ -493,7 +521,7 @@ void CMario::Render()
 	if (state == MARIO_STATE_DIE)
 		aniId = ID_ANI_MARIO_DIE;
 	else
-		GetAniIdAndSpeed(aniId, speed);
+		GetAniIdAndAniSpeed(aniId, speed);
 
 	//DebugOut(L"[ANIMATION]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
 		//level, state, aniId, DEFAULT_FRAME_TIME * modifier);
@@ -501,7 +529,8 @@ void CMario::Render()
 	if (notRenderSpriteFrameCount <= 0)
 		animations->Get(aniId)->Render(x, y);
 
-	RenderBoundingBox();
+	if (!isEnergyGeneratable)
+		RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
 }
@@ -649,11 +678,12 @@ void CMario::TriggerRaccoonFLy()
 		return;
 
 	flyCountDownTime = MARIO_FLY_TIME_LIMIT;
+	isEnergyGeneratable = false;
 }
 
 void CMario::TriggerRaccoonAttack()
 {
-	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT)
+	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT || !isEnergyGeneratable)
 		return;
 
 	auto animation = CAnimations::GetInstance()
@@ -711,6 +741,8 @@ void CMario::PlayKickKoopaAnim()
 
 float CMario::GetChargePercent()
 {
+	if (!isEnergyGeneratable)
+		return 0.f;
 	float avx = abs(vx);
 	if (avx < MARIO_WALKING_SPEED)
 		return 0;
