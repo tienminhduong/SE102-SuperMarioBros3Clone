@@ -19,8 +19,9 @@ protected:
 	int height;
 	int type;
 	LPGAMEOBJECT containedObj = NULL;
+	int enterMapKey;
 public:
-	CPipe(float x, float y, int height, int type);
+	CPipe(float x, float y, int height, int type, int enterMapKey);
 
 	float GetTop() { return y - PIPE_CELL_HEIGHT / 2; }
 
@@ -29,5 +30,6 @@ public:
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
 	int IsBlocking() override { return 1; }
 	void OnExitCamera() override;
+	int GetEnterMapKey() { return enterMapKey; }
 };
 

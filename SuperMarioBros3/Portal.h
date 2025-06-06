@@ -17,6 +17,8 @@ public:
 	virtual void GetBoundingBox(float &l, float &t, float &r, float &b);
 
 	void RenderBoundingBox(void);
+
+	int GetRenderLayer() override { return 3; }
 	
 	int GetSceneId() { return scene_id;  }
 	int IsBlocking() { return 0; }

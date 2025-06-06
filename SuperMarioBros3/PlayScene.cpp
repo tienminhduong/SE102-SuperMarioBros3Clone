@@ -184,7 +184,10 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	{
 		int height = atoi(tokens[3].c_str());
 		int type = atoi(tokens[4].c_str());
-		obj = new CPipe(x, y, height, type);
+		int enterMapKey = 0;
+		if (tokens.size() == 6)
+			enterMapKey = atoi(tokens[5].c_str());
+		obj = new CPipe(x, y, height, type, enterMapKey);
 	}
 	break;
 

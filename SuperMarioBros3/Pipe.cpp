@@ -3,10 +3,11 @@
 #include "Game.h"
 #include "PlayScene.h"
 
-CPipe::CPipe(float x, float y, int height, int type) : CGameObject(x, y)
+CPipe::CPipe(float x, float y, int height, int type, int enterMapKey) : CGameObject(x, y)
 {
 	this->height = height;
 	this->type = type;
+	this->enterMapKey = enterMapKey;
 
 	if (type == PIPE_TYPE_EMPTY || type == PIPE_TYPE_EMPTY_UPSIDE_DOWN)
 		return;
@@ -19,6 +20,8 @@ CPipe::CPipe(float x, float y, int height, int type) : CGameObject(x, y)
 			currentScene->GetPlayer(), this);
 		((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
 	}
+
+
 }
 
 void CPipe::Render()

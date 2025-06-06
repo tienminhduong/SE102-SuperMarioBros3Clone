@@ -214,6 +214,8 @@
 #define ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT 1803
 #define ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT 1804
 
+#define ID_ANI_MARIO_INTO_HIDDEN_MAP 1805
+
 #pragma endregion
 
 #define GROUND_Y 160.0f
@@ -269,6 +271,8 @@ class CMario : public CGameObject
 	void OnCollisionWithGoldBrick(LPCOLLISIONEVENT e);
 	void OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e);
 	void OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e);
+	void OnCollisionWithPipe(LPCOLLISIONEVENT e);
+	void OnCollisionWithBlackPipe(LPCOLLISIONEVENT e);
 	void TakeDamage();
 
 	void GetAniIdAndAniSpeed(int& aniId, float& speed);
@@ -304,6 +308,11 @@ class CMario : public CGameObject
 	bool isEnergyGeneratable = true;
 
 	bool isBlocked = false;
+
+	int enterHiddenMapKey = 0; // 1 down, -1 up
+	bool specialState_Uninterruptable = false;
+	int otherMapDirection = 0;
+	float snapXOtherMap = 0;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -356,11 +365,14 @@ public:
 	void ReleaseKoopa();
 
 	void PlayKickKoopaAnim();
-	int GetRenderLayer() { return 3; }
+	int GetRenderLayer() { return specialState_Uninterruptable ? 1 : 3; }
 
 	float GetChargePercent();
 	int GetChargeInScale(int maxValue);
 
 	void ChangeDirection(float direction);
 	bool CanRechargeEnergy() { return isEnergyGeneratable; }
+
+	void SetGoToOtherMap(int direction);
+	int GetMapKey() { return enterHiddenMapKey; }
 };

@@ -119,4 +119,9 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 	else {
 		mario->SwitchContinuousTailFlap(false);
 	}
+
+	if (game->IsKeyDown(DIK_DOWN) && mario->GetMapKey() == 1)
+		mario->SetGoToOtherMap(1);
+	if (game->IsKeyDown(DIK_UP) && mario->GetMapKey() == -1)
+		mario->SetGoToOtherMap(-1);
 }

@@ -19,6 +19,8 @@
 #include "GoldBrickButton.h"
 #include "GameManager.h"
 #include "Collision.h"
+#include "Pipe.h"
+#include "BlackPipe.h"
 
 #define STAT_LOG_CONDITION 0
 
@@ -75,6 +77,14 @@ void CMario::SetKoopaPosition(DWORD dt)
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
+	if (specialState_Uninterruptable)
+	{
+		vy = MARIO_FALL_SPEED_LIMIT * otherMapDirection / 10;
+		y += vy * dt;
+		CCollision::GetInstance()->Process(this, dt, coObjects);
+		return;
+	}
+
 	if (untouchableDuration > 0) {
 		untouchableDuration -= dt;
 		if (untouchableDuration <= 0)
@@ -167,6 +177,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	//for (int i = 0; i < GetChargeInScale(7); ++i)
 	//	DebugOut(L"=");
 	//DebugOut(L"\n");
+
+	DebugOut(L"Hidden Map key: %d\n", enterHiddenMapKey);
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -176,6 +188,7 @@ void CMario::OnNoCollision(DWORD dt)
 	y += vy * dt;
 	isOnPlatform = false;
 	isBlocked = false;
+	enterHiddenMapKey = 0;
 }
 
 void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
@@ -227,6 +240,10 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		TakeDamage();
 	else if (dynamic_cast<CFirePiranhaPlantBullet*>(e->obj))
 		TakeDamage();
+	else if (dynamic_cast<CPipe*>(e->obj))
+		OnCollisionWithPipe(e);
+	else if (dynamic_cast<CBlackPipe*>(e->obj))
+		OnCollisionWithBlackPipe(e);
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -356,6 +373,18 @@ void CMario::OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e)
 	//Raise 1 life
 }
 
+void CMario::OnCollisionWithPipe(LPCOLLISIONEVENT e)
+{
+	if (e->ny < 0)
+		enterHiddenMapKey = ((CPipe*)e->obj)->GetEnterMapKey(), snapXOtherMap = e->obj->GetX();
+}
+
+void CMario::OnCollisionWithBlackPipe(LPCOLLISIONEVENT e)
+{
+	if (e->ny > 0)
+		enterHiddenMapKey = -1, snapXOtherMap = e->obj->GetX();
+}
+
 void CMario::TakeDamage()
 {
 	if (untouchableDuration > 0)
@@ -420,6 +449,13 @@ int mapAniId[][24] = {
 void CMario::GetAniIdAndAniSpeed(int &aniId, float& speed)
 {
 	aniId = -1, speed = 1.f;
+
+	if (specialState_Uninterruptable)
+	{
+		aniId = ID_ANI_MARIO_INTO_HIDDEN_MAP;
+		return;
+	}
+
 	if (transformAnimDuration > 0)
 	{
 		aniId = currentTransformAnim;
@@ -805,6 +841,13 @@ void CMario::ChangeDirection(float direction)
 	nx = (int)direction;
 	vx = abs(vx) * nx;
 	ax = abs(ax) * nx;
+}
+
+void CMario::SetGoToOtherMap(int direction)
+{
+	specialState_Uninterruptable = true;
+	otherMapDirection = direction;
+	x = snapXOtherMap + 2;
 }
 
 
