@@ -10,7 +10,7 @@
 
 #define CAM_MIN_X 0
 #define CAM_MIN_Y -236
-#define CAM_MAX_X 2564
+#define CAM_MAX_X 2596
 #define CAM_MAX_Y 0
 #define CAM_MARIO_Y_BREAKPOINT 46
 

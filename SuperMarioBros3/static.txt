@@ -14,6 +14,10 @@
 56005	617	31	680	80	40
 #Big grass 2
 56006	321	74	448	139	40
+#Grass at the last of the map
+56007	480	89	575	216	40
+#Background at the end of the map
+56008	697	2	1034	419	40
 
 # ani_id	sprite1_id	time1	sprite2_id	time2	...
 [ANIMATIONS]

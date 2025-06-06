@@ -2,8 +2,8 @@
 #include "GameObject.h"
 #define ID_ANI_STATIC_BRICK 140000
 
-#define STATIC_BRICK_BBOX_WIDTH 15
-#define STATIC_BRICK_BBOX_HEIGHT 15
+#define STATIC_BRICK_BBOX_WIDTH 14
+#define STATIC_BRICK_BBOX_HEIGHT 14
 
 class HardBrick :
 	public CGameObject
