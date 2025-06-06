@@ -24,5 +24,6 @@ public:
 	int IsBlocking() override { return 0; }
 	int GetRenderLayer() override { return 2; }
 	void OnExitCamera() override { Delete(); }
+	bool RenderOnPaused() override { return false; }
 };
 

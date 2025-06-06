@@ -9,18 +9,15 @@ CPipe::CPipe(float x, float y, int height, int type, int enterMapKey) : CGameObj
 	this->type = type;
 	this->enterMapKey = enterMapKey;
 
-	if (type == PIPE_TYPE_EMPTY || type == PIPE_TYPE_EMPTY_UPSIDE_DOWN)
+	if (type == PIPE_TYPE_EMPTY)
 		return;
 
 	CPlayScene* currentScene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
+	bool canShoot = true, isGreenFire = false;
 
-	if (type == PIPE_TYPE_CONTAIN_FIRE_PIRANHA_PLANT)
-	{
-		containedObj = new CFirePiranhaPlant(x, y + FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2,
-			currentScene->GetPlayer(), this);
-		((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
-	}
-
+	containedObj = new CFirePiranhaPlant(x, y + FIRE_PIRANHA_PLANT_BBOX_HEIGHT / 2,
+		currentScene->GetPlayer(), this, type);
+	((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
 
 }
 
