@@ -4,6 +4,7 @@
 void CKoopaParatroopa::OnEnable()
 {
 	CKoopa::OnEnable();
+	SetState(KOOPA_STATE_WALKING);
 	SetState(KOOPA_PARATROOPA_STATE_FLYING);
 }
 
