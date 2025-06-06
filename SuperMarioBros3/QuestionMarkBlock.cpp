@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "TransformMushroom.h"
 #include "TransformLeaf.h"
+#include "GameManager.h"
 
 CQuestionMarkBlock::CQuestionMarkBlock(float x, float y, int containedObjType) : CGameObject(x, y)
 {
@@ -77,6 +78,7 @@ void CQuestionMarkBlock::ActivateItem()
 	case QUES_BLOCK_TYPE_COIN:
 		containedObjs[QUES_BLOCK_COIN_INDEX]->SetPosition(x, y - 20);
 		containedObjs[QUES_BLOCK_COIN_INDEX]->SetActive(true);
+		GameManager::GetInstance()->CollectCoin();
 		break;
 	case QUES_BLOCK_TYPE_TRANSFORM:
 	{

@@ -115,6 +115,9 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	if (isEnergyGeneratable)
 		vx += ax * dt;
 
+	if (!isOnPlatform && abs(vx) > MARIO_WALKING_SPEED && !IsFlying())
+		vx = vx / abs(vx) * MARIO_WALKING_SPEED;
+
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
 	if (state == MARIO_STATE_IDLE || state == MARIO_STATE_SIT)
@@ -182,7 +185,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	//	DebugOut(L"=");
 	//DebugOut(L"\n");
 
-	DebugOut(L"Hidden Map key: %d\n", enterHiddenMapKey);
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -267,6 +269,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 			goomba->SetState(GOOMBA_STATE_DIE);
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
 		}
+		GameManager::GetInstance()->IncreasePoint();
 	}
 	else // hit by Goomba
 	{
@@ -321,7 +324,7 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 void CMario::OnCollisionWithCoin(LPCOLLISIONEVENT e)
 {
 	e->obj->Delete();
-	coin++;
+	GameManager::GetInstance()->CollectCoin();
 }
 
 void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
@@ -374,7 +377,7 @@ void CMario::OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e)
 void CMario::OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e)
 {
 	e->obj->SetActive(false);
-	//Raise 1 life
+	GameManager::GetInstance()->IncreaseLife();
 }
 
 void CMario::OnCollisionWithPipe(LPCOLLISIONEVENT e)
