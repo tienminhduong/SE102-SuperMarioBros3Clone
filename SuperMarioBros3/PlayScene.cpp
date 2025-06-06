@@ -20,6 +20,7 @@
 #include "HardBrick.h"
 #include "GoldBrick.h"
 #include "KoopaParatroopa.h"
+#include "BlackPipe.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -134,13 +135,14 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 		break;
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(x,y); break;
-	case OBJECT_TYPE_PARAGOOMBA: obj = new Paragoomba(x, y); break;
+	case OBJECT_TYPE_PARAGOOMBA: obj = new CParagoomba(x, y); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(x,y); break;
 	case OBJECT_TYPE_COIN: obj = new CCoin(x, y); break;
 	case OBJECT_TYPE_KOOPAS: obj = new CKoopa(x, y); break;
-	case OBJECT_TYPE_RED_KOOPA: obj = new RedKoopa(x, y); break;
+	case OBJECT_TYPE_RED_KOOPA: obj = new CRedKoopa(x, y); break;
 	case OBJECT_TYPE_KOOPA_PARATROOPA: obj = new CKoopaParatroopa(x, y); break;
-	case OBJECT_TYPE_HARD_BRICK: obj = new HardBrick(x, y); break;
+	case OBJECT_TYPE_HARD_BRICK: obj = new CHardBrick(x, y); break;
+	case OBJECT_TYPE_BLACK_PIPE: obj = new CBlackPipe(x, y); break;
 
 	case OBJECT_TYPE_GOLD_BRICK:
 	{
@@ -338,6 +340,10 @@ void CPlayScene::Update(DWORD dt)
 	else {
 		cy = 0;
 	}
+
+	mario->GetPosition(cx, cy);
+	cx -= game->GetBackBufferWidth() / 2;
+	cy -= game->GetBackBufferHeight() / 2;
 
 	if (cx < CAM_MIN_X) cx = CAM_MIN_X;
 	if (cy < CAM_MIN_Y) cy = CAM_MIN_Y;

@@ -13,13 +13,13 @@
 
 class CRedKoopaDetector;
 
-class RedKoopa :
+class CRedKoopa :
     public CKoopa
 {
 	CRedKoopaDetector* detector;
 	bool isOnPlatform = false;
 public:
-	RedKoopa(float x, float y);
+	CRedKoopa(float x, float y);
 	void Render() override;
 	void Delete() override;
 	void SetState(int state) override;
@@ -35,13 +35,13 @@ public:
 
 class CRedKoopaDetector : public CGameObject
 {
-	RedKoopa* koopa;
+	CRedKoopa* koopa;
 	bool isCollideLastFrame = false;
 	int count = 0;
 
 	float ay = ENEMY_GRAVITY;
 public:
-	CRedKoopaDetector(float x, float y, RedKoopa* koopa) : CGameObject(x, y) { this->koopa = koopa; vy = 0.f; }
+	CRedKoopaDetector(float x, float y, CRedKoopa* koopa) : CGameObject(x, y) { this->koopa = koopa; vy = 0.f; }
 	void OnEnable() override;
 
 	void Render() override { RenderBoundingBox(); }

@@ -9,7 +9,7 @@
 #define PIPE_SPRITE_BEGIN_ID 120020
 #define PIPE_SPRITE_MID_ID 120021
 
-#define PIPE_CELL_WIDTH 29
+#define PIPE_CELL_WIDTH 31
 #define PIPE_CELL_HEIGHT 15
 
 class CPipe :

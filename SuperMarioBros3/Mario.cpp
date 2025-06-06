@@ -96,6 +96,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	}
 
 	vy += ay * dt;
+	if (vy > MARIO_FALL_SPEED_LIMIT)
+		vy = MARIO_FALL_SPEED_LIMIT;
 	if (isEnergyGeneratable)
 		vx += ax * dt;
 
@@ -157,16 +159,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	SetTailPosition(dt);
 	SetKoopaPosition(dt);
 
-	if (STAT_LOG_CONDITION) {
-		DebugOut(L"==========[CONDITION LOG]==========\n");
-		if (state != 0)
-			DebugOut(L"Mario state: %d\n", state);
-		DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
-		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
-		DebugOut(L"==========[END CONDITION LOG]==========\n");
-	}
 	if (x < 15)
-		x = 15;
+		vx = 0, x = 15;
 
 	// log charge
 	//DebugOut(L"[CHARGE] ");
@@ -221,6 +215,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CTransformLeaf*>(e->obj))
 		OnCollisionWithTransformItem(e);
+	else if (dynamic_cast<CMushroom*>(e->obj))
+		OnCollisionWithLifeUpMushroom(e);
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
 	else if (dynamic_cast<CGoldBrick*>(e->obj))
@@ -352,6 +348,12 @@ void CMario::OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e)
 {
 	CGoldBrickButton* gbbtn = (CGoldBrickButton*)e->obj;
 	gbbtn->TriggerOnCollision();
+}
+
+void CMario::OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e)
+{
+	e->obj->SetActive(false);
+	//Raise 1 life
 }
 
 void CMario::TakeDamage()

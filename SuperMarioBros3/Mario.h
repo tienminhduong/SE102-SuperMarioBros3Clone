@@ -12,8 +12,8 @@
 #define MARIO_WALKING_SPEED		0.1f
 #define MARIO_RUNNING_SPEED		0.2f
 
-#define MARIO_ACCEL_WALK_X	0.0001f
-#define MARIO_ACCEL_RUN_X	0.0001f
+#define MARIO_ACCEL_WALK_X	0.00012f
+#define MARIO_ACCEL_RUN_X	0.00012f
 #define MARIO_ACCEL_JUMP	0.00266666666666666f
 
 #define MARIO_FRICTION	0.0002f
@@ -21,6 +21,7 @@
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_RUN_SPEED_Y	0.6f
 #define MARIO_MAX_JUMP_TIME 200
+#define MARIO_FALL_SPEED_LIMIT 0.25f
 
 #define MARIO_GRAVITY			0.0015f
 
@@ -267,6 +268,7 @@ class CMario : public CGameObject
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 	void OnCollisionWithGoldBrick(LPCOLLISIONEVENT e);
 	void OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e);
+	void OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e);
 	void TakeDamage();
 
 	void GetAniIdAndAniSpeed(int& aniId, float& speed);

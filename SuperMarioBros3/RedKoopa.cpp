@@ -1,7 +1,7 @@
 #include "RedKoopa.h"
 #include "PlayScene.h"
 
-RedKoopa::RedKoopa(float x, float y)
+CRedKoopa::CRedKoopa(float x, float y)
 	: CKoopa(x, y)
 {
 	detector = new CRedKoopaDetector(x, y, this);
@@ -14,7 +14,7 @@ RedKoopa::RedKoopa(float x, float y)
 		SetActive(false);
 }
 
-void RedKoopa::Render()
+void CRedKoopa::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = GetAniId(RED_KOOPA_START_ANI_ID);
@@ -22,30 +22,30 @@ void RedKoopa::Render()
 	RenderBoundingBox();
 }
 
-void RedKoopa::Delete()
+void CRedKoopa::Delete()
 {
 	CKoopa::Delete();
 }
 
-void RedKoopa::OnEnable()
+void CRedKoopa::OnEnable()
 {
 	CKoopa::OnEnable();
 	detector->SetActive(true);
 }
 
-void RedKoopa::OnDisable()
+void CRedKoopa::OnDisable()
 {
 	CKoopa::OnDisable();
 	detector->SetActive(false);
 }
 
-void RedKoopa::OnNoCollision(DWORD dt)
+void CRedKoopa::OnNoCollision(DWORD dt)
 {
 	CKoopa::OnNoCollision(dt);
 	isOnPlatform = false;
 }
 
-void RedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
+void CRedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	CKoopa::OnCollisionWith(e);
 	if (e->ny != 0)
@@ -55,7 +55,7 @@ void RedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 	}
 }
 
-void RedKoopa::SetState(int state)
+void CRedKoopa::SetState(int state)
 {
 	CKoopa::SetState(state);
 	detector->SetActive(state == KOOPA_STATE_WALKING);
