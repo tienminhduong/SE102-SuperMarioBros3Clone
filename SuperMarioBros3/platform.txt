@@ -1,10 +1,13 @@
 # id	left	top	right	bottom	texture_id
 [SPRITES]
 
-#CLOUD
+#GROUND
 50001	0	141	15	188	40
 50002	17	141	32	188	40
 50003	34	141	49	188	40
+
+#CLOUD
+50004	102	0	117	15	40
 
 #SQUARE
 51001	0	33	7	40	40
@@ -50,6 +53,8 @@
 #SQUARE SHADOW
 55000	27	33	34	40	40
 55001	36	43	43	50	40
+55002	27	43	34	50	40
+55003	36	33	43	40	40
 
 
 # ani_id	sprite1_id	time1	sprite2_id	time2	...

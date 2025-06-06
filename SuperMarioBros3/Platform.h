@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameObject.h"
-
+#define SPRITE_CLOUD_ID 50004
 // 
 // The most popular type of object in Mario! 
 // 
@@ -32,7 +32,7 @@ public:
 	void RenderBoundingBox();
 
 	int IsDirectionColliable(float nx, float ny);
-	int GetRenderLayer() override { return 3; }
+	int GetRenderLayer() override { return spriteIdBegin == SPRITE_CLOUD_ID ? 1 : 3; }
 };
 
 typedef CPlatform* LPPLATFORM;

@@ -33,9 +33,19 @@ void CSquare::Render()
 	}
 
 	// Draw shadow
-	for (int i = 1; i < this->height; ++i) {
-		int index = i == 1 ? SQUARE_SHADOW_SPRITE_ID : SQUARE_SHADOW_SPRITE_ID + 1;
+	for (int i = 1; i < this->height + 1; ++i) {
+		int index;
+		if (i == 1) index = SQUARE_SHADOW_SPRITE_ID;
+		else if (i == this->height) index = SQUARE_SHADOW_SPRITE_ID + 2;
+		else index = SQUARE_SHADOW_SPRITE_ID + 1;
 		sprites->Get(index)->Draw(x + this->width * SQUARE_CELL_SIZE, y + i * SQUARE_CELL_SIZE);
+	}
+
+	for (int i = 1; i < this->width; ++i) {
+		int index;
+		if (i == 1) index = SQUARE_SHADOW_SPRITE_ID + 3;
+		else index = SQUARE_SHADOW_SPRITE_ID + 1;
+		sprites->Get(index)->Draw(x + i * SQUARE_CELL_SIZE, y + this->height * SQUARE_CELL_SIZE);
 	}
 }
 
