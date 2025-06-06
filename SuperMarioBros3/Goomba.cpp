@@ -79,7 +79,7 @@ void CGoomba::OnCollisionWith(LPCOLLISIONEVENT e)
 
 bool CGoomba::CheckKoopaCollision(LPCOLLISIONEVENT e)
 {
-	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+	CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
 	if (koopa == nullptr)
 		return false;
 

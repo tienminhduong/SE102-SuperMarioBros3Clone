@@ -293,8 +293,8 @@ class CMario : public CGameObject
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
 	void SetTailPosition(DWORD dt);
 
-	Koopa* holdingKoopa = nullptr;
-	void SetHoldKoopa(Koopa* koopa);
+	CKoopa* holdingKoopa = nullptr;
+	void SetHoldKoopa(CKoopa* koopa);
 	void SetKoopaPosition(DWORD dt);
 	bool IsHoldingKoopa() { return holdingKoopa != nullptr; }
 

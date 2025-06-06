@@ -42,7 +42,7 @@ void CMario::SetTailPosition(DWORD dt)
 	}
 }
 
-void CMario::SetHoldKoopa(Koopa* koopa)
+void CMario::SetHoldKoopa(CKoopa* koopa)
 {
 	if (holdingKoopa)
 		return;
@@ -205,7 +205,7 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 
 	if (dynamic_cast<CGoomba*>(e->obj))
 		OnCollisionWithGoomba(e);
-	else if (dynamic_cast<Koopa*>(e->obj))
+	else if (dynamic_cast<CKoopa*>(e->obj))
 		OnCollisionWithKoopa(e);
 	else if (dynamic_cast<CCoin*>(e->obj))
 		OnCollisionWithCoin(e);
@@ -254,7 +254,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 {
-	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+	CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
 
 	if (koopa->IsHold())
 		return;

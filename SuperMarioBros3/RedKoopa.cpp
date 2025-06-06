@@ -2,7 +2,7 @@
 #include "PlayScene.h"
 
 RedKoopa::RedKoopa(float x, float y)
-	: Koopa(x, y)
+	: CKoopa(x, y)
 {
 	detector = new CRedKoopaDetector(x, y, this);
 	CPlayScene* scene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
@@ -24,36 +24,30 @@ void RedKoopa::Render()
 
 void RedKoopa::Delete()
 {
-	Koopa::Delete();
+	CKoopa::Delete();
 }
 
 void RedKoopa::OnEnable()
 {
-	Koopa::OnEnable();
+	CKoopa::OnEnable();
 	detector->SetActive(true);
 }
 
 void RedKoopa::OnDisable()
 {
-	Koopa::OnDisable();
+	CKoopa::OnDisable();
 	detector->SetActive(false);
-}
-
-void RedKoopa::ChangeDirection()
-{
-	vx = -vx;
-	nx = -nx;
 }
 
 void RedKoopa::OnNoCollision(DWORD dt)
 {
-	Koopa::OnNoCollision(dt);
+	CKoopa::OnNoCollision(dt);
 	isOnPlatform = false;
 }
 
 void RedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
-	Koopa::OnCollisionWith(e);
+	CKoopa::OnCollisionWith(e);
 	if (e->ny != 0)
 	{
 		if (e->obj->IsBlocking())
@@ -63,7 +57,7 @@ void RedKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 
 void RedKoopa::SetState(int state)
 {
-	Koopa::SetState(state);
+	CKoopa::SetState(state);
 	detector->SetActive(state == KOOPA_STATE_WALKING);
 }
 

@@ -5,7 +5,7 @@
 #include "FirePiranhaPlant.h"
 #include "debug.h"
 
-int Koopa::GetAniId(int defaultIdAni)
+int CKoopa::GetAniId(int defaultIdAni)
 {
 	int aniId = -1;
 	switch (state)
@@ -31,7 +31,7 @@ int Koopa::GetAniId(int defaultIdAni)
 	return defaultIdAni - KOOPA_START_ANI_ID + aniId;
 }
 
-void Koopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
+void CKoopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 {
 	if (state == KOOPA_STATE_INSHELL_RUNNING && e->nx != 0)
 	{
@@ -40,7 +40,7 @@ void Koopa::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 	}
 }
 
-void Koopa::OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e)
+void CKoopa::OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e)
 {
 	if (state == KOOPA_STATE_INSHELL_RUNNING)
 	{
@@ -48,33 +48,35 @@ void Koopa::OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e)
 	}
 }
 
-Koopa::Koopa(float x, float y)
+CKoopa::CKoopa(float x, float y)
 	: CRespawnableEnemy(x, y)
 {
 	SetState(KOOPA_STATE_WALKING);
+	nx = -1;
 }
 
-void Koopa::Render()
+void CKoopa::Render()
 {
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = GetAniId(KOOPA_START_ANI_ID);
 	animations->Get(aniId)->Render(x, y);
 }
 
-void Koopa::OnEnable()
+void CKoopa::OnEnable()
 {
 	SetState(KOOPA_STATE_WALKING);
+	nx = -1;
 	markedAsDead = false;
 }
 
-void Koopa::OnDisable()
+void CKoopa::OnDisable()
 {
 	CRespawnableEnemy::OnDisable();
 	if (markedAsDead)
 		Delete();
 }
 
-void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+void CKoopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CRespawnableEnemy::Update(dt, coObjects);
 	if (state != ENEMY_STATE_KICKED && !IsHold())
@@ -102,7 +104,7 @@ void Koopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	CCollision::GetInstance()->Process(this, dt, coObjects);
 }
 
-void Koopa::OnNoCollision(DWORD dt)
+void CKoopa::OnNoCollision(DWORD dt)
 {
 	if (IsHold())
 		return;
@@ -111,7 +113,7 @@ void Koopa::OnNoCollision(DWORD dt)
 	y += vy * dt;
 }
 
-void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
+void CKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	if (!IsHold())
 	{
@@ -130,9 +132,9 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 				OnCollisionWithFirePiranhaPlant(e);
 		}
 
-		if (dynamic_cast<Koopa*>(e->obj))
+		if (dynamic_cast<CKoopa*>(e->obj))
 		{
-			Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+			CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
 			if (koopa->IsHold() || koopa->GetState() == KOOPA_STATE_INSHELL_RUNNING) {
 				OnAttackedByTail((float)koopa->GetDirection());
 				SetDead();
@@ -143,6 +145,10 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 					koopa->OnAttackedByTail(-(float)koopa->GetDirection());
 				else
 					koopa->OnAttackedByTail((float)koopa->GetDirection());
+			}
+			else {
+				koopa->ChangeDirection();
+				this->ChangeDirection();
 			}
 		}
 	}
@@ -159,33 +165,32 @@ void Koopa::OnCollisionWith(LPCOLLISIONEVENT e)
 	}
 }
 
-void Koopa::GetBoundingBox(float& left, float& top, float& right, float& bottom)
+void CKoopa::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	left = x - KOOPA_BBOX_WIDTH / 2;
 	top = y - KOOPA_BBOX_HEIGHT / 2 + KOOPA_BBOX_OFFSET_Y * (state == KOOPA_STATE_WALKING);
 	right = left + KOOPA_BBOX_WIDTH;
 	bottom = top + KOOPA_BBOX_HEIGHT;
-
 }
 
-int Koopa::IsBlocking()
+int CKoopa::IsBlocking()
 {
 	return 0;
 }
 
-void Koopa::OnAttackedByTail(float direction)
+void CKoopa::OnAttackedByTail(float direction)
 {
 	CRespawnableEnemy::OnAttackedByTail(direction);
 	isFlipped = true;
 }
 
-void Koopa::GetKicked(int direction)
+void CKoopa::GetKicked(int direction)
 {
 	SetState(KOOPA_STATE_INSHELL_RUNNING);
 	vx = direction * KOOPA_INSHELL_RUNNING_SPEED;
 }
 
-void Koopa::SetState(int state)
+void CKoopa::SetState(int state)
 {
 	ay = ENEMY_GRAVITY;
 	CRespawnableEnemy::SetState(state);
@@ -207,16 +212,22 @@ void Koopa::SetState(int state)
 	}
 }
 
-void Koopa::SetHold(LPGAMEOBJECT mario)
+void CKoopa::SetHold(LPGAMEOBJECT mario)
 {
 	this->mario = mario;
 }
 
-void Koopa::ReleaseFromMario()
+void CKoopa::ReleaseFromMario()
 {
 	if (IsHold())
 	{
 		((CMario*)mario)->ReleaseKoopa();
 		mario = nullptr;
 	}
+}
+
+void CKoopa::ChangeDirection()
+{
+	vx = -vx;
+	nx = -nx;
 }

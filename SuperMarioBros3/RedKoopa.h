@@ -14,7 +14,7 @@
 class CRedKoopaDetector;
 
 class RedKoopa :
-    public Koopa
+    public CKoopa
 {
 	CRedKoopaDetector* detector;
 	bool isOnPlatform = false;
@@ -30,7 +30,6 @@ public:
 	void OnNoCollision(DWORD dt) override;
 	void OnCollisionWith(LPCOLLISIONEVENT e) override;
 
-	void ChangeDirection();
 	bool IsOnPlatform() { return isOnPlatform; }
 };
 

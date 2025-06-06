@@ -25,7 +25,7 @@
 #define KOOPA_WALKING_SPEED 0.025f
 #define KOOPA_INSHELL_TIME 10000
 
-class Koopa :
+class CKoopa :
     public CRespawnableEnemy
 {
 protected:
@@ -40,7 +40,7 @@ protected:
 	bool markedAsDead = false;
 	bool isRendered = true;
 public:
-	Koopa(float x, float y);
+	CKoopa(float x, float y);
 
 	virtual void Render() override;
 	virtual void OnEnable() override;
@@ -66,5 +66,7 @@ public:
 	int GetRenderLayer() override { return 4; }
 	void ReleaseFromMario();
 	void SetDead() { markedAsDead = true; }
+
+	void ChangeDirection();
 };
 
