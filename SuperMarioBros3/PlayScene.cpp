@@ -366,7 +366,8 @@ void CPlayScene::Render()
 {
 	for (int layer = 0; layer < MAX_RENDER_LAYER; ++layer) {
 		for (int i = 0; i < objects.size(); i++)
-			if (objects[i]->GetActive() && layer == objects[i]->GetRenderLayer())
+			if (objects[i]->GetActive() && layer == objects[i]->GetRenderLayer()
+				&& !(GameManager::GetInstance()->isGamePaused && !objects[i]->RenderOnPaused()))
 				objects[i]->Render();
 	}
 

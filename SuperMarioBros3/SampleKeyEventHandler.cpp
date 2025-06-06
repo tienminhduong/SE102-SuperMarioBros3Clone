@@ -5,6 +5,7 @@
 
 #include "Mario.h"
 #include "PlayScene.h"
+#include "GameManager.h"
 
 void CSampleKeyHandler::OnKeyDown(int KeyCode)
 {
@@ -36,8 +37,8 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	case DIK_0:
 		mario->SetState(MARIO_STATE_DIE);
 		break;
-	case DIK_R: // reset
-		//Reload();
+	case DIK_W:
+		GameManager::GetInstance()->isGamePaused = !GameManager::GetInstance()->isGamePaused;
 		break;
 	case DIK_NUMPADENTER:
 	{

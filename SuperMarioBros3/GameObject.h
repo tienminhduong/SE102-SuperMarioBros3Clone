@@ -79,6 +79,7 @@ public:
 	virtual void OnExitCamera() {};
 
 	virtual int GetRenderLayer() { return 1; }
+	virtual bool RenderOnPaused() { return true; }
 
 	//
 	// Collision ON or OFF ? This can change depending on object's state. For example: die

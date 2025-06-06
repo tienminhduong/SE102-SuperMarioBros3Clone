@@ -344,6 +344,8 @@ public:
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
 
+	bool RenderOnPaused() override { return false; }
+
 	void SetLevel(int l, bool noAnim = false);
 	int GetLevel() { return level; }
 	void StartUntouchable() { untouchableDuration = MARIO_UNTOUCHABLE_TIME; notRenderSpriteFrameCount = MARIO_NOT_RENDER_MAX_FRAME_COUNT; }

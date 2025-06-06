@@ -13,6 +13,9 @@ class GameManager
 	int coinNumber = 0;
 	int score = 0;
 public:
+	bool isGamePaused = false;
+
+public:
 	static GameManager* GetInstance();
 	void RenderUI();
 	void CollectCoin() { ++coinNumber; DebugOut(L"Number of coin collected: %d\n", coinNumber); }

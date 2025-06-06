@@ -3,6 +3,10 @@
 #include "Game.h"
 #include "PlayScene.h"
 
+
+#define ID_UI_PANEL 100
+#define ID_UI_PAUSE_TEXT 101
+
 GameManager* GameManager::instance = nullptr;
 
 GameManager* GameManager::GetInstance()
@@ -15,7 +19,9 @@ GameManager* GameManager::GetInstance()
 
 void GameManager::RenderUI()
 {
-	CSprites::GetInstance()->Get(100)->DrawOnScreen(128, 200);
+	CSprites::GetInstance()->Get(ID_UI_PANEL)->DrawOnScreen(128, 200);
+	if (isGamePaused)
+		CSprites::GetInstance()->Get(ID_UI_PAUSE_TEXT)->DrawOnScreen(128, 100);
 }
 
 void GameManager::GoToHiddenMap()

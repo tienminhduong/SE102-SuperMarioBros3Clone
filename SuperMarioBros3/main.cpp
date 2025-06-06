@@ -40,6 +40,7 @@ HOW TO INSTALL Microsoft.DXSDK.D3DX
 #include "Platform.h"
 
 #include "SampleKeyEventHandler.h"
+#include "GameManager.h"
 
 #include "AssetIDs.h"
 
@@ -73,6 +74,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 */
 void Update(DWORD dt)
 {
+	if (GameManager::GetInstance()->isGamePaused)
+		dt = 0;
 	CGame::GetInstance()->GetCurrentScene()->Update(dt);
 }
 
