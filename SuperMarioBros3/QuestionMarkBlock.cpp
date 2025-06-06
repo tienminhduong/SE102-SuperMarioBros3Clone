@@ -16,7 +16,7 @@ CQuestionMarkBlock::CQuestionMarkBlock(float x, float y, int containedObjType) :
 	((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
 	containedObjs.push_back(containedObj);
 
-	int distance = QUESTION_MARK_BLOCK_BBOX_HEIGHT / 2 + TRANSFORM_MUSHROOM_BBOX_WIDTH / 2;
+	int distance = QUESTION_MARK_BLOCK_BBOX_HEIGHT / 2 + MUSHROOM_BBOX_WIDTH / 2;
 	containedObj = new CTransformMushroom(x, y - distance - 1);
 	containedObj->SetActive(false);
 	((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);

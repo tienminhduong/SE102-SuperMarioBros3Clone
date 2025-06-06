@@ -138,6 +138,9 @@ koopa.txt
 
 4	1868	-109
 
+#gold brick
+9	1453	-110	2
+
 #END SKYPEDIA
 
 #ENEMY

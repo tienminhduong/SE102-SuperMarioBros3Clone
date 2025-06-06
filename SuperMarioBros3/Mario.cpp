@@ -315,7 +315,7 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 {
-	((CTransformMushroom*)e->obj)->SetActive(false);
+	e->obj->SetActive(false);
 	if (GetLevel() < MARIO_LEVEL_RACCOON)
 		SetLevel(level + 1);
 }

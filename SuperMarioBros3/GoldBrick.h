@@ -22,7 +22,7 @@
 class CGoldBrick :
     public CGameObject
 {
-	bool containButton;
+	int containButton;
 	float dy = 0;
 	int moveDirection = -1;
 	int coinTimeCountDown = 0;
