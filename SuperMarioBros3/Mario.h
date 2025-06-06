@@ -300,6 +300,8 @@ class CMario : public CGameObject
 
 	int kickAnimDuration = 0;
 	bool isEnergyGeneratable = true;
+
+	bool isBlocked = false;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{

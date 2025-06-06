@@ -177,9 +177,11 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 void CMario::OnNoCollision(DWORD dt)
 {
-	x += vx * dt;
+	if (!isBlocked)
+		x += vx * dt;
 	y += vy * dt;
 	isOnPlatform = false;
+	isBlocked = false;
 }
 
 void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
@@ -201,7 +203,10 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	}
 	else if (e->nx != 0 && e->obj->IsBlocking())
 	{
-		vx = 0;
+		if (!isEnergyGeneratable)
+			isBlocked = true;
+		else
+			vx = 0;
 	}
 
 	if (dynamic_cast<CGoomba*>(e->obj))
