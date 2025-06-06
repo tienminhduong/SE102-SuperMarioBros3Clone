@@ -60,6 +60,8 @@ void CKoopa::Render()
 	CAnimations* animations = CAnimations::GetInstance();
 	int aniId = GetAniId(KOOPA_START_ANI_ID);
 	animations->Get(aniId)->Render(x, y);
+
+	RenderBoundingBox();
 }
 
 void CKoopa::OnEnable()

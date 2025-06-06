@@ -7,6 +7,7 @@
 #include "Goomba.h"
 #include "Paragoomba.h"
 #include "Koopa.h"
+#include "KoopaParatroopa.h"
 #include "Coin.h"
 #include "Portal.h"
 #include "QuestionMarkBlock.h"
@@ -281,7 +282,10 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 	if (e->ny < 0)
 	{
 		if (koopa->GetState() != KOOPA_STATE_INSHELL && koopa->GetState() != ENEMY_STATE_KICKED) {
-			koopa->SetState(KOOPA_STATE_INSHELL);
+			if (koopa->GetState() == KOOPA_PARATROOPA_STATE_FLYING)
+				koopa->SetState(KOOPA_STATE_WALKING);
+			else
+				koopa->SetState(KOOPA_STATE_INSHELL);
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
 		}
 	}
