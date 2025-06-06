@@ -44,6 +44,7 @@ protected:
 	bool isDeleted;
 public: 
 	void SetPosition(float x, float y) { this->x = x, this->y = y; }
+	void SetPosition(float x, float y, DWORD dt);
 	void SetSpeed(float vx, float vy) { this->vx = vx, this->vy = vy; }
 	void GetPosition(float &x, float &y) { x = this->x; y = this->y; }
 	void GetSpeed(float &vx, float &vy) { vx = this->vx; vy = this->vy; }
@@ -78,6 +79,7 @@ public:
 	virtual void OnExitCamera() {};
 
 	virtual int GetRenderLayer() { return 1; }
+	virtual bool RenderOnPaused() { return true; }
 
 	//
 	// Collision ON or OFF ? This can change depending on object's state. For example: die
@@ -96,7 +98,7 @@ public:
 	// Does this object collide with other object at certain direction ( like ColorBox )
 	virtual int IsDirectionColliable(float nx, float ny) { return 1; }
 
-	~CGameObject();
+	virtual ~CGameObject();
 
 	static bool IsDeleted(const LPGAMEOBJECT &o) { return o->isDeleted; }
 };

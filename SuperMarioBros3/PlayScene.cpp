@@ -18,6 +18,9 @@
 #include "GameManager.h"
 #include "Wall.h"
 #include "HardBrick.h"
+#include "GoldBrick.h"
+#include "KoopaParatroopa.h"
+#include "BlackPipe.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -132,12 +135,22 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 		break;
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(x,y); break;
-	case OBJECT_TYPE_PARAGOOMBA: obj = new Paragoomba(x, y); break;
+	case OBJECT_TYPE_PARAGOOMBA: obj = new CParagoomba(x, y); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(x,y); break;
 	case OBJECT_TYPE_COIN: obj = new CCoin(x, y); break;
-	case OBJECT_TYPE_KOOPAS: obj = new Koopa(x, y); break;
-	case OBJECT_TYPE_RED_KOOPA: obj = new RedKoopa(x, y); break;
-	case OBJECT_TYPE_HARD_BRICK: obj = new HardBrick(x, y); break;
+	case OBJECT_TYPE_KOOPAS: obj = new CKoopa(x, y); break;
+	case OBJECT_TYPE_RED_KOOPA: obj = new CRedKoopa(x, y); break;
+	case OBJECT_TYPE_KOOPA_PARATROOPA: obj = new CKoopaParatroopa(x, y); break;
+	case OBJECT_TYPE_HARD_BRICK: obj = new CHardBrick(x, y); break;
+	case OBJECT_TYPE_BLACK_PIPE: obj = new CBlackPipe(x, y); break;
+
+	case OBJECT_TYPE_GOLD_BRICK:
+	{
+		DebugOut(L"[INFO] Gold Brick object has been created!\n");
+		int containBtn = atoi(tokens[3].c_str());
+		obj = new CGoldBrick(x, y, containBtn);
+		break;
+	}
 
 	case OBJECT_TYPE_PLATFORM:
 	{
@@ -171,7 +184,10 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	{
 		int height = atoi(tokens[3].c_str());
 		int type = atoi(tokens[4].c_str());
-		obj = new CPipe(x, y, height, type);
+		int enterMapKey = 0;
+		if (tokens.size() == 6)
+			enterMapKey = atoi(tokens[5].c_str());
+		obj = new CPipe(x, y, height, type, enterMapKey);
 	}
 	break;
 
@@ -305,6 +321,8 @@ void CPlayScene::Update(DWORD dt)
 		objects[i]->CheckCameraStatus();
 	}
 
+	GameManager::GetInstance()->Update(dt);
+
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return; 
 
@@ -316,10 +334,32 @@ void CPlayScene::Update(DWORD dt)
 	cx -= game->GetBackBufferWidth() / 2;
 	cy -= game->GetBackBufferHeight() / 2;
 
-	if (cx < 0) cx = 0;
-	if (cy > 0) cy = 0;
+	CMario* mario = (CMario*)player;
+	if (mario->IsFlying() && mario->GetY() < CAM_MARIO_Y_BREAKPOINT)
+		cam_is_moving = true;
+	if (cam_is_moving)
+	{
+		cam_prev_y += mario->GetY() - mario_prev_y;
+		cy = cam_prev_y;
+	}
+	else {
+		cy = 0;
+	}
 
-	CGame::GetInstance()->SetCamPos(cx, 0);
+	mario->GetPosition(cx, cy);
+	cx -= game->GetBackBufferWidth() / 2;
+	cy -= game->GetBackBufferHeight() / 2;
+
+	if (cx < CAM_MIN_X) cx = CAM_MIN_X;
+	if (cy < CAM_MIN_Y) cy = CAM_MIN_Y;
+	if (cx > CAM_MAX_X) cx = CAM_MAX_X;
+	if (cy > CAM_MAX_Y) cy = CAM_MAX_Y, cam_is_moving = false;
+
+	CGame::GetInstance()->SetCamPos(cx, cy);
+
+	mario_prev_x = mario->GetX();
+	mario_prev_y = mario->GetY();
+	cam_prev_y = cy;
 
 	PurgeDeletedObjects();
 }
@@ -328,7 +368,8 @@ void CPlayScene::Render()
 {
 	for (int layer = 0; layer < MAX_RENDER_LAYER; ++layer) {
 		for (int i = 0; i < objects.size(); i++)
-			if (objects[i]->GetActive() && layer == objects[i]->GetRenderLayer())
+			if (objects[i]->GetActive() && layer == objects[i]->GetRenderLayer()
+				&& !(GameManager::GetInstance()->isGamePaused && !objects[i]->RenderOnPaused()))
 				objects[i]->Render();
 	}
 

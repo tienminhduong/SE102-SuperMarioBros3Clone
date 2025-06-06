@@ -7,6 +7,7 @@
 #include "Goomba.h"
 #include "Paragoomba.h"
 #include "Koopa.h"
+#include "KoopaParatroopa.h"
 #include "Coin.h"
 #include "Portal.h"
 #include "QuestionMarkBlock.h"
@@ -14,8 +15,12 @@
 #include "TransformLeaf.h"
 #include "FirePiranhaPlant.h"
 #include "FirePiranhaPlantBullet.h"
-
+#include "GoldBrick.h"
+#include "GoldBrickButton.h"
+#include "GameManager.h"
 #include "Collision.h"
+#include "Pipe.h"
+#include "BlackPipe.h"
 
 #define STAT_LOG_CONDITION 0
 
@@ -33,16 +38,14 @@ void CMario::SetTailPosition(DWORD dt)
 		tail->GetPosition(tailX, tailY);
 
 		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
-		float dx = newTailX - tailX, dy = newTailY - tailY;
-		if (abs(tailX - x) <= MARIO_RACCOON_TAIL_OFFSET_X)
-			tail->SetSpeed(dx / dt, dy / dt);
-		else
+
+		tail->SetPosition(newTailX, newTailY, dt);
+		if (rotatingAnimDuration + dt == rotatingAnimMaxDuration)
 			tail->SetSpeed(0, 0);
-		tail->SetPosition(newTailX, newTailY);
 	}
 }
 
-void CMario::SetHoldKoopa(Koopa* koopa)
+void CMario::SetHoldKoopa(CKoopa* koopa)
 {
 	if (holdingKoopa)
 		return;
@@ -74,6 +77,18 @@ void CMario::SetKoopaPosition(DWORD dt)
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
+	if (specialState_Uninterruptable)
+	{
+		vy = MARIO_FALL_SPEED_LIMIT * otherMapDirection / 10;
+		y += vy * dt;
+		CCollision::GetInstance()->Process(this, dt, coObjects);
+		float l, t, r, b;
+		GetBoundingBox(l, t, r, b);
+		if (x == GameManager::GetInstance()->GetPipeGoOutX() && b <= GameManager::GetInstance()->GetPipeGoOutY() - 8)
+			specialState_Uninterruptable = false;
+		return;
+	}
+
 	if (untouchableDuration > 0) {
 		untouchableDuration -= dt;
 		if (untouchableDuration <= 0)
@@ -95,7 +110,13 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	}
 
 	vy += ay * dt;
-	vx += ax * dt;
+	if (vy > MARIO_FALL_SPEED_LIMIT)
+		vy = MARIO_FALL_SPEED_LIMIT;
+	if (isEnergyGeneratable)
+		vx += ax * dt;
+
+	if (!isOnPlatform && abs(vx) > MARIO_WALKING_SPEED && !IsFlying())
+		vx = vx / abs(vx) * MARIO_WALKING_SPEED;
 
 	// If Mario is in idle state, and velocity is not in the same direction as the Mario,
 	// stop Mario since the friction make its velocity down to below 0
@@ -125,8 +146,17 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	if (raccoonSlowFalling > 0)
 	{
 		vy = MARIO_JUMP_SPEED_Y / 10;
+		if (flyCountDownTime > 0)
+			vy = -vy;
 		raccoonSlowFalling -= dt;
 		tailFlapAnimationCurrentDuration -= dt;
+	}
+
+	if (flyCountDownTime > 0)
+	{
+		flyCountDownTime -= dt;
+		if (flyCountDownTime <= 0)
+			vx = (vx / abs(vx)) * MARIO_WALKING_SPEED;
 	}
 
 	if (kickAnimDuration > 0)
@@ -146,29 +176,25 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	SetTailPosition(dt);
 	SetKoopaPosition(dt);
 
-	if (STAT_LOG_CONDITION) {
-		DebugOut(L"==========[CONDITION LOG]==========\n");
-		if (state != 0)
-			DebugOut(L"Mario state: %d\n", state);
-		DebugOut(L"[JUMP STAT] vy: %f, ay: %f, jumpedTime: %d\n", vy, ay, jumpedTime);
-		DebugOut(L"[WALKING STAT]: vx: %f, ax: %f\n", vx, ax);
-		DebugOut(L"==========[END CONDITION LOG]==========\n");
-	}
 	if (x < 15)
-		x = 15;
+		vx = 0, x = 15;
 
 	// log charge
-	DebugOut(L"[CHARGE] ");
-	for (int i = 0; i < GetChargeInScale(7); ++i)
-		DebugOut(L"=");
-	DebugOut(L"\n");
+	//DebugOut(L"[CHARGE] ");
+	//for (int i = 0; i < GetChargeInScale(7); ++i)
+	//	DebugOut(L"=");
+	//DebugOut(L"\n");
+
 }
 
 void CMario::OnNoCollision(DWORD dt)
 {
-	x += vx * dt;
+	if (!isBlocked)
+		x += vx * dt;
 	y += vy * dt;
 	isOnPlatform = false;
+	isBlocked = false;
+	enterHiddenMapKey = 0;
 }
 
 void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
@@ -179,7 +205,9 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		{
 			vy = 0;
 			isOnPlatform = true;
+			isEnergyGeneratable = true;
 			raccoonSlowFalling = 0;
+			flyCountDownTime = 0;
 		}
 		else {
 			jumpedTime = MARIO_MAX_JUMP_TIME - 1;
@@ -188,12 +216,15 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 	}
 	else if (e->nx != 0 && e->obj->IsBlocking())
 	{
-		vx = 0;
+		if (!isEnergyGeneratable)
+			isBlocked = true;
+		else
+			vx = 0;
 	}
 
 	if (dynamic_cast<CGoomba*>(e->obj))
 		OnCollisionWithGoomba(e);
-	else if (dynamic_cast<Koopa*>(e->obj))
+	else if (dynamic_cast<CKoopa*>(e->obj))
 		OnCollisionWithKoopa(e);
 	else if (dynamic_cast<CCoin*>(e->obj))
 		OnCollisionWithCoin(e);
@@ -203,12 +234,22 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithTransformItem(e);
 	else if (dynamic_cast<CTransformLeaf*>(e->obj))
 		OnCollisionWithTransformItem(e);
+	else if (dynamic_cast<CMushroom*>(e->obj))
+		OnCollisionWithLifeUpMushroom(e);
 	else if (dynamic_cast<CQuestionMarkBlock*>(e->obj))
 		OnCollisionWithQuestionMarkBlock(e);
+	else if (dynamic_cast<CGoldBrick*>(e->obj))
+		OnCollisionWithGoldBrick(e);
+	else if (dynamic_cast<CGoldBrickButton*>(e->obj))
+		OnCollisionWithGoldBrickButton(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 		TakeDamage();
 	else if (dynamic_cast<CFirePiranhaPlantBullet*>(e->obj))
 		TakeDamage();
+	else if (dynamic_cast<CPipe*>(e->obj))
+		OnCollisionWithPipe(e);
+	else if (dynamic_cast<CBlackPipe*>(e->obj))
+		OnCollisionWithBlackPipe(e);
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -228,6 +269,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 			goomba->SetState(GOOMBA_STATE_DIE);
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
 		}
+		GameManager::GetInstance()->IncreasePoint();
 	}
 	else // hit by Goomba
 	{
@@ -238,7 +280,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 {
-	Koopa* koopa = dynamic_cast<Koopa*>(e->obj);
+	CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
 
 	if (koopa->IsHold())
 		return;
@@ -265,7 +307,10 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 	if (e->ny < 0)
 	{
 		if (koopa->GetState() != KOOPA_STATE_INSHELL && koopa->GetState() != ENEMY_STATE_KICKED) {
-			koopa->SetState(KOOPA_STATE_INSHELL);
+			if (koopa->GetState() == KOOPA_PARATROOPA_STATE_FLYING)
+				koopa->SetState(KOOPA_STATE_WALKING);
+			else
+				koopa->SetState(KOOPA_STATE_INSHELL);
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
 		}
 	}
@@ -279,7 +324,7 @@ void CMario::OnCollisionWithKoopa(LPCOLLISIONEVENT e)
 void CMario::OnCollisionWithCoin(LPCOLLISIONEVENT e)
 {
 	e->obj->Delete();
-	coin++;
+	GameManager::GetInstance()->CollectCoin();
 }
 
 void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
@@ -290,7 +335,7 @@ void CMario::OnCollisionWithPortal(LPCOLLISIONEVENT e)
 
 void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 {
-	((CTransformMushroom*)e->obj)->SetActive(false);
+	e->obj->SetActive(false);
 	if (GetLevel() < MARIO_LEVEL_RACCOON)
 		SetLevel(level + 1);
 }
@@ -301,6 +346,50 @@ void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
 		CQuestionMarkBlock* q = (CQuestionMarkBlock*)e->obj;
 		q->TriggerOnCollisionWithMario(x);
 	}
+}
+
+void CMario::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
+{
+	CGoldBrick* gb = (CGoldBrick*)e->obj;
+
+	if (gb->GetState() == GOLD_BRICK_STATE_COIN)
+	{
+		gb->Delete();
+		GameManager::GetInstance()->CollectCoin();
+		return;
+	}
+
+	if (e->ny > 0) {
+		if (level > MARIO_LEVEL_SMALL)
+			gb->TriggerOnCollision();
+		else {
+			gb->SetState(GOLD_BRICK_STATE_HIT_NOTBROKEN);
+		}
+	}
+}
+
+void CMario::OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e)
+{
+	CGoldBrickButton* gbbtn = (CGoldBrickButton*)e->obj;
+	gbbtn->TriggerOnCollision();
+}
+
+void CMario::OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e)
+{
+	e->obj->SetActive(false);
+	GameManager::GetInstance()->IncreaseLife();
+}
+
+void CMario::OnCollisionWithPipe(LPCOLLISIONEVENT e)
+{
+	if (e->ny < 0)
+		enterHiddenMapKey = ((CPipe*)e->obj)->GetEnterMapKey(), snapXOtherMap = e->obj->GetX();
+}
+
+void CMario::OnCollisionWithBlackPipe(LPCOLLISIONEVENT e)
+{
+	if (e->ny > 0)
+		enterHiddenMapKey = -1, snapXOtherMap = e->obj->GetX();
 }
 
 void CMario::TakeDamage()
@@ -364,9 +453,16 @@ int mapAniId[][24] = {
 	}
 };
 
-void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
+void CMario::GetAniIdAndAniSpeed(int &aniId, float& speed)
 {
 	aniId = -1, speed = 1.f;
+
+	if (specialState_Uninterruptable)
+	{
+		aniId = ID_ANI_MARIO_INTO_HIDDEN_MAP;
+		return;
+	}
+
 	if (transformAnimDuration > 0)
 	{
 		aniId = currentTransformAnim;
@@ -382,14 +478,36 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 	}
 	if (!isOnPlatform)
 	{
-		if (isSitting)
+		if (level == MARIO_LEVEL_RACCOON && IsFlying())
+		{
+			DebugOut(L"[ANIMATION] Mario is flying\n");
+			if (nx >= 0)
+				aniId = ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT;
+			else
+				aniId = ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT;
+
+			if (tailFlapAnimationCurrentDuration > 0)
+			{
+				if (nx >= 0)
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_RIGHT;
+				else
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_LEFT;
+			}
+			if (continuousTailFlap) {
+				if (nx >= 0)
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_RIGHT;
+				else
+					aniId = ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_LEFT;
+			}
+		}
+		else if (isSitting)
 		{
 			if (nx > 0)
 				aniId = MapAniTypeToId(ANI_MARIO_SIT_RIGHT);
 			else
 				aniId = MapAniTypeToId(ANI_MARIO_SIT_LEFT);
 		}
-		else if (abs(vx) == MARIO_RUNNING_SPEED)
+		else if (abs(vx) == MARIO_RUNNING_SPEED && tailFlapAnimationCurrentDuration <= 0)
 		{
 			if (nx >= 0)
 				aniId = MapAniTypeToId(IsHoldingKoopa() ? ANI_MARIO_HOLDING_JUMPING_RIGHT : ANI_MARIO_JUMP_RUN_RIGHT);
@@ -472,6 +590,9 @@ void CMario::GetAniIdAndSpeed(int &aniId, float& speed)
 			aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_HOLDING_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_HOLDING_IDLE_LEFT);
 		else
 			aniId = nx == 1 ? MapAniTypeToId(ANI_MARIO_IDLE_RIGHT) : MapAniTypeToId(ANI_MARIO_IDLE_LEFT);
+
+	//log aniId
+	//DebugOut(L"[ANIMATION] Mario aniId: %d, speed: %f\n", aniId, speed);
 }
 
 int CMario::MapAniTypeToId(int animation_type)
@@ -488,7 +609,7 @@ void CMario::Render()
 	if (state == MARIO_STATE_DIE)
 		aniId = ID_ANI_MARIO_DIE;
 	else
-		GetAniIdAndSpeed(aniId, speed);
+		GetAniIdAndAniSpeed(aniId, speed);
 
 	//DebugOut(L"[ANIMATION]\nCurrent Mario level: %d\nCurrent state: %d\nCurrent aniId: %d\nCurrent frame rate: %f\n",
 		//level, state, aniId, DEFAULT_FRAME_TIME * modifier);
@@ -496,7 +617,8 @@ void CMario::Render()
 	if (notRenderSpriteFrameCount <= 0)
 		animations->Get(aniId)->Render(x, y);
 
-	RenderBoundingBox();
+	if (!isEnergyGeneratable)
+		RenderBoundingBox();
 	
 	DebugOutTitle(L"Coins: %d", coin);
 }
@@ -638,9 +760,18 @@ void CMario::TriggerRaccoonSlowFalling()
 	//animation->Reset();
 }
 
+void CMario::TriggerRaccoonFLy()
+{
+	if (level != MARIO_LEVEL_RACCOON || !IsFlyable() || flyCountDownTime > 0)
+		return;
+
+	flyCountDownTime = MARIO_FLY_TIME_LIMIT;
+	isEnergyGeneratable = false;
+}
+
 void CMario::TriggerRaccoonAttack()
 {
-	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT)
+	if (level != MARIO_LEVEL_RACCOON || rotatingAnimDuration > 0 || state == MARIO_STATE_SIT || !isEnergyGeneratable)
 		return;
 
 	auto animation = CAnimations::GetInstance()
@@ -712,8 +843,22 @@ int CMario::GetChargeInScale(int maxValue)
 	return (int)(GetChargePercent() * maxValue);
 }
 
+void CMario::ChangeDirection(float direction)
+{
+	nx = (int)direction;
+	vx = abs(vx) * nx;
+	ax = abs(ax) * nx;
+}
 
-void CMario::SetLevel(int l)
+void CMario::SetGoToOtherMap(int direction)
+{
+	specialState_Uninterruptable = true;
+	otherMapDirection = direction;
+	x = snapXOtherMap + 2;
+}
+
+
+void CMario::SetLevel(int l, bool noAnim)
 {
 	// Adjust position to avoid falling off platform
 	if (this->level == MARIO_LEVEL_SMALL)
@@ -721,24 +866,25 @@ void CMario::SetLevel(int l)
 
 	if (level == MARIO_LEVEL_RACCOON && l != level && tail != nullptr)
 		tail->SetActive(false);
-
-	if (l == MARIO_LEVEL_SMALL)
-	{
-		currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;
-	}
-	else if (l == MARIO_LEVEL_BIG)
-	{
-		if (level == MARIO_LEVEL_SMALL)
-			currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT;
-		else
+	if (!noAnim) {
+		if (l == MARIO_LEVEL_SMALL)
+		{
+			currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;
+		}
+		else if (l == MARIO_LEVEL_BIG)
+		{
+			if (level == MARIO_LEVEL_SMALL)
+				currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT;
+			else
+				currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+		}
+		else if (l == MARIO_LEVEL_RACCOON)
+		{
 			currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+		}
+		transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
+		CAnimations::GetInstance()->Get(currentTransformAnim)->Reset();
 	}
-	else if (l == MARIO_LEVEL_RACCOON)
-	{
-		currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
-	}
-	transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
-	CAnimations::GetInstance()->Get(currentTransformAnim)->Reset();
 	level = l;
 }
 

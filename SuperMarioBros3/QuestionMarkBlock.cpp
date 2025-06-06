@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "TransformMushroom.h"
 #include "TransformLeaf.h"
+#include "GameManager.h"
 
 CQuestionMarkBlock::CQuestionMarkBlock(float x, float y, int containedObjType) : CGameObject(x, y)
 {
@@ -16,7 +17,7 @@ CQuestionMarkBlock::CQuestionMarkBlock(float x, float y, int containedObjType) :
 	((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
 	containedObjs.push_back(containedObj);
 
-	int distance = QUESTION_MARK_BLOCK_BBOX_HEIGHT / 2 + TRANSFORM_MUSHROOM_BBOX_WIDTH / 2;
+	int distance = QUESTION_MARK_BLOCK_BBOX_HEIGHT / 2 + MUSHROOM_BBOX_WIDTH / 2;
 	containedObj = new CTransformMushroom(x, y - distance - 1);
 	containedObj->SetActive(false);
 	((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(containedObj);
@@ -77,6 +78,7 @@ void CQuestionMarkBlock::ActivateItem()
 	case QUES_BLOCK_TYPE_COIN:
 		containedObjs[QUES_BLOCK_COIN_INDEX]->SetPosition(x, y - 20);
 		containedObjs[QUES_BLOCK_COIN_INDEX]->SetActive(true);
+		GameManager::GetInstance()->CollectCoin();
 		break;
 	case QUES_BLOCK_TYPE_TRANSFORM:
 	{

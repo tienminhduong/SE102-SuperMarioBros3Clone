@@ -40,6 +40,7 @@ HOW TO INSTALL Microsoft.DXSDK.D3DX
 #include "Platform.h"
 
 #include "SampleKeyEventHandler.h"
+#include "GameManager.h"
 
 #include "AssetIDs.h"
 
@@ -48,6 +49,7 @@ HOW TO INSTALL Microsoft.DXSDK.D3DX
 #define WINDOW_ICON_PATH L"mario.ico"
 
 #define BACKGROUND_COLOR D3DXCOLOR(181.0f/255, 235.0f/255, 242.0f/255, 0.0f)
+#define BACKGROUND_BLACK_COLOR D3DXCOLOR(0, 0, 0, 0)
 
 #define SCREEN_WIDTH 266
 //#define SCREEN_HEIGHT 226
@@ -72,6 +74,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 */
 void Update(DWORD dt)
 {
+	if (GameManager::GetInstance()->isGamePaused)
+		dt = 0;
 	CGame::GetInstance()->GetCurrentScene()->Update(dt);
 }
 
@@ -87,7 +91,10 @@ void Render()
 	ID3D10RenderTargetView* pRenderTargetView = g->GetRenderTargetView();
 	ID3DX10Sprite* spriteHandler = g->GetSpriteHandler();
 
-	pD3DDevice->ClearRenderTargetView(pRenderTargetView, BACKGROUND_COLOR);
+	auto bgColor = BACKGROUND_COLOR;
+	if (g->GetCurrentSceneIndex() == 1)
+		bgColor = BACKGROUND_BLACK_COLOR;
+	pD3DDevice->ClearRenderTargetView(pRenderTargetView, bgColor);
 
 	spriteHandler->Begin(D3DX10_SPRITE_SORT_TEXTURE);
 

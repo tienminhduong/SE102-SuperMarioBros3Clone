@@ -7,8 +7,12 @@
 #include "Mario.h"
 #include "Goomba.h"
 #include "RaccoonTail.h"
-//#include "Koopas.h"
 
+#define CAM_MIN_X 0
+#define CAM_MIN_Y -236
+#define CAM_MAX_X 2596
+#define CAM_MAX_Y 0
+#define CAM_MARIO_Y_BREAKPOINT 46
 
 class CPlayScene: public CScene
 {
@@ -25,7 +29,10 @@ protected:
 	void _ParseSection_OBJECTS(string line);
 
 	void LoadAssets(LPCWSTR assetFile);
-	
+	float cam_prev_y = -1;
+	bool cam_is_moving = false;
+	float mario_prev_x = 0;
+	float mario_prev_y = 0;
 public: 
 	CPlayScene(int id, LPCWSTR filePath);
 

@@ -24,6 +24,7 @@ public:
 	void Delete() override;
 	virtual void OnAttackedByTail(float direction);
 	virtual void SetState(int state) override;
+	bool RenderOnPaused() override { return false; }
 };
 
 class CRespawnPoint : public CGameObject {

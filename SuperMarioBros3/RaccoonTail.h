@@ -9,6 +9,7 @@ class CRaccoonTail :
 {
 	void OnCollisionWithEnemy(LPCOLLISIONEVENT e);
 	void OnCollisionWithQuesBlock(LPCOLLISIONEVENT e);
+	void OnCollisionWithGoldBrick(LPCOLLISIONEVENT e);
 public:
 	CRaccoonTail(float x, float y) : CGameObject(x, y) { }
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
@@ -17,4 +18,5 @@ public:
 	int IsCollidable() override { return 1; }
 	int IsBlocking() override { return 0; }
 	void Render() override;
+	int GetRenderLayer() override { return 4; }
 };

@@ -5,6 +5,7 @@
 
 #include "Mario.h"
 #include "PlayScene.h"
+#include "GameManager.h"
 
 void CSampleKeyHandler::OnKeyDown(int KeyCode)
 {
@@ -14,10 +15,11 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_S:
-		if (mario->IsFalling() && mario->GetLevel() == MARIO_LEVEL_RACCOON)
+		if ((mario->IsFalling() || mario->IsFlying()) && mario->GetLevel() == MARIO_LEVEL_RACCOON)
 			mario->TriggerRaccoonSlowFalling();
 		else
 			mario->SetState(MARIO_STATE_JUMP);
+		mario->TriggerRaccoonFLy();
 		break;
 	case DIK_A: 
 		mario->TriggerRaccoonAttack();
@@ -35,8 +37,8 @@ void CSampleKeyHandler::OnKeyDown(int KeyCode)
 	case DIK_0:
 		mario->SetState(MARIO_STATE_DIE);
 		break;
-	case DIK_R: // reset
-		//Reload();
+	case DIK_W:
+		GameManager::GetInstance()->isGamePaused = !GameManager::GetInstance()->isGamePaused;
 		break;
 	case DIK_NUMPADENTER:
 	{
@@ -78,6 +80,10 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 			mario->SetState(MARIO_STATE_RUNNING_RIGHT);
 		else
 			mario->SetState(MARIO_STATE_WALKING_RIGHT);
+
+		if (!mario->CanRechargeEnergy()) {
+			mario->ChangeDirection(1);
+		}
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
@@ -85,6 +91,10 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 			mario->SetState(MARIO_STATE_RUNNING_LEFT);
 		else
 			mario->SetState(MARIO_STATE_WALKING_LEFT);
+
+		if (!mario->CanRechargeEnergy()) {
+			mario->ChangeDirection(-1);
+		}
 	}
 	else if (game->IsKeyDown(DIK_DOWN))
 	{
@@ -100,12 +110,19 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 	if (game->IsKeyDown(DIK_X)) {
 		mario->TriggerSmallJump();
 
-		if (mario->IsFalling())
+		if (mario->IsFalling() || mario->IsFlying())
 			mario->TriggerRaccoonSlowFalling();
+
+		mario->TriggerRaccoonFLy();
 
 		mario->SwitchContinuousTailFlap(true);
 	}
 	else {
 		mario->SwitchContinuousTailFlap(false);
 	}
+
+	if (game->IsKeyDown(DIK_DOWN) && mario->GetMapKey() == 1)
+		mario->SetGoToOtherMap(1);
+	if (game->IsKeyDown(DIK_UP) && mario->GetMapKey() == -1)
+		mario->SetGoToOtherMap(-1);
 }

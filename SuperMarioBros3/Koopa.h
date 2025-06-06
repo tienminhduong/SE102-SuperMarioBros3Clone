@@ -3,7 +3,7 @@
 
 #define KOOPA_BBOX_WIDTH 15
 #define KOOPA_BBOX_HEIGHT 16
-#define KOOPA_BBOX_OFFSET_Y 3
+#define KOOPA_BBOX_OFFSET_Y 4
 
 #define KOOPA_STATE_WALKING 0
 #define KOOPA_STATE_INSHELL 1
@@ -22,10 +22,10 @@
 #define ID_ANI_KOOPA_TIMEOUT_INSHELL 5106
 #define ID_ANI_KOOPA_INSHELL_FLIPPED_TIMEOUT 5107
 
-#define KOOPA_WALKING_SPEED 0.05f
+#define KOOPA_WALKING_SPEED 0.035f
 #define KOOPA_INSHELL_TIME 10000
 
-class Koopa :
+class CKoopa :
     public CRespawnableEnemy
 {
 protected:
@@ -40,7 +40,7 @@ protected:
 	bool markedAsDead = false;
 	bool isRendered = true;
 public:
-	Koopa(float x, float y);
+	CKoopa(float x, float y);
 
 	virtual void Render() override;
 	virtual void OnEnable() override;
@@ -63,8 +63,10 @@ public:
 	void SetHold(LPGAMEOBJECT mario);
 	bool IsHold() { return mario != nullptr; }
 
-	int GetRenderLayer() override { return 0; }
+	int GetRenderLayer() override { return (state == ENEMY_STATE_KICKED ? 4 : 2); }
 	void ReleaseFromMario();
 	void SetDead() { markedAsDead = true; }
+
+	void ChangeDirection();
 };
 

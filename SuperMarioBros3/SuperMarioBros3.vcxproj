@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animations.cpp" />
+    <ClCompile Include="BlackPipe.cpp" />
     <ClCompile Include="Brick.cpp" />
     <ClCompile Include="Coin.cpp" />
     <ClCompile Include="CoinFromQuesBlock.cpp" />
@@ -141,11 +142,14 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GoldBrick.cpp" />
+    <ClCompile Include="GoldBrickButton.cpp" />
     <ClCompile Include="Goomba.cpp" />
     <ClCompile Include="HardBrick.cpp" />
     <ClCompile Include="Koopa.cpp" />
+    <ClCompile Include="KoopaParatroopa.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mario.cpp" />
+    <ClCompile Include="Mushroom.cpp" />
     <ClCompile Include="Paragoomba.cpp" />
     <ClCompile Include="Pipe.cpp" />
     <ClCompile Include="Platform.cpp" />
@@ -167,6 +171,7 @@
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +179,7 @@
     <ClInclude Include="AnimationFrame.h" />
     <ClInclude Include="Animations.h" />
     <ClInclude Include="AssetIDs.h" />
+    <ClInclude Include="BlackPipe.h" />
     <ClInclude Include="Brick.h" />
     <ClInclude Include="Coin.h" />
     <ClInclude Include="CoinFromQuesBlock.h" />
@@ -185,11 +191,14 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GoldBrick.h" />
+    <ClInclude Include="GoldBrickButton.h" />
     <ClInclude Include="Goomba.h" />
     <ClInclude Include="HardBrick.h" />
     <ClInclude Include="KeyEventHandler.h" />
     <ClInclude Include="Koopa.h" />
+    <ClInclude Include="KoopaParatroopa.h" />
     <ClInclude Include="Mario.h" />
+    <ClInclude Include="Mushroom.h" />
     <ClInclude Include="Paragoomba.h" />
     <ClInclude Include="Pipe.h" />
     <ClInclude Include="Platform.h" />

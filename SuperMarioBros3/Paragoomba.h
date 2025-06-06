@@ -20,14 +20,14 @@
 #define PARAGOOMBA_JUMP_SPEED 0.05f
 #define PARAGOOMBA_JUMP_COUNT 3
 
-class Paragoomba :
+class CParagoomba :
     public CGoomba
 {
 	int changeStateDuration = 0;
 	int jumpCount = 0;
 	void FindMario();
 public:
-	Paragoomba(float x, float y);
+	CParagoomba(float x, float y);
 	void OnEnable() override;
 	void SetState(int state) override;
 

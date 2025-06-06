@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "Animations.h"
 #include "PlayScene.h"
+#include "GameManager.h"
 
 CGame * CGame::__instance = NULL;
 
@@ -510,6 +511,9 @@ void CGame::Load(LPCWSTR gameFile)
 
 void CGame::SwitchScene()
 {
+	bool isGoToHidden = current_scene == 5 && next_scene == 1;
+	bool isGoOutHidden = current_scene == 1 && next_scene == 5;
+
 	if (next_scene < 0 || next_scene == current_scene) return; 
 
 	DebugOut(L"[INFO] Switching to scene %d\n", next_scene);
@@ -523,6 +527,10 @@ void CGame::SwitchScene()
 	LPSCENE s = scenes[next_scene];
 	this->SetKeyHandler(s->GetKeyEventHandler());
 	s->Load();
+	if (isGoToHidden)
+		GameManager::GetInstance()->GoToHiddenMap();
+	if (isGoOutHidden)
+		GameManager::GetInstance()->GoBackFromHiddenMap();
 }
 
 void CGame::InitiateSwitchScene(int scene_id)

@@ -10,10 +10,10 @@
 #include "debug.h"
 
 #define MARIO_WALKING_SPEED		0.1f
-#define MARIO_RUNNING_SPEED		0.3f
+#define MARIO_RUNNING_SPEED		0.2f
 
-#define MARIO_ACCEL_WALK_X	0.00025f
-#define MARIO_ACCEL_RUN_X	0.00025f
+#define MARIO_ACCEL_WALK_X	0.00012f
+#define MARIO_ACCEL_RUN_X	0.00012f
 #define MARIO_ACCEL_JUMP	0.00266666666666666f
 
 #define MARIO_FRICTION	0.0002f
@@ -21,6 +21,7 @@
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_RUN_SPEED_Y	0.6f
 #define MARIO_MAX_JUMP_TIME 200
+#define MARIO_FALL_SPEED_LIMIT 0.25f
 
 #define MARIO_GRAVITY			0.0015f
 
@@ -42,6 +43,8 @@
 #define MARIO_STATE_SIT_RELEASE		601
 
 #define MARIO_NOT_RENDER_MAX_FRAME_COUNT 3
+
+#define MARIO_FLY_TIME_LIMIT 5000 // 5s
 
 // RACCOON TAIL FLAPPING WHILE FALLING
 #define MARIO_SLOW_FALLING_TIME 220
@@ -161,8 +164,6 @@
 #define ID_ANI_MARIO_RACCOON_JUMP_WALK_RIGHT 1706
 #define ID_ANI_MARIO_RACCOON_JUMP_WALK_LEFT 1707
 
-#define ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT 1708
-#define ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT 1709
 
 #define ID_ANI_MARIO_RACCOON_BRACE_RIGHT 1710
 #define ID_ANI_MARIO_RACCOON_BRACE_LEFT 1711
@@ -194,6 +195,16 @@
 #define ID_ANI_MARIO_RACCOON_KICKING_RIGHT 1728
 #define ID_ANI_MARIO_RACCOON_KICKING_LEFT 1729
 
+#define ID_ANI_MARIO_RACCOON_JUMP_RUN_RIGHT 1730
+#define ID_ANI_MARIO_RACCOON_JUMP_RUN_LEFT 1731
+
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_RIGHT 1732
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_LEFT 1733
+
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_RIGHT 1734
+#define ID_ANI_MARIO_RACCOON_FLY_TAIL_FLAP_CONTINUOUS_LEFT 1735
+
+
 // TRANSFORM
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT 1800
 #define ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT 1801
@@ -202,6 +213,8 @@
 
 #define ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT 1803
 #define ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT 1804
+
+#define ID_ANI_MARIO_INTO_HIDDEN_MAP 1805
 
 #pragma endregion
 
@@ -255,9 +268,14 @@ class CMario : public CGameObject
 	void OnCollisionWithPortal(LPCOLLISIONEVENT e);
 	void OnCollisionWithTransformItem(LPCOLLISIONEVENT e);
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
+	void OnCollisionWithGoldBrick(LPCOLLISIONEVENT e);
+	void OnCollisionWithGoldBrickButton(LPCOLLISIONEVENT e);
+	void OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e);
+	void OnCollisionWithPipe(LPCOLLISIONEVENT e);
+	void OnCollisionWithBlackPipe(LPCOLLISIONEVENT e);
 	void TakeDamage();
 
-	void GetAniIdAndSpeed(int& aniId, float& speed);
+	void GetAniIdAndAniSpeed(int& aniId, float& speed);
 	int MapAniTypeToId(int animation_type);
 
 	int raccoonSlowFalling = 0;
@@ -275,16 +293,26 @@ class CMario : public CGameObject
 
 	bool readyToHoldKoopa = false;
 
+	int flyCountDownTime = 0;
+
 	CRaccoonTail* tail;
 	bool IsAttacking() { return rotatingAnimDuration > 0; }
 	void SetTailPosition(DWORD dt);
 
-	Koopa* holdingKoopa = nullptr;
-	void SetHoldKoopa(Koopa* koopa);
+	CKoopa* holdingKoopa = nullptr;
+	void SetHoldKoopa(CKoopa* koopa);
 	void SetKoopaPosition(DWORD dt);
 	bool IsHoldingKoopa() { return holdingKoopa != nullptr; }
 
 	int kickAnimDuration = 0;
+	bool isEnergyGeneratable = true;
+
+	bool isBlocked = false;
+
+	int enterHiddenMapKey = 0; // 1 down, -1 up
+	bool specialState_Uninterruptable = false;
+	int otherMapDirection = 0;
+	float snapXOtherMap = 0;
 public:
 	CMario(float x, float y) : CGameObject(x, y)
 	{
@@ -308,6 +336,7 @@ public:
 	CRaccoonTail* GetTail() { return tail; }
 
 	bool IsFalling() { return vy > 0 && !isOnPlatform; }
+	bool IsFlyable() { return (level == MARIO_LEVEL_RACCOON && GetChargePercent() == 1 && isOnPlatform); }
 
 	int IsCollidable() { return (state != MARIO_STATE_DIE); }
 	int IsBlocking() { return 0; }
@@ -315,7 +344,9 @@ public:
 	void OnNoCollision(DWORD dt);
 	void OnCollisionWith(LPCOLLISIONEVENT e);
 
-	void SetLevel(int l);
+	bool RenderOnPaused() override { return false; }
+
+	void SetLevel(int l, bool noAnim = false);
 	int GetLevel() { return level; }
 	void StartUntouchable() { untouchableDuration = MARIO_UNTOUCHABLE_TIME; notRenderSpriteFrameCount = MARIO_NOT_RENDER_MAX_FRAME_COUNT; }
 
@@ -323,6 +354,9 @@ public:
 
 	void TriggerRaccoonSlowFalling();
 	void SwitchContinuousTailFlap(bool value) { continuousTailFlap = value; }
+
+	void TriggerRaccoonFLy();
+	bool IsFlying() { return flyCountDownTime > 0; }
 
 	void TriggerRaccoonAttack();
 	void EndRaccoonAttack();
@@ -333,8 +367,14 @@ public:
 	void ReleaseKoopa();
 
 	void PlayKickKoopaAnim();
-	int GetRenderLayer() { return 3; }
+	int GetRenderLayer() { return specialState_Uninterruptable ? 1 : 3; }
 
 	float GetChargePercent();
 	int GetChargeInScale(int maxValue);
+
+	void ChangeDirection(float direction);
+	bool CanRechargeEnergy() { return isEnergyGeneratable; }
+
+	void SetGoToOtherMap(int direction);
+	int GetMapKey() { return enterHiddenMapKey; }
 };

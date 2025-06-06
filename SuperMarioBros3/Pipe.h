@@ -9,7 +9,7 @@
 #define PIPE_SPRITE_BEGIN_ID 120020
 #define PIPE_SPRITE_MID_ID 120021
 
-#define PIPE_CELL_WIDTH 29
+#define PIPE_CELL_WIDTH 31
 #define PIPE_CELL_HEIGHT 15
 
 class CPipe :
@@ -19,8 +19,9 @@ protected:
 	int height;
 	int type;
 	LPGAMEOBJECT containedObj = NULL;
+	int enterMapKey;
 public:
-	CPipe(float x, float y, int height, int type);
+	CPipe(float x, float y, int height, int type, int enterMapKey);
 
 	float GetTop() { return y - PIPE_CELL_HEIGHT / 2; }
 
@@ -29,5 +30,6 @@ public:
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
 	int IsBlocking() override { return 1; }
 	void OnExitCamera() override;
+	int GetEnterMapKey() { return enterMapKey; }
 };
 

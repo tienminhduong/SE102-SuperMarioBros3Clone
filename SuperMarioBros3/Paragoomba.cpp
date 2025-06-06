@@ -1,7 +1,7 @@
 #include "Paragoomba.h"
 #include "PlayScene.h"
 
-void Paragoomba::Render()
+void CParagoomba::Render()
 {
 	int aniId = ID_ANI_PARAGOOMBA_WALKING;
 	if (state == GOOMBA_STATE_DIE)
@@ -17,7 +17,7 @@ void Paragoomba::Render()
 	CAnimations::GetInstance()->Get(aniId)->Render(x, y);
 }
 
-void Paragoomba::GetBoundingBox(float& left, float& top, float& right, float& bottom)
+void CParagoomba::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	if (state == GOOMBA_STATE_DIE || state == ENEMY_STATE_KICKED)
 	{
@@ -36,7 +36,7 @@ void Paragoomba::GetBoundingBox(float& left, float& top, float& right, float& bo
 
 }
 
-void Paragoomba::FindMario()
+void CParagoomba::FindMario()
 {
 	CPlayScene* scene = (CPlayScene*)CGame::GetInstance()->GetCurrentScene();
 	LPGAMEOBJECT mario = scene->GetPlayer();
@@ -52,18 +52,18 @@ void Paragoomba::FindMario()
 	}
 }
 
-Paragoomba::Paragoomba(float x, float y) : CGoomba(x, y)
+CParagoomba::CParagoomba(float x, float y) : CGoomba(x, y)
 {
 	OnEnable();
 }
 
-void Paragoomba::OnEnable()
+void CParagoomba::OnEnable()
 {
 	CGoomba::OnEnable();
 	SetState(PARAGOOMBA_STATE_WALK);
 }
 
-void Paragoomba::SetState(int state)
+void CParagoomba::SetState(int state)
 {
 	CGoomba::SetState(state);
 
@@ -91,7 +91,7 @@ void Paragoomba::SetState(int state)
 	}
 }
 
-void Paragoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+void CParagoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CGoomba::Update(dt, coObjects);
 	if (changeStateDuration > 0 && state == PARAGOOMBA_STATE_WALK)
@@ -102,7 +102,7 @@ void Paragoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 }
 
-void Paragoomba::OnCollisionWith(LPCOLLISIONEVENT e)
+void CParagoomba::OnCollisionWith(LPCOLLISIONEVENT e)
 {
 	CGoomba::OnCollisionWith(e);
 	if (e->ny < 0)
