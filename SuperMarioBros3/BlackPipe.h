@@ -13,5 +13,6 @@ public:
     CBlackPipe(float x, float y) : CGameObject(x, y) {}
     void Render() override;
     void GetBoundingBox(float& left, float& top, float& right, float& bottom) override;
+    int GetRenderLayer() override { return 4; }
 };
 

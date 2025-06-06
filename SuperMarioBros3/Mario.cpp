@@ -82,6 +82,10 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		vy = MARIO_FALL_SPEED_LIMIT * otherMapDirection / 10;
 		y += vy * dt;
 		CCollision::GetInstance()->Process(this, dt, coObjects);
+		float l, t, r, b;
+		GetBoundingBox(l, t, r, b);
+		if (x == GameManager::GetInstance()->GetPipeGoOutX() && b <= GameManager::GetInstance()->GetPipeGoOutY() - 8)
+			specialState_Uninterruptable = false;
 		return;
 	}
 
@@ -851,7 +855,7 @@ void CMario::SetGoToOtherMap(int direction)
 }
 
 
-void CMario::SetLevel(int l)
+void CMario::SetLevel(int l, bool noAnim)
 {
 	// Adjust position to avoid falling off platform
 	if (this->level == MARIO_LEVEL_SMALL)
@@ -859,24 +863,25 @@ void CMario::SetLevel(int l)
 
 	if (level == MARIO_LEVEL_RACCOON && l != level && tail != nullptr)
 		tail->SetActive(false);
-
-	if (l == MARIO_LEVEL_SMALL)
-	{
-		currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;
-	}
-	else if (l == MARIO_LEVEL_BIG)
-	{
-		if (level == MARIO_LEVEL_SMALL)
-			currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT;
-		else
+	if (!noAnim) {
+		if (l == MARIO_LEVEL_SMALL)
+		{
+			currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_SMALL_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_SMALL_LEFT;
+		}
+		else if (l == MARIO_LEVEL_BIG)
+		{
+			if (level == MARIO_LEVEL_SMALL)
+				currentTransformAnim = nx > 0 ? ID_ANI_MARIO_TRANSFORM_TO_BIG_RIGHT : ID_ANI_MARIO_TRANSFORM_TO_BIG_LEFT;
+			else
+				currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+		}
+		else if (l == MARIO_LEVEL_RACCOON)
+		{
 			currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
+		}
+		transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
+		CAnimations::GetInstance()->Get(currentTransformAnim)->Reset();
 	}
-	else if (l == MARIO_LEVEL_RACCOON)
-	{
-		currentTransformAnim = ID_ANI_MARIO_TRANSFORM_RACCOON_SMOKE;
-	}
-	transformAnimDuration = CAnimations::GetInstance()->Get(currentTransformAnim)->GetDuration();
-	CAnimations::GetInstance()->Get(currentTransformAnim)->Reset();
 	level = l;
 }
 
