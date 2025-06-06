@@ -39,5 +39,6 @@ public:
 	void TriggerOnCollision();
 	void ChangeToGold();
 	void Delete() override;
+	~CGoldBrick();
 };
 

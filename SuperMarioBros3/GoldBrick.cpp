@@ -106,3 +106,8 @@ void CGoldBrick::Delete()
 	CGoldBrickButton::Unsubscribe(callbackId);
 }
 
+CGoldBrick::~CGoldBrick()
+{
+	CGoldBrickButton::Unsubscribe(callbackId);
+}
+
