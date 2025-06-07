@@ -328,13 +328,6 @@ void CPlayScene::Update(DWORD dt)
 	if (player == NULL) return; 
 
 	// Update camera to follow mario
-	//float cx, cy;
-	//player->GetPosition(cx, cy);
-
-	/*float my, cx, sx, sy;
-	player->GetPosition(cx, my);
-	player->GetSpeed(sx, sy);*/
-
 	float cx, cy;
 	player->GetPosition(cx, cy);
 
@@ -343,20 +336,6 @@ void CPlayScene::Update(DWORD dt)
 	cy -= game->GetBackBufferHeight() / 2;
 
 
-	//CGame *game = CGame::GetInstance();
-	//cx -= game->GetBackBufferWidth() / 2;
-
-	/*CMario* mario = (CMario*)player;
-	if (mario->IsFlying() && mario->GetY() < CAM_MARIO_Y_BREAKPOINT)
-		cam_is_moving = true;
-	if (cam_is_moving)
-	{
-		cam_prev_y += mario->GetY() - mario_prev_y;
-		cy = cam_prev_y;
-	}
-	else {
-		cy = 0;
-	}*/
 
 	CMario* mario = (CMario*)player;
 	if (!mario->CanRechargeEnergy() && mario->GetY() < CAM_MARIO_Y_BREAKPOINT)
@@ -370,9 +349,6 @@ void CPlayScene::Update(DWORD dt)
 		cy = 0;
 	}
 
-	/*mario->GetPosition(cx, cy);
-	cx -= game->GetBackBufferWidth() / 2;
-	cy -= game->GetBackBufferHeight() / 2;*/
 
 	if (cx < CAM_MIN_X) cx = CAM_MIN_X;
 	if (cy < CAM_MIN_Y) cy = CAM_MIN_Y;
@@ -387,37 +363,6 @@ void CPlayScene::Update(DWORD dt)
 	mario_prev_x = mario->GetX();
 	mario_prev_y = mario->GetY();
 	cam_prev_y = cy;
-
-
-	//if (cam_prev_y > 0) {
-	//	if (my - cam_prev_y > 80) cam_is_moving = true;
-	//	if (cam_is_moving) {
-	//		if (my - cam_prev_y < 90) cam_prev_y -= 0.2f * dt;
-	//		else cam_is_moving = false;
-	//	}
-	//	else if (my - cam_prev_y > 100) cam_prev_y += 0.2f * dt;
-	//}
-	//else {
-	//	cam_prev_y = my - game->GetBackBufferHeight() / 2;
-	//}
-
-	//if (((CMario*)player)->IsFlying() || my < 180)
-	//	cam_prev_y = my - game->GetBackBufferHeight() / 2;
-
-	////mario->GetPosition(cx, cy);
-	////cx -= game->GetBackBufferWidth() / 2;
-	////cy -= game->GetBackBufferHeight() / 2;
-
-	
-
-	//if (cx < CAM_MIN_X) cx = CAM_MIN_X;
-	//if (cam_prev_y < CAM_MIN_Y) cam_prev_y = CAM_MIN_Y;
-	//if (cx > CAM_MAX_X) cx = CAM_MAX_X;
-	//if (cam_prev_y > CAM_MAX_Y) cam_prev_y = CAM_MAX_Y;
-
-	//CGame::GetInstance()->SetCamPos(cx, cam_prev_y);
-
-	
 
 	GameManager::GetInstance()->Update(dt);
 	PurgeDeletedObjects();
