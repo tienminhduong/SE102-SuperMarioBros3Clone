@@ -5,7 +5,7 @@
 #define PIPE_GO_OUT_X 2373
 #define PIPE_GO_OUT_Y 150
 
-#define MAX_TIME 1000
+#define MAX_TIME 300000
 
 class GameManager
 {
