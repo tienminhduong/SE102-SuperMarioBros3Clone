@@ -147,6 +147,12 @@
     <ClCompile Include="BreakAnimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CardEndGame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GetCardItemEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -295,6 +301,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BreakAnimation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CardEndGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GetCardItemEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

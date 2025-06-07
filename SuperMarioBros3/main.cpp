@@ -74,7 +74,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 */
 void Update(DWORD dt)
 {
-	if (GameManager::GetInstance()->isGamePaused)
+	if (GameManager::GetInstance()->isGamePaused || GameManager::GetInstance()->isStopped)
 		dt = 0;
 	CGame::GetInstance()->GetCurrentScene()->Update(dt);
 }

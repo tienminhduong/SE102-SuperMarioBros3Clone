@@ -273,6 +273,7 @@ class CMario : public CGameObject
 	void OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e);
 	void OnCollisionWithPipe(LPCOLLISIONEVENT e);
 	void OnCollisionWithBlackPipe(LPCOLLISIONEVENT e);
+	void OnCollisionWithWinCard(LPCOLLISIONEVENT e);
 	void TakeDamage();
 
 	void GetAniIdAndAniSpeed(int& aniId, float& speed);

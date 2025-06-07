@@ -135,6 +135,7 @@
     <ClCompile Include="BreakAnimation.cpp" />
     <ClCompile Include="BreakPartical.cpp" />
     <ClCompile Include="Brick.cpp" />
+    <ClCompile Include="CardEndGame.cpp" />
     <ClCompile Include="Coin.cpp" />
     <ClCompile Include="CoinFromQuesBlock.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GetCardItemEffect.cpp" />
     <ClCompile Include="GoldBrick.cpp" />
     <ClCompile Include="GoldBrickButton.cpp" />
     <ClCompile Include="Goomba.cpp" />
@@ -187,6 +189,7 @@
     <ClInclude Include="BreakAnimation.h" />
     <ClInclude Include="BreakPartical.h" />
     <ClInclude Include="Brick.h" />
+    <ClInclude Include="CardEndGame.h" />
     <ClInclude Include="Coin.h" />
     <ClInclude Include="CoinFromQuesBlock.h" />
     <ClInclude Include="Collision.h" />
@@ -196,6 +199,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GetCardItemEffect.h" />
     <ClInclude Include="GoldBrick.h" />
     <ClInclude Include="GoldBrickButton.h" />
     <ClInclude Include="Goomba.h" />

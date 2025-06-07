@@ -21,6 +21,7 @@
 #include "GoldBrick.h"
 #include "KoopaParatroopa.h"
 #include "BlackPipe.h"
+#include "CardEndGame.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -143,6 +144,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_KOOPA_PARATROOPA: obj = new CKoopaParatroopa(x, y); break;
 	case OBJECT_TYPE_HARD_BRICK: obj = new CHardBrick(x, y); break;
 	case OBJECT_TYPE_BLACK_PIPE: obj = new CBlackPipe(x, y); break;
+	case OBJECT_TYPE_WIN_CARD: obj = new CardEndGame(x, y); break;
 
 	case OBJECT_TYPE_GOLD_BRICK:
 	{
@@ -321,7 +323,6 @@ void CPlayScene::Update(DWORD dt)
 		objects[i]->CheckCameraStatus();
 	}
 
-	GameManager::GetInstance()->Update(dt);
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return; 
@@ -378,6 +379,7 @@ void CPlayScene::Update(DWORD dt)
 
 	
 
+	GameManager::GetInstance()->Update(dt);
 	PurgeDeletedObjects();
 }
 

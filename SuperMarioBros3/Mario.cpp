@@ -21,6 +21,7 @@
 #include "Collision.h"
 #include "Pipe.h"
 #include "BlackPipe.h"
+#include "CardEndGame.h"
 
 #define STAT_LOG_CONDITION 0
 
@@ -77,6 +78,10 @@ void CMario::SetKoopaPosition(DWORD dt)
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
+
+	if (y > 300)
+		SetState(MARIO_STATE_DIE);
+
 	if (specialState_Uninterruptable)
 	{
 		vy = MARIO_FALL_SPEED_LIMIT * otherMapDirection / 10;
@@ -251,6 +256,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithPipe(e);
 	else if (dynamic_cast<CBlackPipe*>(e->obj))
 		OnCollisionWithBlackPipe(e);
+	else if (dynamic_cast<CardEndGame*>(e->obj))
+		OnCollisionWithWinCard(e);
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -396,6 +403,12 @@ void CMario::OnCollisionWithBlackPipe(LPCOLLISIONEVENT e)
 {
 	if (e->ny > 0)
 		enterHiddenMapKey = -1, snapXOtherMap = e->obj->GetX();
+}
+
+void CMario::OnCollisionWithWinCard(LPCOLLISIONEVENT e)
+{
+	CardEndGame* card = (CardEndGame*)e->obj;
+	card->TriggerOnCollision();
 }
 
 void CMario::TakeDamage()
@@ -710,6 +723,7 @@ void CMario::SetState(int state)
 		vy = -MARIO_JUMP_DEFLECT_SPEED;
 		vx = 0;
 		ax = 0;
+		GameManager::GetInstance()->EndGame();
 		break;
 	}
 

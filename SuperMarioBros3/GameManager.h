@@ -5,7 +5,7 @@
 #define PIPE_GO_OUT_X 2373
 #define PIPE_GO_OUT_Y 150
 
-#define MAX_TIME 300000
+#define MAX_TIME 1000
 
 class GameManager
 {
@@ -19,7 +19,10 @@ class GameManager
 	int life = 3;
 public:
 	bool isGamePaused = false;
-
+	bool isGameOver = false;
+	bool isWinning = false;
+	bool displayWinningText = false;
+	bool isStopped = false;
 public:
 	static GameManager* GetInstance();
 	void RenderUI();
@@ -30,7 +33,9 @@ public:
 	void GoBackFromHiddenMap();
 	int GetPipeGoOutX() { return PIPE_GO_OUT_X; }
 	int GetPipeGoOutY() { return PIPE_GO_OUT_Y; }
-	void Update(DWORD dt) { timer -= dt; }
+	void Update(DWORD dt);
 	void IncreaseLife() { ++life; }
+	void EndGame();
+	void WinGame();
 };
 
