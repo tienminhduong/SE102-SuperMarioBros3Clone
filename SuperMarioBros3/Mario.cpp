@@ -81,7 +81,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	if (specialState_Uninterruptable)
 	{
 		vy = MARIO_FALL_SPEED_LIMIT * otherMapDirection / 10;
-		y += vy * dt;
 		CCollision::GetInstance()->Process(this, dt, coObjects);
 		float l, t, r, b;
 		GetBoundingBox(l, t, r, b);
@@ -865,6 +864,7 @@ void CMario::SetGoToOtherMap(int direction)
 	specialState_Uninterruptable = true;
 	otherMapDirection = direction;
 	x = snapXOtherMap + 2;
+	y += direction;
 }
 
 
