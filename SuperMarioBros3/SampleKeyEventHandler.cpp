@@ -6,6 +6,7 @@
 #include "Mario.h"
 #include "PlayScene.h"
 #include "GameManager.h"
+#include "BreakAnimation.h"
 
 void CSampleKeyHandler::OnKeyDown(int KeyCode)
 {
@@ -101,6 +102,7 @@ void CSampleKeyHandler::KeyState(BYTE *states)
 		mario->SetState(MARIO_STATE_SIT);
 	}
 	else
+		if (!GameManager::GetInstance()->isWinning)
 		mario->SetState(MARIO_STATE_IDLE);
 
 	if (game->IsKeyDown(DIK_Z)) {

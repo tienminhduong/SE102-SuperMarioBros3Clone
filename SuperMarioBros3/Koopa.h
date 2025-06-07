@@ -34,6 +34,7 @@ protected:
 	int GetAniId(int defaultIdAni);
 	void OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e);
 	void OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e);
+	void OnCollisionWithGoldBrick(LPCOLLISIONEVENT e);
 
 	int inShellDuration;
 	bool isFlipped = false;

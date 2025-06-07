@@ -21,6 +21,7 @@
 #include "GoldBrick.h"
 #include "KoopaParatroopa.h"
 #include "BlackPipe.h"
+#include "CardEndGame.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -143,6 +144,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_KOOPA_PARATROOPA: obj = new CKoopaParatroopa(x, y); break;
 	case OBJECT_TYPE_HARD_BRICK: obj = new CHardBrick(x, y); break;
 	case OBJECT_TYPE_BLACK_PIPE: obj = new CBlackPipe(x, y); break;
+	case OBJECT_TYPE_WIN_CARD: obj = new CardEndGame(x, y); break;
 
 	case OBJECT_TYPE_GOLD_BRICK:
 	{
@@ -321,7 +323,6 @@ void CPlayScene::Update(DWORD dt)
 		objects[i]->CheckCameraStatus();
 	}
 
-	GameManager::GetInstance()->Update(dt);
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return; 
@@ -330,30 +331,34 @@ void CPlayScene::Update(DWORD dt)
 	float cx, cy;
 	player->GetPosition(cx, cy);
 
-	CGame *game = CGame::GetInstance();
+	CGame* game = CGame::GetInstance();
 	cx -= game->GetBackBufferWidth() / 2;
 	cy -= game->GetBackBufferHeight() / 2;
 
+
+
 	CMario* mario = (CMario*)player;
-	if (mario->IsFlying() && mario->GetY() < CAM_MARIO_Y_BREAKPOINT)
+	if (!mario->CanRechargeEnergy() && mario->GetY() < CAM_MARIO_Y_BREAKPOINT)
 		cam_is_moving = true;
 	if (cam_is_moving)
 	{
 		cam_prev_y += mario->GetY() - mario_prev_y;
 		cy = cam_prev_y;
+		/*float tmp = mario->GetY() - game->GetBackBufferHeight() / 2;
+		float dy = tmp - cam_prev_y;
+		cy = cam_prev_y + dy / dt;*/
 	}
 	else {
 		cy = 0;
 	}
 
-	mario->GetPosition(cx, cy);
-	cx -= game->GetBackBufferWidth() / 2;
-	cy -= game->GetBackBufferHeight() / 2;
 
 	if (cx < CAM_MIN_X) cx = CAM_MIN_X;
-	if (cy < CAM_MIN_Y) cy = CAM_MIN_Y;
 	if (cx > CAM_MAX_X) cx = CAM_MAX_X;
-	if (cy > CAM_MAX_Y) cy = CAM_MAX_Y, cam_is_moving = false;
+	if (cy >= CAM_MAX_Y) cy = CAM_MAX_Y, cam_is_moving = false;
+
+	if (CGame::GetInstance()->GetCurrentSceneIndex() == 1)
+		cy = 0;
 
 	CGame::GetInstance()->SetCamPos(cx, cy);
 
@@ -361,6 +366,7 @@ void CPlayScene::Update(DWORD dt)
 	mario_prev_y = mario->GetY();
 	cam_prev_y = cy;
 
+	GameManager::GetInstance()->Update(dt);
 	PurgeDeletedObjects();
 }
 

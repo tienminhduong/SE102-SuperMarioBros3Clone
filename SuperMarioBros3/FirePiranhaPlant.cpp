@@ -7,12 +7,18 @@
 
 int CFirePiranhaPlant::GetAniID()
 {
+	if (type == PIRANHA_TYPE_NO_FIRE)
+		return PIRANHA_GREEN_NOSHOT_ID_ANI;
+
 	int id = ID_ANI_FIRE_PIRANHA_DEFAULT + animationDirection + 4 * (state % 2);
 	if (id < ID_ANI_FIRE_PIRANHA_DEFAULT || id > ID_ANI_FIRE_PIRANHA_RIGHT_BOTTOM_IDLE)
 	{
 		DebugOut(L"[ERROR] Invalid animation ID: %d, direction: %d, state: %d\n", id, animationDirection, state);
 		return ID_ANI_FIRE_PIRANHA_DEFAULT;
 	}
+	if (type == PIRANHA_TYPE_GREEN_FIRE)
+		return id + 100;
+	return id;
 }
 
 float CFirePiranhaPlant::SnapAngle(float angle, int& index)
@@ -47,7 +53,9 @@ float CFirePiranhaPlant::FindAngleOfMario(int &index)
 
 void CFirePiranhaPlant::FireBullet()
 {
-	float shootingX = x, shootingY = y - FIRE_PIRANHA_SHOOTING_OFFSET;
+	float shootingX = x, shootingY = y;
+	if (type == PIRANHA_TYPE_FIRE)
+		shootingY -= FIRE_PIRANHA_SHOOTING_OFFSET;
 	float dirX, dirY;
 
 	int index;
@@ -61,11 +69,13 @@ void CFirePiranhaPlant::FireBullet()
 	fired = true;
 }
 
-CFirePiranhaPlant::CFirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe) : CGameObject(x, y)
+CFirePiranhaPlant::CFirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe, int type)
+	: CGameObject(x, y)
 {
 	SetState(FIRE_PIRANHA_PLANT_STATE_UNACTIVE);
 	this->mario = mario;
 	this->pipe = pipe;
+	this->type = type;
 }
 
 void CFirePiranhaPlant::Render()
@@ -107,7 +117,7 @@ void CFirePiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			SetState(FIRE_PIRANHA_PLANT_STATE_MOVING_DOWN);
 
 		shootCountdown -= dt;
-		if (shootCountdown <= 0 && !fired)
+		if (shootCountdown <= 0 && !fired && type != PIRANHA_TYPE_NO_FIRE)
 			FireBullet();
 	}
 	break;

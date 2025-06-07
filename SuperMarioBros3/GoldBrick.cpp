@@ -2,6 +2,7 @@
 #include "GoldBrickButton.h"
 #include "TransformMushroom.h"
 #include "PlayScene.h"
+#include "BreakAnimation.h"
 
 CGoldBrick::CGoldBrick(float x, float y, int containBtn)
 	: CGameObject(x, y)
@@ -78,12 +79,14 @@ void CGoldBrick::SetState(int state)
 void CGoldBrick::TriggerOnCollision()
 {
 	if (!containButton) {
+		BreakAnimation* anim = new BreakAnimation(x, y);
 		Delete();
 	}
 	else if (state != GOLD_BRICK_STATE_BUTTON_OUT) {
 		if (containButton == 1) {
 			CGoldBrickButton* button = new CGoldBrickButton(x, y - GOLD_BRICK_BBOX_HEIGHT);
 			((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(button);
+			CAnimations::GetInstance()->PlayEffect(ID_ANI_TAIL_ATTACK, x, y);
 		}
 		else if (containButton == 2) {
 			CMushroom* mushroom = new CMushroom(x, y - GOLD_BRICK_BBOX_HEIGHT);

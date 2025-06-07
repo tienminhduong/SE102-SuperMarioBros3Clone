@@ -21,6 +21,7 @@
 #include "Collision.h"
 #include "Pipe.h"
 #include "BlackPipe.h"
+#include "CardEndGame.h"
 
 #define STAT_LOG_CONDITION 0
 
@@ -39,7 +40,7 @@ void CMario::SetTailPosition(DWORD dt)
 
 		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
 
-		tail->SetPosition(newTailX, newTailY, dt);
+		tail->SetPosition(newTailX, newTailY, dt, true);
 		if (rotatingAnimDuration + dt == rotatingAnimMaxDuration)
 			tail->SetSpeed(0, 0);
 	}
@@ -109,7 +110,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		return;
 	}
 
-	vy += ay * dt;
+	if (transformAnimDuration <= 0)
+		vy += ay * dt;
 	if (vy > MARIO_FALL_SPEED_LIMIT)
 		vy = MARIO_FALL_SPEED_LIMIT;
 	if (isEnergyGeneratable)
@@ -178,13 +180,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 	if (x < 15)
 		vx = 0, x = 15;
-
-	// log charge
-	//DebugOut(L"[CHARGE] ");
-	//for (int i = 0; i < GetChargeInScale(7); ++i)
-	//	DebugOut(L"=");
-	//DebugOut(L"\n");
-
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -192,6 +187,8 @@ void CMario::OnNoCollision(DWORD dt)
 	if (!isBlocked)
 		x += vx * dt;
 	y += vy * dt;
+	if (y < -210)
+		y = -210;
 	isOnPlatform = false;
 	isBlocked = false;
 	enterHiddenMapKey = 0;
@@ -250,6 +247,8 @@ void CMario::OnCollisionWith(LPCOLLISIONEVENT e)
 		OnCollisionWithPipe(e);
 	else if (dynamic_cast<CBlackPipe*>(e->obj))
 		OnCollisionWithBlackPipe(e);
+	else if (dynamic_cast<CardEndGame*>(e->obj))
+		OnCollisionWithWinCard(e);
 }
 
 void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
@@ -270,6 +269,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
 		}
 		GameManager::GetInstance()->IncreasePoint();
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y);
 	}
 	else // hit by Goomba
 	{
@@ -338,6 +338,9 @@ void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 	e->obj->SetActive(false);
 	if (GetLevel() < MARIO_LEVEL_RACCOON)
 		SetLevel(level + 1);
+
+	CAnimations::GetInstance()->PlayEffect(ID_ANI_1000_UP, e->obj->GetX(), e->obj->GetY());
+	GameManager::GetInstance()->IncreasePoint(1000);
 }
 
 void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
@@ -378,6 +381,7 @@ void CMario::OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e)
 {
 	e->obj->SetActive(false);
 	GameManager::GetInstance()->IncreaseLife();
+	CAnimations::GetInstance()->PlayEffect(ID_ANI_1_UP, e->obj->GetX(), e->obj->GetY());
 }
 
 void CMario::OnCollisionWithPipe(LPCOLLISIONEVENT e)
@@ -390,6 +394,12 @@ void CMario::OnCollisionWithBlackPipe(LPCOLLISIONEVENT e)
 {
 	if (e->ny > 0)
 		enterHiddenMapKey = -1, snapXOtherMap = e->obj->GetX();
+}
+
+void CMario::OnCollisionWithWinCard(LPCOLLISIONEVENT e)
+{
+	CardEndGame* card = (CardEndGame*)e->obj;
+	card->TriggerOnCollision();
 }
 
 void CMario::TakeDamage()
@@ -704,6 +714,7 @@ void CMario::SetState(int state)
 		vy = -MARIO_JUMP_DEFLECT_SPEED;
 		vx = 0;
 		ax = 0;
+		GameManager::GetInstance()->EndGame();
 		break;
 	}
 
@@ -757,7 +768,6 @@ void CMario::TriggerRaccoonSlowFalling()
 	auto animation = CAnimations::GetInstance()->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT
 														: ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT);
 	tailFlapAnimationCurrentDuration = animation->GetDuration();
-	//animation->Reset();
 }
 
 void CMario::TriggerRaccoonFLy()

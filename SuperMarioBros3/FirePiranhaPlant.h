@@ -34,6 +34,12 @@
 
 #define FIRE_PIRANHA_SHOOTING_OFFSET 9
 
+#define PIRANHA_GREEN_NOSHOT_ID_ANI 130010
+
+#define PIRANHA_TYPE_FIRE 1
+#define PIRANHA_TYPE_NO_FIRE 2
+#define PIRANHA_TYPE_GREEN_FIRE 3
+
 
 class CFirePiranhaPlant :
     public CGameObject
@@ -50,13 +56,16 @@ class CFirePiranhaPlant :
 	float FindAngleOfMario(int& index);
 	void FireBullet();
 	vector<float> shootAngles = { 20, 45, 135, 160, 200, 225, 315, 340 };
+
+	int type;
 public:
-	CFirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe);
+	CFirePiranhaPlant(float x, float y, LPGAMEOBJECT mario, LPGAMEOBJECT pipe, int type);
 	void Render() override;
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) override;
 	void GetBoundingBox(float& l, float& t, float& r, float& b) override;
 	void SetState(int state) override;
 	int IsBlocking() override { return 0; }
+	bool RenderOnPaused() override { return false; }
 	//int GetRenderLayer() override { return 2; }
 };
 

@@ -514,7 +514,7 @@ void CGame::SwitchScene()
 	bool isGoToHidden = current_scene == 5 && next_scene == 1;
 	bool isGoOutHidden = current_scene == 1 && next_scene == 5;
 
-	if (next_scene < 0 || next_scene == current_scene) return; 
+	if (next_scene < 0) return; 
 
 	DebugOut(L"[INFO] Switching to scene %d\n", next_scene);
 
@@ -531,6 +531,7 @@ void CGame::SwitchScene()
 		GameManager::GetInstance()->GoToHiddenMap();
 	if (isGoOutHidden)
 		GameManager::GetInstance()->GoBackFromHiddenMap();
+	next_scene = -1;
 }
 
 void CGame::InitiateSwitchScene(int scene_id)

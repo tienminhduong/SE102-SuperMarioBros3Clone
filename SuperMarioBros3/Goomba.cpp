@@ -1,6 +1,7 @@
 #include "Goomba.h"
 #include "PlayScene.h"
 #include "Koopa.h"
+#include "GameManager.h"
 
 CGoomba::CGoomba(float x, float y) : CRespawnableEnemy(x, y)
 {
@@ -91,7 +92,10 @@ bool CGoomba::CheckKoopaCollision(LPCOLLISIONEVENT e)
 			koopa->OnAttackedByTail((float)koopa->GetDirection());
 			koopa->ReleaseFromMario();
 			koopa->SetDead();
+			
 		}
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y - 20);
+		GameManager::GetInstance()->IncreasePoint();
 		return true;
 	}
 	else {

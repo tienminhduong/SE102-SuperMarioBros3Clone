@@ -27,9 +27,6 @@ void CRespawnableEnemy::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (state == ENEMY_STATE_KICKED)
 	{
 		vy += ay * dt;
-		//y += vy * dt;
-
-		DebugOut(L"[ENEMY] Kicked, vy: %f, position y: %f\n", vy, y);
 	}
 }
 

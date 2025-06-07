@@ -9,6 +9,8 @@
 #define ID_UI_ENERGY 1002
 #define ID_UI_ENERGY_P 1003
 #define ID_UI_NUMBER_0 1010
+#define ID_UI_CLEAR 1004
+#define ID_UI_YOU_GOT 1005
 
 GameManager* GameManager::instance = nullptr;
 
@@ -54,6 +56,8 @@ GameManager* GameManager::GetInstance()
 void GameManager::RenderUI()
 {
 	CMario* mario = GetMario();
+	if (mario == nullptr)
+		return;
 	DrawUI(ID_UI_PANEL, 128, 200);
 	if (isGamePaused)
 		DrawUI(ID_UI_PAUSE_TEXT, 128, 100);
@@ -72,6 +76,11 @@ void GameManager::RenderUI()
 	DrawNumberFromRight(coinNumber, 151, 197);
 
 	DrawNumber(life, 49, 205, 1);
+
+	if (displayWinningText) {
+		DrawUI(ID_UI_CLEAR, 130, 25);
+		DrawUI(ID_UI_YOU_GOT, 130, 50);
+	}
 
 	frameCount++;
 	frameCount %= 16;
@@ -92,3 +101,37 @@ void GameManager::GoBackFromHiddenMap()
 	mario->SetPosition(PIPE_GO_OUT_X, PIPE_GO_OUT_Y);
 }
 
+void GameManager::EndGame()
+{
+	isGameOver = true;
+}
+
+void GameManager::WinGame()
+{
+	isWinning = true;
+}
+
+
+void GameManager::Update(DWORD dt) {
+	timer -= dt;
+	if (timer <= 0)
+		GetMario()->SetState(MARIO_STATE_DIE);
+
+	if (GetMario() == nullptr || GetMario()->GetY() > 300)
+	{
+		CGame::GetInstance()->InitiateSwitchScene(5);
+		life--;
+		timer = MAX_TIME;
+	}
+
+	if (isWinning) {
+		auto mario = GetMario();
+		mario->SetState(MARIO_STATE_WALKING_RIGHT);
+
+		if (mario->GetX() >= 2860) {
+			displayWinningText = true;
+			mario->SetPosition(2860, mario->GetY());
+			isStopped = true;
+		}
+	}
+}
