@@ -4,6 +4,7 @@
 #include "Goomba.h"
 #include "FirePiranhaPlant.h"
 #include "debug.h"
+#include "GameManager.h"
 
 int CKoopa::GetAniId(int defaultIdAni)
 {
@@ -45,6 +46,8 @@ void CKoopa::OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e)
 	if (state == KOOPA_STATE_INSHELL_RUNNING)
 	{
 		e->obj->Delete();
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y);
+		GameManager::GetInstance()->IncreasePoint();
 	}
 }
 
@@ -162,6 +165,8 @@ void CKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 			ReleaseFromMario();
 			SetDead();
 			OnAttackedByTail((float)nx);
+			CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y - 20);
+			GameManager::GetInstance()->IncreasePoint();
 		}
 
 	}

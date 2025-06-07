@@ -1,5 +1,7 @@
 #include "Animations.h"
 #include "debug.h"
+#include "PlayScene.h"
+#include "AnimationEffect.h"
 
 CAnimations* CAnimations::__instance = NULL;
 
@@ -34,4 +36,10 @@ void CAnimations::Clear()
 	}
 
 	animations.clear();
+}
+
+void CAnimations::PlayEffect(int id, float x, float y)
+{
+	AnimationEffect* eff = new AnimationEffect(id, x, y);
+	((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->AddNewObject(eff);
 }

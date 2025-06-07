@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "Goomba.h"
 #include "GoldBrick.h"
+#include "GameManager.h"
 
 void CRaccoonTail::OnCollisionWithEnemy(LPCOLLISIONEVENT e)
 {
@@ -11,6 +12,13 @@ void CRaccoonTail::OnCollisionWithEnemy(LPCOLLISIONEVENT e)
 	//e->obj->GetPosition(eX, eY);
 	CRespawnableEnemy* enemy = dynamic_cast<CRespawnableEnemy*>(e->obj);
 	enemy->OnAttackedByTail(e->obj->GetX() - x);
+	float avX = (x + e->obj->GetX()) / 2.f;
+	float avY = (y + e->obj->GetY()) / 2.f;
+	CAnimations::GetInstance()->PlayEffect(ID_ANI_TAIL_ATTACK, avX, avY);
+	if (dynamic_cast<CKoopa*>(enemy) == nullptr) {
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, avX, avY - 20);
+		GameManager::GetInstance()->IncreasePoint();
+	}
 }
 
 void CRaccoonTail::OnCollisionWithQuesBlock(LPCOLLISIONEVENT e)
@@ -45,7 +53,11 @@ void CRaccoonTail::OnCollisionWith(LPCOLLISIONEVENT e)
 	else if (dynamic_cast<CGoldBrick*>(e->obj))
 		OnCollisionWithGoldBrick(e);
 	else if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
+	{
 		e->obj->Delete();
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_TAIL_ATTACK, e->obj->GetX(), e->obj->GetY());
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y - 20);
+	}
 	else if (dynamic_cast<CRespawnableEnemy*>(e->obj))
 		OnCollisionWithEnemy(e);
 }

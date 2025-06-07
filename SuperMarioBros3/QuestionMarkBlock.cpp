@@ -79,6 +79,7 @@ void CQuestionMarkBlock::ActivateItem()
 		containedObjs[QUES_BLOCK_COIN_INDEX]->SetPosition(x, y - 20);
 		containedObjs[QUES_BLOCK_COIN_INDEX]->SetActive(true);
 		GameManager::GetInstance()->CollectCoin();
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y - 20);
 		break;
 	case QUES_BLOCK_TYPE_TRANSFORM:
 	{

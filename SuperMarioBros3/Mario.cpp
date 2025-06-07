@@ -270,6 +270,7 @@ void CMario::OnCollisionWithGoomba(LPCOLLISIONEVENT e)
 			vy = -MARIO_JUMP_DEFLECT_SPEED;
 		}
 		GameManager::GetInstance()->IncreasePoint();
+		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y);
 	}
 	else // hit by Goomba
 	{
@@ -338,6 +339,9 @@ void CMario::OnCollisionWithTransformItem(LPCOLLISIONEVENT e)
 	e->obj->SetActive(false);
 	if (GetLevel() < MARIO_LEVEL_RACCOON)
 		SetLevel(level + 1);
+
+	CAnimations::GetInstance()->PlayEffect(ID_ANI_1000_UP, e->obj->GetX(), e->obj->GetY());
+	GameManager::GetInstance()->IncreasePoint(1000);
 }
 
 void CMario::OnCollisionWithQuestionMarkBlock(LPCOLLISIONEVENT e)
@@ -378,6 +382,7 @@ void CMario::OnCollisionWithLifeUpMushroom(LPCOLLISIONEVENT e)
 {
 	e->obj->SetActive(false);
 	GameManager::GetInstance()->IncreaseLife();
+	CAnimations::GetInstance()->PlayEffect(ID_ANI_1_UP, e->obj->GetX(), e->obj->GetY());
 }
 
 void CMario::OnCollisionWithPipe(LPCOLLISIONEVENT e)
