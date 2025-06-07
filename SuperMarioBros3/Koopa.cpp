@@ -5,6 +5,7 @@
 #include "FirePiranhaPlant.h"
 #include "debug.h"
 #include "GameManager.h"
+#include "GoldBrick.h"
 
 int CKoopa::GetAniId(int defaultIdAni)
 {
@@ -48,6 +49,14 @@ void CKoopa::OnCollisionWithFirePiranhaPlant(LPCOLLISIONEVENT e)
 		e->obj->Delete();
 		CAnimations::GetInstance()->PlayEffect(ID_ANI_100_UP, x, y);
 		GameManager::GetInstance()->IncreasePoint();
+	}
+}
+
+void CKoopa::OnCollisionWithGoldBrick(LPCOLLISIONEVENT e)
+{
+	if (state == KOOPA_STATE_INSHELL_RUNNING) {
+		CGoldBrick* gb = (CGoldBrick*)e->obj;
+		gb->TriggerOnCollision();
 	}
 }
 
@@ -135,6 +144,8 @@ void CKoopa::OnCollisionWith(LPCOLLISIONEVENT e)
 				OnCollisionWithQuestionMarkBlock(e);
 			if (dynamic_cast<CFirePiranhaPlant*>(e->obj))
 				OnCollisionWithFirePiranhaPlant(e);
+			if (dynamic_cast<CGoldBrick*>(e->obj))
+				OnCollisionWithGoldBrick(e);
 		}
 
 		if (dynamic_cast<CKoopa*>(e->obj))
