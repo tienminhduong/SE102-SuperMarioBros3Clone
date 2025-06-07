@@ -109,7 +109,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		return;
 	}
 
-	vy += ay * dt;
+	if (transformAnimDuration <= 0)
+		vy += ay * dt;
 	if (vy > MARIO_FALL_SPEED_LIMIT)
 		vy = MARIO_FALL_SPEED_LIMIT;
 	if (isEnergyGeneratable)
@@ -762,7 +763,6 @@ void CMario::TriggerRaccoonSlowFalling()
 	auto animation = CAnimations::GetInstance()->Get(nx > 0 ? ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_RIGHT
 														: ID_ANI_MARIO_RACCOON_FALL_TAIL_FLAP_LEFT);
 	tailFlapAnimationCurrentDuration = animation->GetDuration();
-	//animation->Reset();
 }
 
 void CMario::TriggerRaccoonFLy()

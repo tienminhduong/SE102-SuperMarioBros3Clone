@@ -24,7 +24,7 @@ public:
 	static GameManager* GetInstance();
 	void RenderUI();
 	void CollectCoin() { ++coinNumber; }
-	void IncreasePoint(int score = 100) { this->score = score; }
+	void IncreasePoint(int score = 100) { this->score += score; }
 
 	void GoToHiddenMap();
 	void GoBackFromHiddenMap();

@@ -327,14 +327,18 @@ void CPlayScene::Update(DWORD dt)
 	if (player == NULL) return; 
 
 	// Update camera to follow mario
-	float cx, cy;
-	player->GetPosition(cx, cy);
+	//float cx, cy;
+	//player->GetPosition(cx, cy);
+
+	float my, cx, sx, sy;
+	player->GetPosition(cx, my);
+	player->GetSpeed(sx, sy);
+
 
 	CGame *game = CGame::GetInstance();
 	cx -= game->GetBackBufferWidth() / 2;
-	cy -= game->GetBackBufferHeight() / 2;
 
-	CMario* mario = (CMario*)player;
+	/*CMario* mario = (CMario*)player;
 	if (mario->IsFlying() && mario->GetY() < CAM_MARIO_Y_BREAKPOINT)
 		cam_is_moving = true;
 	if (cam_is_moving)
@@ -344,22 +348,35 @@ void CPlayScene::Update(DWORD dt)
 	}
 	else {
 		cy = 0;
+	}*/
+
+	if (cam_prev_y > 0) {
+		if (my - cam_prev_y > 20) cam_is_moving = true;
+		if (cam_is_moving) {
+			if (my - cam_prev_y < 80) cam_prev_y -= 0.2f * dt;
+			else cam_is_moving = false;
+		}
+		else if (my - cam_prev_y > 100) cam_prev_y += 0.2f * dt;
+	}
+	else {
+		cam_prev_y = my - game->GetBackBufferHeight() / 2;
 	}
 
-	mario->GetPosition(cx, cy);
-	cx -= game->GetBackBufferWidth() / 2;
-	cy -= game->GetBackBufferHeight() / 2;
+	if (((CMario*)player)->IsFlying() || my < 180)
+		cam_prev_y = my - game->GetBackBufferHeight() / 2;
+
+	//mario->GetPosition(cx, cy);
+	//cx -= game->GetBackBufferWidth() / 2;
+	//cy -= game->GetBackBufferHeight() / 2;
 
 	if (cx < CAM_MIN_X) cx = CAM_MIN_X;
-	if (cy < CAM_MIN_Y) cy = CAM_MIN_Y;
+	if (cam_prev_y < CAM_MIN_Y) cam_prev_y = CAM_MIN_Y;
 	if (cx > CAM_MAX_X) cx = CAM_MAX_X;
-	if (cy > CAM_MAX_Y) cy = CAM_MAX_Y, cam_is_moving = false;
+	if (cam_prev_y > CAM_MAX_Y) cam_prev_y = CAM_MAX_Y;
 
-	CGame::GetInstance()->SetCamPos(cx, cy);
+	CGame::GetInstance()->SetCamPos(cx, cam_prev_y);
 
-	mario_prev_x = mario->GetX();
-	mario_prev_y = mario->GetY();
-	cam_prev_y = cy;
+	
 
 	PurgeDeletedObjects();
 }

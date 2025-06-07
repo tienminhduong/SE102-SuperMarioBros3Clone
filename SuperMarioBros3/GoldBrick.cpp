@@ -2,6 +2,7 @@
 #include "GoldBrickButton.h"
 #include "TransformMushroom.h"
 #include "PlayScene.h"
+#include "BreakAnimation.h"
 
 CGoldBrick::CGoldBrick(float x, float y, int containBtn)
 	: CGameObject(x, y)
@@ -78,6 +79,7 @@ void CGoldBrick::SetState(int state)
 void CGoldBrick::TriggerOnCollision()
 {
 	if (!containButton) {
+		BreakAnimation* anim = new BreakAnimation(x, y);
 		Delete();
 	}
 	else if (state != GOLD_BRICK_STATE_BUTTON_OUT) {

@@ -141,6 +141,12 @@
     <ClCompile Include="AnimationEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BreakPartical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BreakAnimation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -283,6 +289,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AnimationEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BreakPartical.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BreakAnimation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
