@@ -78,10 +78,6 @@ void CMario::SetKoopaPosition(DWORD dt)
 
 void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
-
-	if (y > 300)
-		SetState(MARIO_STATE_DIE);
-
 	if (specialState_Uninterruptable)
 	{
 		vy = MARIO_FALL_SPEED_LIMIT * otherMapDirection / 10;
@@ -184,13 +180,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 	if (x < 15)
 		vx = 0, x = 15;
-
-	// log charge
-	//DebugOut(L"[CHARGE] ");
-	//for (int i = 0; i < GetChargeInScale(7); ++i)
-	//	DebugOut(L"=");
-	//DebugOut(L"\n");
-
 }
 
 void CMario::OnNoCollision(DWORD dt)
@@ -198,6 +187,8 @@ void CMario::OnNoCollision(DWORD dt)
 	if (!isBlocked)
 		x += vx * dt;
 	y += vy * dt;
+	if (y < -210)
+		y = -210;
 	isOnPlatform = false;
 	isBlocked = false;
 	enterHiddenMapKey = 0;
