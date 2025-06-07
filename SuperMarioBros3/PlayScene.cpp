@@ -344,9 +344,6 @@ void CPlayScene::Update(DWORD dt)
 	{
 		cam_prev_y += mario->GetY() - mario_prev_y;
 		cy = cam_prev_y;
-		/*float tmp = mario->GetY() - game->GetBackBufferHeight() / 2;
-		float dy = tmp - cam_prev_y;
-		cy = cam_prev_y + dy / dt;*/
 	}
 	else {
 		cy = 0;
