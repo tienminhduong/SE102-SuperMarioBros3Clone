@@ -77,6 +77,7 @@ void CGameObject::SetPosition(float x, float y, DWORD dt, bool removeY)
 
 void CGameObject::RenderBoundingBox(float alpha)
 {
+	return;
 	D3DXVECTOR3 p(x, y, 0);
 	RECT rect;
 
