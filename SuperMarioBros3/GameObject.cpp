@@ -45,8 +45,7 @@ bool CGameObject::IsOnCamera()
 {
 	float cam_x, cam_y;
 	CGame::GetInstance()->GetCamPos(cam_x, cam_y);
-	return cam_x + INGAME_CAMERA_WIDTH + 15 > x && cam_x - 15 < x &&
-		cam_y + INGAME_CAMERA_HEIGHT > y && cam_y < y;
+	return cam_x + INGAME_CAMERA_WIDTH + 15 > x && cam_x - 15 < x;
 }
 
 void CGameObject::CheckCameraStatus()

@@ -12,7 +12,7 @@
 #define CAM_MIN_Y -236
 #define CAM_MAX_X 2596
 #define CAM_MAX_Y 0
-#define CAM_MARIO_Y_BREAKPOINT 46
+#define CAM_MARIO_Y_BREAKPOINT 40
 
 class CPlayScene: public CScene
 {

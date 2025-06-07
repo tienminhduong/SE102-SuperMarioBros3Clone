@@ -102,7 +102,6 @@ void GameManager::GoBackFromHiddenMap()
 void GameManager::EndGame()
 {
 	isGameOver = true;
-	isStopped = true;
 }
 
 void GameManager::WinGame()
@@ -115,6 +114,12 @@ void GameManager::Update(DWORD dt) {
 	timer -= dt;
 	if (timer <= 0)
 		GetMario()->SetState(MARIO_STATE_DIE);
+
+	if (GetMario() == nullptr || GetMario()->GetY() > 300)
+	{
+		CGame::GetInstance()->InitiateSwitchScene(1);
+		CGame::GetInstance()->InitiateSwitchScene(5);
+	}
 
 	if (isWinning) {
 		auto mario = GetMario();
