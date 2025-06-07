@@ -56,6 +56,8 @@ GameManager* GameManager::GetInstance()
 void GameManager::RenderUI()
 {
 	CMario* mario = GetMario();
+	if (mario == nullptr)
+		return;
 	DrawUI(ID_UI_PANEL, 128, 200);
 	if (isGamePaused)
 		DrawUI(ID_UI_PAUSE_TEXT, 128, 100);
@@ -117,7 +119,6 @@ void GameManager::Update(DWORD dt) {
 
 	if (GetMario() == nullptr || GetMario()->GetY() > 300)
 	{
-		CGame::GetInstance()->InitiateSwitchScene(1);
 		CGame::GetInstance()->InitiateSwitchScene(5);
 	}
 
