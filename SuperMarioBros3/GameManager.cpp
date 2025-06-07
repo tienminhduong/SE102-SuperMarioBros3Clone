@@ -120,6 +120,8 @@ void GameManager::Update(DWORD dt) {
 	if (GetMario() == nullptr || GetMario()->GetY() > 300)
 	{
 		CGame::GetInstance()->InitiateSwitchScene(5);
+		life--;
+		timer = MAX_TIME;
 	}
 
 	if (isWinning) {

@@ -40,7 +40,7 @@ void CMario::SetTailPosition(DWORD dt)
 
 		float newTailX = x - tail_offset_x * nx, newTailY = y + MARIO_RACCOON_TAIL_OFFSET_Y;
 
-		tail->SetPosition(newTailX, newTailY, dt);
+		tail->SetPosition(newTailX, newTailY, dt, true);
 		if (rotatingAnimDuration + dt == rotatingAnimMaxDuration)
 			tail->SetSpeed(0, 0);
 	}
